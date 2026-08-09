@@ -65,26 +65,43 @@
   .card h3{font-size:16px;font-weight:650;margin-bottom:3px}
   .card p{font-size:13px;color:var(--dim);line-height:1.45}
 
-  /* ---- Plan overview ---- */
-  .week{background:var(--surface);border:1px solid var(--line);border-radius:14px;
-    margin-bottom:10px;overflow:hidden}
-  .week-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer}
-  .week-head h3{font-size:15px;font-weight:650;flex:1}
-  .week-head .meta{font-size:12px;color:var(--dim)}
-  .week-body{display:none;border-top:1px solid var(--line)}
-  .week.open .week-body{display:block}
-  .day{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
-  .day:last-child{border-bottom:none}
-  .day.run{cursor:pointer}
-  .day .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--line)}
-  .day.run .dot{background:var(--run)}
-  .day.done .dot{background:var(--run);box-shadow:0 0 0 4px rgba(74,222,128,.18)}
-  .day .name{flex:1;min-width:0}
-  .day .name b{display:block;font-size:14px;font-weight:600}
-  .day .name span{display:block;font-size:12px;color:var(--dim);margin-top:2px}
-  .day .len{font-size:12px;color:var(--dim);flex-shrink:0}
-  .day.other b{color:var(--dim);font-weight:500}
-  .check{color:var(--run);font-size:15px;flex-shrink:0}
+  /* ---- Plan calendar ----
+     Weeks are rows and days are columns, so the plan reads like a wall
+     calendar. Cells only carry what fits at a glance; everything else lives
+     in the sheet that opens on tap. */
+  .cal-head,.cal-row{display:grid;grid-template-columns:30px repeat(7,1fr);gap:4px;margin-bottom:4px}
+  .cal-head span{text-align:center;font-size:10px;font-weight:700;color:var(--dim);
+    text-transform:uppercase;letter-spacing:.5px;padding-bottom:2px}
+  .wk{display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:700;color:var(--dim)}
+  .cell{height:50px;border-radius:8px;border:1px solid var(--line);background:var(--surface);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    font-size:10px;line-height:1.15;color:var(--dim);overflow:hidden}
+  .cell b{font-size:12.5px;font-weight:700}
+  .cell.run{background:rgba(74,222,128,.12);border-color:rgba(74,222,128,.38);
+    color:var(--run);cursor:pointer}
+  .cell.run.done{background:var(--run);border-color:var(--run);color:#08120C}
+  .cell.str{background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.30);
+    color:var(--warm);cursor:pointer}
+  .cell.str.done{background:var(--warm);border-color:var(--warm);color:#241A02}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--dim)}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:10px;height:10px;border-radius:3px;display:block}
+
+  /* ---- Bottom sheet ---- */
+  .sheet-wrap{position:fixed;inset:0;background:rgba(6,12,9,.7);z-index:60;
+    display:none;align-items:flex-end}
+  .sheet-wrap.show{display:flex}
+  .sheet{background:var(--surface);border-top:1px solid var(--line);width:100%;
+    border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+    max-height:82vh;overflow-y:auto}
+  .sheet h2{font-size:19px;margin-bottom:2px}
+  .sheet .when{font-size:13px;color:var(--dim);margin-bottom:16px}
+  .steplist{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
+  .steplist div{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;
+    font-size:14px;border-bottom:1px solid var(--line)}
+  .steplist div:last-child{border-bottom:none}
+  .steplist div span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
 
   /* ---- Buttons ---- */
   .btn{
@@ -112,9 +129,14 @@
   .nextup{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
   .nextup b{color:var(--text);font-weight:600}
   .runfoot{flex-shrink:0;padding:0 16px 16px}
-  .bar{height:7px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:8px}
-  .bar i{display:block;height:100%;background:var(--run);width:0;border-radius:4px;
-    transition:width .25s linear}
+  /* The timeline shows the whole session as coloured blocks, so you can see
+     at a glance where the runs and the walks sit and how far in you are. */
+  .timeline{position:relative;height:17px;border-radius:5px;overflow:hidden;
+    background:var(--surface-2);margin-bottom:9px}
+  .tl-segs{display:flex;height:100%;width:100%}
+  .tl-segs i{height:100%;box-shadow:inset -1px 0 0 rgba(14,23,18,.55)}
+  .tl-veil{position:absolute;left:0;top:0;height:100%;width:0;background:rgba(9,15,11,.62)}
+  .tl-now{position:absolute;left:0;top:0;width:2px;height:100%;background:var(--text)}
   .totals{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);
     margin-bottom:14px;font-variant-numeric:tabular-nums}
   .paused .bigtime,.paused .steplabel{opacity:.4}
@@ -179,8 +201,8 @@
   <header>
     <button class="iconbtn" onclick="showScreen('home')">&larr;</button>
     <div style="flex:1;min-width:0">
-      <h1 id="plan-name"></h1>
-      <div class="sub" id="plan-progress"></div>
+      <h1 id="plan-name" style="white-space:normal;font-size:17px;line-height:1.25"></h1>
+      <div class="sub" id="plan-progress" style="margin-top:3px"></div>
     </div>
   </header>
   <div class="scroll" id="plan-weeks"></div>
@@ -200,7 +222,11 @@
     <div class="nextup" id="next-up"></div>
   </div>
   <div class="runfoot">
-    <div class="bar"><i id="bar-fill"></i></div>
+    <div class="timeline" id="timeline">
+      <div class="tl-segs" id="tl-segs"></div>
+      <div class="tl-veil" id="tl-veil"></div>
+      <div class="tl-now" id="tl-now"></div>
+    </div>
     <div class="totals">
       <span id="total-elapsed">0:00</span>
       <span id="total-left">0:00 left</span>
@@ -261,12 +287,26 @@
     </div>
     <div class="section-title">Voice</div>
     <div class="card flat">
-      <p><b style="color:var(--text)">Use headphones</b> for the most reliable audio.
-         On the web version the phone may mute speech once the screen turns off &mdash;
-         the Android app keeps it running.</p>
+      <p id="voice-source"></p>
+      <p style="margin-top:10px"><b style="color:var(--text)">Use headphones</b> for the
+         most reliable audio. On the web version the phone may mute speech once the
+         screen turns off &mdash; the Android app uses the phone's own speech engine.</p>
     </div>
+    <button class="btn ghost" onclick="testVoice()">Test the voice</button>
     <div class="section-title">Changelog</div>
     <div class="card flat"><div class="log" id="changelog-view"></div></div>
+  </div>
+</div>
+
+<!-- ============================ DAY SHEET ============================ -->
+<div class="sheet-wrap" id="sheet" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <h2 id="sheet-title"></h2>
+    <div class="when" id="sheet-when"></div>
+    <div class="steplist" id="sheet-steps"></div>
+    <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
+    <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
+    <button class="btn ghost" onclick="closeSheet()">Close</button>
   </div>
 </div>
 
@@ -283,6 +323,17 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.2.0",
+    "date": "2026-08-09",
+    "changes": [
+      "Spoken cues now work in the Android app, which has no browser speech engine",
+      "Plans are shown as a calendar, one row per week",
+      "Tap any day to see it in full, start it, or tick it off if you trained without the app",
+      "The run screen shows the whole session as a timeline of runs and walks",
+      "Test the voice from the About screen"
+    ]
+  },
   {
     "version": "0.1.0",
     "date": "2026-08-09",
@@ -301,7 +352,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.1.0";
+const APP_VERSION = "0.2.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -489,58 +540,122 @@ function openPlan(id){
   const plan = PLANS.find(p => p.id === id);
   document.getElementById("plan-name").textContent = plan.name;
   document.getElementById("plan-progress").textContent =
-    countDone(plan) + " of " + countSessions(plan) + " sessions done – " + plan.source;
+    countDone(plan) + " of " + countSessions(plan) + " sessions done";
   renderPlan(plan);
   showScreen("plan");
 }
 
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+/* Key for a day that is part of the plan but has no session to time,
+   so strength days can be ticked off as well. */
+function otherKey(planId, weekN, day){ return planId + ":w" + weekN + ":" + day; }
+
 function renderPlan(plan){
-  /* The first week with something left is the one worth opening. */
-  const nextWeek = plan.weeks.find(w =>
-    plan.runDays.some((_, d) => !progress[plan.id + ":w" + w.n + "d" + d])) || plan.weeks[0];
+  const head = '<div class="cal-head"><span></span>' +
+    DAYS.map(d => "<span>" + d.slice(0, 3) + "</span>").join("") + "</div>";
 
-  document.getElementById("plan-weeks").innerHTML = plan.weeks.map(w => {
-    const days = [];
-    const byName = {};
-    plan.runDays.forEach((day, d) => {
-      const s = planSession(plan, w, d);
-      byName[day] =
-        '<div class="day run' + (progress[s.id] ? " done" : "") + '" ' +
-          "onclick=\"startPlanSession('" + plan.id + "'," + w.n + "," + d + ')">' +
-          '<span class="dot"></span>' +
-          '<span class="name"><b>' + day + "</b><span>" +
-            w.reps[d] + " × (" + fmt(w.runSec) + " run : " + fmt(w.walkSec) + " walk)" +
-          "</span></span>" +
-          '<span class="len">' + fmtLong(totalSec(s.blocks)) + "</span>" +
-          (progress[s.id] ? '<span class="check">✓</span>' : "") +
-        "</div>";
-    });
-    plan.otherDays.forEach(o => {
-      byName[o.day] =
-        '<div class="day other"><span class="dot"></span>' +
-        '<span class="name"><b>' + o.day + "</b></span>" +
-        '<span class="len">' + o.label + "</span></div>";
-    });
-
-    const order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-    order.forEach(d => { if(byName[d]) days.push(byName[d]); });
-
-    const doneHere = plan.runDays.filter((_, d) => progress[plan.id + ":w" + w.n + "d" + d]).length;
-    return '<div class="week' + (w === nextWeek ? " open" : "") + '">' +
-      '<div class="week-head" onclick="this.parentNode.classList.toggle(\'open\')">' +
-        "<h3>Week " + w.n + "</h3>" +
-        '<span class="meta">' + fmt(w.runSec) + " run : " + fmt(w.walkSec) + " walk" +
-          " – " + doneHere + "/" + plan.runDays.length + "</span>" +
-      "</div>" +
-      '<div class="week-body">' + days.join("") + "</div>" +
-    "</div>";
+  const rows = plan.weeks.map(w => {
+    const cells = DAYS.map(day => {
+      const d = plan.runDays.indexOf(day);
+      if(d >= 0){
+        const id = plan.id + ":w" + w.n + "d" + d;
+        const mins = Math.round(totalSec(planSession(plan, w, d).blocks) / 60);
+        return '<div class="cell run' + (progress[id] ? " done" : "") + '" ' +
+          "onclick=\"openDay('" + plan.id + "'," + w.n + "," + d + ')">' +
+          "<b>" + w.reps[d] + "×</b><span>" + mins + " min</span></div>";
+      }
+      const other = plan.otherDays.find(o => o.day === day);
+      const strength = other && /strength/i.test(other.label);
+      const key = otherKey(plan.id, w.n, day);
+      return '<div class="cell ' + (strength ? "str" : "off") +
+        (strength && progress[key] ? " done" : "") + '"' +
+        (strength ? " onclick=\"openOther('" + plan.id + "'," + w.n + ",'" + day + "')\"" : "") +
+        ">" + (strength ? "<b>Str</b>" : "Rest") + "</div>";
+    }).join("");
+    return '<div class="cal-row"><span class="wk">W' + w.n + "</span>" + cells + "</div>";
   }).join("");
+
+  const legend =
+    '<div class="legend">' +
+      '<span><i style="background:var(--run)"></i>Run session</span>' +
+      '<span><i style="background:var(--warm)"></i>Strength</span>' +
+      '<span><i style="background:var(--surface);border:1px solid var(--line)"></i>Rest</span>' +
+    "</div>" +
+    '<div class="empty" style="padding:16px 4px 0;text-align:left">' +
+      "Tap a day to see it in full, start it, or tick it off if you did it " +
+      "without the app.<br><br>Source: " + esc(plan.source) + "</div>";
+
+  document.getElementById("plan-weeks").innerHTML = head + rows + legend;
 }
 
-function startPlanSession(planId, weekN, dayIndex){
+/* =====================================================================
+   DAY SHEET
+
+   Tapping a calendar cell opens this. It is where the detail that does not
+   fit in a cell lives, and where a day is ticked off by hand.
+   ===================================================================== */
+
+let sheetTarget = null;   // { kind:"run"|"other", planId, weekN, dayIndex|day, id }
+
+function openDay(planId, weekN, dayIndex){
   const plan = PLANS.find(p => p.id === planId);
   const week = plan.weeks.find(w => w.n === weekN);
-  begin(planSession(plan, week, dayIndex));
+  const s = planSession(plan, week, dayIndex);
+  sheetTarget = { kind:"run", planId, weekN, dayIndex, id:s.id };
+
+  document.getElementById("sheet-title").textContent = s.name;
+  document.getElementById("sheet-when").textContent =
+    plan.name + " – " + fmtLong(totalSec(s.blocks)) + " in total";
+  document.getElementById("sheet-steps").innerHTML = s.blocks.map(b =>
+    b.type === "repeat"
+      ? "<div><span>" + b.reps + " × " + b.a.text + " : " + b.b.text + "</span><span>" +
+        fmt(b.a.sec) + " : " + fmt(b.b.sec) + "</span></div>"
+      : "<div><span>" + b.text + "</span><span>" + fmt(b.sec) + "</span></div>"
+  ).join("");
+  document.getElementById("sheet-start").style.display = "block";
+  showSheet();
+}
+
+function openOther(planId, weekN, day){
+  const plan = PLANS.find(p => p.id === planId);
+  const other = plan.otherDays.find(o => o.day === day);
+  sheetTarget = { kind:"other", planId, weekN, day, id:otherKey(planId, weekN, day) };
+
+  document.getElementById("sheet-title").textContent = "Week " + weekN + " – " + day;
+  document.getElementById("sheet-when").textContent = plan.name + " – " + other.label;
+  document.getElementById("sheet-steps").innerHTML =
+    "<div><span>" + other.label + "</span><span>not timed</span></div>";
+  document.getElementById("sheet-start").style.display = "none";
+  showSheet();
+}
+
+function showSheet(){
+  document.getElementById("sheet-mark").textContent =
+    progress[sheetTarget.id] ? "Mark as not done" : "Mark as done";
+  document.getElementById("sheet").classList.add("show");
+}
+
+function closeSheet(){ document.getElementById("sheet").classList.remove("show"); }
+
+function toggleDone(){
+  if(!sheetTarget) return;
+  if(progress[sheetTarget.id]) delete progress[sheetTarget.id];
+  else progress[sheetTarget.id] = new Date().toISOString().slice(0, 10);
+  save(KEY_PROGRESS, progress);
+  const plan = PLANS.find(p => p.id === sheetTarget.planId);
+  renderPlan(plan);
+  document.getElementById("plan-progress").textContent =
+    countDone(plan) + " of " + countSessions(plan) + " sessions done";
+  closeSheet();
+}
+
+function startFromSheet(){
+  const t = sheetTarget;
+  closeSheet();
+  const plan = PLANS.find(p => p.id === t.planId);
+  const week = plan.weeks.find(w => w.n === t.weekN);
+  begin(planSession(plan, week, t.dayIndex));
 }
 
 function startSession(programId){
@@ -576,6 +691,7 @@ function begin(sessionDef){
   document.getElementById("run-title").textContent =
     (session.planName ? session.planName + " – " : "") + session.name;
   showScreen("run");
+  buildTimeline();
   render();
 }
 
@@ -600,7 +716,8 @@ function mainButton(){
   unlockAudio();
   if(!session.startedAt){
     session.startedAt = Date.now();
-    speak(firstCue());
+    /* The first cue is not spoken here: the tick that follows sees the step
+       change and announces it, and saying it twice sounds broken. */
     startTicker();
   }else if(session.pausedAt){
     session.pausedTotal += Date.now() - session.pausedAt;
@@ -614,11 +731,6 @@ function mainButton(){
   }
   persist();
   render();
-}
-
-function firstCue(){
-  const s = session.steps[0];
-  return s ? s.text + " for " + spokenDuration(s.sec) : "Starting";
 }
 
 function startTicker(){
@@ -685,14 +797,24 @@ function spokenDuration(sec){
   return fmt(sec);
 }
 
+const KIND_COLOR = { run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)", rest:"var(--rest)" };
+function colorOf(kind){ return KIND_COLOR[kind] || "var(--run)"; }
+
+/* One block per step, sized by its share of the session. */
+function buildTimeline(){
+  const total = duration();
+  document.getElementById("tl-segs").innerHTML = session.steps.map(s =>
+    '<i style="flex:0 0 ' + (s.sec / total * 100) + "%;background:" + colorOf(s.kind) + '"></i>'
+  ).join("");
+}
+
 function render(){
   if(!session) return;
   const t = elapsed();
   const idx = Math.min(stepAt(t), session.steps.length - 1);
   const s = session.steps[idx];
   const left = Math.max(0, s.end - t);
-  const kindColor = { run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)", rest:"var(--rest)" };
-  const color = kindColor[s.kind] || "var(--run)";
+  const color = colorOf(s.kind);
 
   document.getElementById("step-label").textContent = session.startedAt ? s.text : "Ready";
   document.getElementById("step-label").style.color = session.startedAt ? color : "var(--text)";
@@ -707,8 +829,9 @@ function render(){
     ? (next ? "Next: <b>" + esc(next.text) + "</b> " + fmt(next.sec) : "Last step")
     : "";
 
-  document.getElementById("bar-fill").style.width = (t / duration() * 100) + "%";
-  document.getElementById("bar-fill").style.background = color;
+  const pct = Math.min(100, t / duration() * 100);
+  document.getElementById("tl-veil").style.width = pct + "%";
+  document.getElementById("tl-now").style.left = pct + "%";
   document.getElementById("total-elapsed").textContent = fmt(t) + " elapsed";
   document.getElementById("total-left").textContent = fmt(duration() - t) + " left";
 
@@ -750,6 +873,8 @@ function confirmQuit(){
   if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); showScreen("home"); return; }
   dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
     stopTicker();
+    if(TTS) TTS.stop().catch(() => {});
+    else if(window.speechSynthesis) speechSynthesis.cancel();
     session = null;
     save(KEY_CURRENT, null);
     closeDialog();
@@ -778,6 +903,7 @@ function resumeSaved(){
   document.getElementById("run-title").textContent =
     (session.planName ? session.planName + " – " : "") + session.name;
   showScreen("run");
+  buildTimeline();
   /* A session that was running when the app died keeps running: the clock is
      rebuilt from startedAt, so the elapsed time is still correct. */
   if(session.startedAt && !session.pausedAt) startTicker();
@@ -792,11 +918,26 @@ let audioCtx = null;
 let keepAlive = null;
 let voice = null;
 
+/* Android WebView does not implement the Web Speech API, so inside the app
+   speechSynthesis is missing entirely even though it works in a browser.
+   The native Speech plugin covers that; the web version keeps using
+   speechSynthesis. */
+const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform &&
+                  window.Capacitor.isNativePlatform());
+const TTS = NATIVE && window.Capacitor.Plugins ? window.Capacitor.Plugins.Speech : null;
+
+function voiceSource(){
+  if(TTS) return "Android text to speech";
+  if(window.speechSynthesis) return "Browser speech";
+  return "No voice available on this device";
+}
+
 function unlockAudio(){
   if(!audioCtx){
     try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
   }
   if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  if(TTS) return;   // the native engine needs no gesture to warm it up
   /* Speech needs one utterance inside a user gesture before it will work later. */
   if(window.speechSynthesis && !voice){
     pickVoice();
@@ -816,6 +957,7 @@ function pickVoice(){
 if(window.speechSynthesis) speechSynthesis.onvoiceschanged = pickVoice;
 
 function speak(text){
+  if(TTS){ TTS.speak({ text: text }).catch(() => {}); return; }
   if(!window.speechSynthesis) return;
   try{
     const u = new SpeechSynthesisUtterance(text);
@@ -1075,6 +1217,14 @@ function renderChangelog(){
     "<h4>" + e.version + " – " + e.date + "</h4><ul>" +
     e.changes.map(c => "<li>" + esc(c) + "</li>").join("") + "</ul>").join("");
   document.getElementById("about-version").textContent = "Version " + APP_VERSION;
+  document.getElementById("voice-source").textContent = "Speaking through: " + voiceSource();
+}
+
+/* Quick way to tell whether speech works at all on this device. */
+function testVoice(){
+  unlockAudio();
+  beep(880);
+  speak("Run for two minutes. Then walk.");
 }
 
 renderChangelog();
