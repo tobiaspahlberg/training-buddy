@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Training Buddy</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1712">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="training-buddy-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="training-buddy-icon.png">
+<!-- Fallback icon so the browser tab looks right even without the PNG -->
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="%230E1712"/><circle cx="256" cy="272" r="150" fill="none" stroke="%234ADE80" stroke-width="34"/><rect x="238" y="150" width="36" height="140" rx="18" fill="%234ADE80"/><rect x="256" y="254" width="112" height="36" rx="18" fill="%234ADE80"/><rect x="196" y="66" width="120" height="40" rx="20" fill="%234ADE80"/></svg>'>
+<style>
+  :root{
+    --bg:#0E1712;
+    --surface:#17241D;
+    --surface-2:#1F3129;
+    --line:#2C4438;
+    --text:#F2F7F4;
+    --dim:#8CA79A;
+    --run:#4ADE80;      /* running */
+    --walk:#38BDF8;     /* walking */
+    --warm:#FBBF24;     /* warm-up and cool-down */
+    --rest:#A78BFA;     /* rest / other */
+    --stop:#F43F5E;     /* stop and alarms */
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex;flex-direction:column;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow:hidden;
+  }
+  .screen{flex:1;display:none;flex-direction:column;min-height:0}
+  .screen.active{display:flex}
+
+  /* ---- Shared chrome ---- */
+  header{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 16px;border-bottom:1px solid var(--line);
+    background:var(--surface);flex-shrink:0;
+  }
+  header h1{font-size:19px;font-weight:700;letter-spacing:.2px;flex:1;min-width:0;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  header .sub{font-size:12px;color:var(--dim);font-weight:500}
+  .iconbtn{
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    width:38px;height:38px;border-radius:11px;font-size:17px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+  }
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;min-height:0}
+  .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--dim);margin:22px 0 10px}
+  .section-title:first-child{margin-top:0}
+
+  /* ---- Cards ---- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;margin-bottom:10px;cursor:pointer}
+  .card.flat{cursor:default}
+  .card h3{font-size:16px;font-weight:650;margin-bottom:3px}
+  .card p{font-size:13px;color:var(--dim);line-height:1.45}
+
+  /* ---- Plan overview ---- */
+  .week{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    margin-bottom:10px;overflow:hidden}
+  .week-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer}
+  .week-head h3{font-size:15px;font-weight:650;flex:1}
+  .week-head .meta{font-size:12px;color:var(--dim)}
+  .week-body{display:none;border-top:1px solid var(--line)}
+  .week.open .week-body{display:block}
+  .day{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .day:last-child{border-bottom:none}
+  .day.run{cursor:pointer}
+  .day .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--line)}
+  .day.run .dot{background:var(--run)}
+  .day.done .dot{background:var(--run);box-shadow:0 0 0 4px rgba(74,222,128,.18)}
+  .day .name{flex:1;min-width:0}
+  .day .name b{display:block;font-size:14px;font-weight:600}
+  .day .name span{display:block;font-size:12px;color:var(--dim);margin-top:2px}
+  .day .len{font-size:12px;color:var(--dim);flex-shrink:0}
+  .day.other b{color:var(--dim);font-weight:500}
+  .check{color:var(--run);font-size:15px;flex-shrink:0}
+
+  /* ---- Buttons ---- */
+  .btn{
+    display:block;width:100%;padding:15px;border-radius:13px;border:none;
+    font-size:16px;font-weight:650;cursor:pointer;color:#08120C;background:var(--run);
+    font-family:inherit;
+  }
+  .btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
+  .btn.danger{background:var(--stop);color:#fff}
+  .btn+.btn{margin-top:9px}
+  .row{display:flex;gap:9px}
+  .row .btn{margin-top:0}
+
+  /* ---- Run screen ---- */
+  #run{background:var(--bg)}
+  .runtop{display:flex;align-items:center;gap:12px;padding:12px 16px;flex-shrink:0}
+  .runtop .title{flex:1;min-width:0;font-size:13px;color:var(--dim);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:12px 16px;min-height:0}
+  .steplabel{font-size:34px;font-weight:800;letter-spacing:-.5px;text-align:center;line-height:1.1}
+  .stepmeta{font-size:14px;color:var(--dim);margin-top:8px}
+  .bigtime{font-size:19vh;font-weight:800;line-height:1;letter-spacing:-4px;
+    font-variant-numeric:tabular-nums;margin:14px 0 4px}
+  .nextup{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
+  .nextup b{color:var(--text);font-weight:600}
+  .runfoot{flex-shrink:0;padding:0 16px 16px}
+  .bar{height:7px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-bottom:8px}
+  .bar i{display:block;height:100%;background:var(--run);width:0;border-radius:4px;
+    transition:width .25s linear}
+  .totals{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);
+    margin-bottom:14px;font-variant-numeric:tabular-nums}
+  .paused .bigtime,.paused .steplabel{opacity:.4}
+
+  /* ---- Editor ---- */
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;font-weight:650;color:var(--dim);
+    text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
+  input,select{
+    width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);
+    background:var(--surface);color:var(--text);font-size:16px;font-family:inherit;
+    user-select:text;-webkit-user-select:text;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--run)}
+  .block{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:14px;margin-bottom:10px}
+  .block-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .block-head b{flex:1;font-size:13px;font-weight:700;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--dim)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .grid.three{grid-template-columns:1fr 1fr 1fr}
+  .del{background:none;border:none;color:var(--stop);font-size:13px;font-weight:600;
+    cursor:pointer;font-family:inherit;padding:4px}
+
+  /* ---- Dialogs and misc ---- */
+  .overlay{position:fixed;inset:0;background:rgba(6,12,9,.86);display:none;
+    align-items:center;justify-content:center;padding:24px;z-index:50}
+  .overlay.show{display:flex}
+  .dialog{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:22px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto}
+  .dialog h2{font-size:18px;margin-bottom:8px}
+  .dialog p{font-size:14px;color:var(--dim);line-height:1.5;margin-bottom:18px}
+  .empty{text-align:center;color:var(--dim);font-size:14px;padding:34px 20px;line-height:1.6}
+  .ver{text-align:center;font-size:12px;color:var(--dim);padding:22px 0 6px}
+  .log{font-size:13px;color:var(--dim);line-height:1.55}
+  .log h4{color:var(--text);font-size:14px;margin:14px 0 4px}
+  .log h4:first-child{margin-top:0}
+  .log ul{margin-left:18px}
+</style>
+</head>
+<body>
+
+<!-- ============================ HOME ============================ -->
+<div class="screen active" id="home">
+  <header>
+    <h1>Training Buddy</h1>
+    <button class="iconbtn" onclick="showScreen('about')">i</button>
+  </header>
+  <div class="scroll">
+    <div id="resume-slot"></div>
+    <div class="section-title">Plans</div>
+    <div id="plan-list"></div>
+    <div class="section-title">My programs</div>
+    <div id="custom-list"></div>
+    <button class="btn ghost" onclick="newProgram()">+ New program</button>
+    <div class="ver" id="ver-line"></div>
+  </div>
+</div>
+
+<!-- ============================ PLAN ============================ -->
+<div class="screen" id="plan">
+  <header>
+    <button class="iconbtn" onclick="showScreen('home')">&larr;</button>
+    <div style="flex:1;min-width:0">
+      <h1 id="plan-name"></h1>
+      <div class="sub" id="plan-progress"></div>
+    </div>
+  </header>
+  <div class="scroll" id="plan-weeks"></div>
+</div>
+
+<!-- ============================ RUN ============================ -->
+<div class="screen" id="run">
+  <div class="runtop">
+    <button class="iconbtn" onclick="confirmQuit()">&times;</button>
+    <div class="title" id="run-title"></div>
+    <button class="iconbtn" onclick="skipStep()" title="Skip step">&#9197;</button>
+  </div>
+  <div class="stage" id="run-stage">
+    <div class="steplabel" id="step-label">Ready</div>
+    <div class="stepmeta" id="step-meta"></div>
+    <div class="bigtime" id="step-time">0:00</div>
+    <div class="nextup" id="next-up"></div>
+  </div>
+  <div class="runfoot">
+    <div class="bar"><i id="bar-fill"></i></div>
+    <div class="totals">
+      <span id="total-elapsed">0:00</span>
+      <span id="total-left">0:00 left</span>
+    </div>
+    <button class="btn" id="main-btn" onclick="mainButton()">Start</button>
+  </div>
+</div>
+
+<!-- ============================ SUMMARY ============================ -->
+<div class="screen" id="done">
+  <header><h1>Workout complete</h1></header>
+  <div class="scroll">
+    <div class="card flat" style="text-align:center;padding:30px 20px">
+      <div style="font-size:46px;margin-bottom:10px">&#127942;</div>
+      <h3 id="done-name" style="font-size:18px"></h3>
+      <p id="done-stats" style="margin-top:8px"></p>
+    </div>
+    <button class="btn" onclick="showScreen('home')">Done</button>
+  </div>
+</div>
+
+<!-- ============================ EDITOR ============================ -->
+<div class="screen" id="editor">
+  <header>
+    <button class="iconbtn" onclick="cancelEdit()">&larr;</button>
+    <h1 id="editor-title">New program</h1>
+    <button class="iconbtn" onclick="saveProgram()" style="color:var(--run)">&#10003;</button>
+  </header>
+  <div class="scroll">
+    <div class="field">
+      <label>Name</label>
+      <input id="edit-name" placeholder="e.g. Achilles week 3">
+    </div>
+    <div class="section-title">Blocks</div>
+    <div id="edit-blocks"></div>
+    <div class="row">
+      <button class="btn ghost" onclick="addBlock('step')">+ Step</button>
+      <button class="btn ghost" onclick="addBlock('repeat')">+ Interval</button>
+    </div>
+    <div class="ver" id="edit-total"></div>
+    <button class="btn danger" id="edit-delete" onclick="deleteProgram()"
+      style="display:none">Delete program</button>
+  </div>
+</div>
+
+<!-- ============================ ABOUT ============================ -->
+<div class="screen" id="about">
+  <header>
+    <button class="iconbtn" onclick="showScreen('home')">&larr;</button>
+    <h1>About</h1>
+  </header>
+  <div class="scroll">
+    <div class="card flat">
+      <h3>Training Buddy</h3>
+      <p id="about-version"></p>
+      <p style="margin-top:10px">An interval timer for training and rehab programs.
+         Times are announced out loud so you can keep the phone in your pocket.</p>
+    </div>
+    <div class="section-title">Voice</div>
+    <div class="card flat">
+      <p><b style="color:var(--text)">Use headphones</b> for the most reliable audio.
+         On the web version the phone may mute speech once the screen turns off &mdash;
+         the Android app keeps it running.</p>
+    </div>
+    <div class="section-title">Changelog</div>
+    <div class="card flat"><div class="log" id="changelog-view"></div></div>
+  </div>
+</div>
+
+<!-- ============================ DIALOG ============================ -->
+<div class="overlay" id="overlay">
+  <div class="dialog">
+    <h2 id="dlg-title"></h2>
+    <p id="dlg-text"></p>
+    <button class="btn danger" id="dlg-ok"></button>
+    <button class="btn ghost" onclick="closeDialog()">Cancel</button>
+  </div>
+</div>
+
+<!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
+<script type="application/json" id="changelog">
+[
+  {
+    "version": "0.1.0",
+    "date": "2026-08-09",
+    "changes": [
+      "First version",
+      "Return to Run Phase 1 built in as a six week plan",
+      "Spoken cues for every step plus a three second countdown",
+      "Own programs with intervals, saved on the phone"
+    ]
+  }
+]
+</script>
+
+<script>
+"use strict";
+
+/* Bump this on every change to this file, and add a matching changelog entry
+   above. The cloud build reads it to tag the release. */
+const APP_VERSION = "0.1.0";
+
+/* =====================================================================
+   BUILT-IN PLANS
+
+   A plan is a schedule. A session is what the clock actually runs.
+   The Spark plan is written the way the source PDF is laid out, one row
+   per week, so it can be checked against the original at a glance.
+   ===================================================================== */
+
+const SPARK_RTR = {
+  id: "spark-rtr-phase1",
+  name: "Return to Run – Phase 1: Restore",
+  source: "Spark Healthy Runner, Dr. Duane Scotti – 3 Day Run Plan",
+  note: "Six weeks, three run days per week. Every session starts and ends with a 10 minute walk.",
+  warmupSec: 600,
+  cooldownSec: 600,
+  runDays: ["Tuesday", "Thursday", "Saturday"],
+  otherDays: [
+    { day: "Monday",    label: "Strength Training" },
+    { day: "Wednesday", label: "Rest & Recovery" },
+    { day: "Friday",    label: "Strength Training" },
+    { day: "Sunday",    label: "Rest & Recovery" }
+  ],
+  /* runSec / walkSec are one interval, reps are Tuesday, Thursday, Saturday */
+  weeks: [
+    { n: 1, runSec:  60, walkSec: 60, reps: [6, 8, 10] },
+    { n: 2, runSec: 120, walkSec: 60, reps: [6, 8, 10] },
+    { n: 3, runSec: 120, walkSec: 30, reps: [6, 8, 10] },
+    { n: 4, runSec: 180, walkSec: 30, reps: [6, 8, 10] },
+    { n: 5, runSec: 240, walkSec: 30, reps: [6, 8, 10] },
+    { n: 6, runSec: 300, walkSec: 30, reps: [6, 8, 10] }
+  ]
+};
+
+const PLANS = [SPARK_RTR];
+
+/* Builds the session for one run day of a plan week. */
+function planSession(plan, week, dayIndex){
+  const reps = week.reps[dayIndex];
+  return {
+    id: plan.id + ":w" + week.n + "d" + dayIndex,
+    name: "Week " + week.n + " – " + plan.runDays[dayIndex],
+    planName: plan.name,
+    blocks: [
+      { type:"step",   text:"Warm-up walk", kind:"warm", sec:plan.warmupSec },
+      { type:"repeat", reps:reps, a:{ text:"Run",  kind:"run",  sec:week.runSec },
+                                  b:{ text:"Walk", kind:"walk", sec:week.walkSec } },
+      { type:"step",   text:"Cool-down walk", kind:"warm", sec:plan.cooldownSec }
+    ]
+  };
+}
+
+/* =====================================================================
+   SESSION MODEL
+
+   Blocks are what you edit. Steps are what the clock counts. Flattening
+   happens once when a session starts, so the running code only ever deals
+   with a plain list.
+   ===================================================================== */
+
+function flatten(blocks){
+  const steps = [];
+  for(const b of blocks){
+    if(b.type === "repeat"){
+      for(let i = 1; i <= b.reps; i++){
+        for(const side of [b.a, b.b]){
+          if(!side || side.sec <= 0) continue;
+          steps.push({ text:side.text, kind:side.kind, sec:side.sec,
+                       rep:i, reps:b.reps });
+        }
+      }
+    }else if(b.sec > 0){
+      steps.push({ text:b.text, kind:b.kind, sec:b.sec });
+    }
+  }
+  let at = 0;
+  for(const s of steps){ s.start = at; at += s.sec; s.end = at; }
+  return steps;
+}
+
+function totalSec(blocks){
+  return flatten(blocks).reduce((sum, s) => sum + s.sec, 0);
+}
+
+function fmt(sec){
+  sec = Math.max(0, Math.round(sec));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m + ":" + String(s).padStart(2, "0");
+}
+
+function fmtLong(sec){
+  const m = Math.round(sec / 60);
+  return m + " min";
+}
+
+/* =====================================================================
+   STORAGE
+
+   Everything lives in localStorage. A program or a finished session is
+   never removed automatically, only by an explicit delete.
+   ===================================================================== */
+
+const KEY_PROGRAMS = "tb.programs";
+const KEY_PROGRESS = "tb.progress";
+const KEY_CURRENT  = "tb.current";
+
+function load(key, fallback){
+  try{ const v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; }
+  catch(e){ return fallback; }
+}
+function save(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+}
+
+let programs = load(KEY_PROGRAMS, []);   // user created sessions
+let progress = load(KEY_PROGRESS, {});   // sessionId -> ISO date completed
+
+/* =====================================================================
+   HOME
+   ===================================================================== */
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(id === "home") renderHome();
+}
+
+function renderHome(){
+  const slot = document.getElementById("resume-slot");
+  const saved = load(KEY_CURRENT, null);
+  if(saved && !saved.finished){
+    slot.innerHTML =
+      '<div class="card" onclick="resumeSaved()" style="border-color:var(--run)">' +
+        '<h3 style="color:var(--run)">Resume workout</h3>' +
+        '<p>' + esc(saved.name) + " – " + fmt(savedElapsed(saved)) + " in</p>" +
+      "</div>";
+  }else{
+    slot.innerHTML = "";
+  }
+
+  document.getElementById("plan-list").innerHTML = PLANS.map(p => {
+    const total = countSessions(p), done = countDone(p);
+    return '<div class="card" onclick="openPlan(\'' + p.id + '\')">' +
+      "<h3>" + esc(p.name) + "</h3>" +
+      "<p>" + esc(p.note) + "<br>" + done + " of " + total + " sessions done</p>" +
+    "</div>";
+  }).join("");
+
+  const list = document.getElementById("custom-list");
+  list.innerHTML = programs.length
+    ? programs.map(p =>
+        '<div class="card" onclick="startSession(' + JSON.stringify(p.id).replace(/"/g, "&quot;") + ')">' +
+          "<h3>" + esc(p.name) + "</h3>" +
+          "<p>" + fmtLong(totalSec(p.blocks)) + " – " + flatten(p.blocks).length + " steps" +
+          ' &nbsp;<span style="color:var(--run)" onclick="event.stopPropagation();editProgram(\'' +
+            p.id + '\')">Edit</span></p>' +
+        "</div>")
+      .join("")
+    : '<div class="empty">No programs yet.<br>Create one to time your own intervals.</div>';
+
+  document.getElementById("ver-line").textContent = "Version " + APP_VERSION;
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+}
+
+function countSessions(plan){ return plan.weeks.length * plan.runDays.length; }
+function countDone(plan){
+  let n = 0;
+  plan.weeks.forEach(w => plan.runDays.forEach((_, d) => {
+    if(progress[plan.id + ":w" + w.n + "d" + d]) n++;
+  }));
+  return n;
+}
+
+/* =====================================================================
+   PLAN VIEW
+   ===================================================================== */
+
+let openPlanId = null;
+
+function openPlan(id){
+  openPlanId = id;
+  const plan = PLANS.find(p => p.id === id);
+  document.getElementById("plan-name").textContent = plan.name;
+  document.getElementById("plan-progress").textContent =
+    countDone(plan) + " of " + countSessions(plan) + " sessions done – " + plan.source;
+  renderPlan(plan);
+  showScreen("plan");
+}
+
+function renderPlan(plan){
+  /* The first week with something left is the one worth opening. */
+  const nextWeek = plan.weeks.find(w =>
+    plan.runDays.some((_, d) => !progress[plan.id + ":w" + w.n + "d" + d])) || plan.weeks[0];
+
+  document.getElementById("plan-weeks").innerHTML = plan.weeks.map(w => {
+    const days = [];
+    const byName = {};
+    plan.runDays.forEach((day, d) => {
+      const s = planSession(plan, w, d);
+      byName[day] =
+        '<div class="day run' + (progress[s.id] ? " done" : "") + '" ' +
+          "onclick=\"startPlanSession('" + plan.id + "'," + w.n + "," + d + ')">' +
+          '<span class="dot"></span>' +
+          '<span class="name"><b>' + day + "</b><span>" +
+            w.reps[d] + " × (" + fmt(w.runSec) + " run : " + fmt(w.walkSec) + " walk)" +
+          "</span></span>" +
+          '<span class="len">' + fmtLong(totalSec(s.blocks)) + "</span>" +
+          (progress[s.id] ? '<span class="check">✓</span>' : "") +
+        "</div>";
+    });
+    plan.otherDays.forEach(o => {
+      byName[o.day] =
+        '<div class="day other"><span class="dot"></span>' +
+        '<span class="name"><b>' + o.day + "</b></span>" +
+        '<span class="len">' + o.label + "</span></div>";
+    });
+
+    const order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    order.forEach(d => { if(byName[d]) days.push(byName[d]); });
+
+    const doneHere = plan.runDays.filter((_, d) => progress[plan.id + ":w" + w.n + "d" + d]).length;
+    return '<div class="week' + (w === nextWeek ? " open" : "") + '">' +
+      '<div class="week-head" onclick="this.parentNode.classList.toggle(\'open\')">' +
+        "<h3>Week " + w.n + "</h3>" +
+        '<span class="meta">' + fmt(w.runSec) + " run : " + fmt(w.walkSec) + " walk" +
+          " – " + doneHere + "/" + plan.runDays.length + "</span>" +
+      "</div>" +
+      '<div class="week-body">' + days.join("") + "</div>" +
+    "</div>";
+  }).join("");
+}
+
+function startPlanSession(planId, weekN, dayIndex){
+  const plan = PLANS.find(p => p.id === planId);
+  const week = plan.weeks.find(w => w.n === weekN);
+  begin(planSession(plan, week, dayIndex));
+}
+
+function startSession(programId){
+  const p = programs.find(x => x.id === programId);
+  if(p) begin(p);
+}
+
+/* =====================================================================
+   THE CLOCK
+
+   Time is always derived from timestamps, never from counting a variable
+   down. Android can kill the app at any moment, so elapsed time has to be
+   reconstructible from what was written to storage.
+   ===================================================================== */
+
+let session = null;      // { id, name, steps, startedAt, pausedAt, pausedTotal }
+let ticker = null;
+let lastStepIdx = -1;
+let spokenCountdown = {};
+
+function begin(sessionDef){
+  session = {
+    id: sessionDef.id,
+    name: sessionDef.name,
+    planName: sessionDef.planName || "",
+    steps: flatten(sessionDef.blocks),
+    startedAt: 0,          // set on first Start
+    pausedAt: 0,
+    pausedTotal: 0
+  };
+  lastStepIdx = -1;
+  spokenCountdown = {};
+  document.getElementById("run-title").textContent =
+    (session.planName ? session.planName + " – " : "") + session.name;
+  showScreen("run");
+  render();
+}
+
+function savedElapsed(s){
+  if(!s.startedAt) return 0;
+  const until = s.pausedAt || Date.now();
+  return Math.max(0, (until - s.startedAt - s.pausedTotal) / 1000);
+}
+
+function elapsed(){ return session ? savedElapsed(session) : 0; }
+function duration(){ return session ? session.steps[session.steps.length - 1].end : 0; }
+function isRunning(){ return !!(session && session.startedAt && !session.pausedAt); }
+
+function stepAt(t){
+  const steps = session.steps;
+  for(let i = 0; i < steps.length; i++) if(t < steps[i].end) return i;
+  return steps.length;   // past the end
+}
+
+function mainButton(){
+  if(!session) return;
+  unlockAudio();
+  if(!session.startedAt){
+    session.startedAt = Date.now();
+    speak(firstCue());
+    startTicker();
+  }else if(session.pausedAt){
+    session.pausedTotal += Date.now() - session.pausedAt;
+    session.pausedAt = 0;
+    speak("Resuming");
+    startTicker();
+  }else{
+    session.pausedAt = Date.now();
+    stopTicker();
+    speak("Paused");
+  }
+  persist();
+  render();
+}
+
+function firstCue(){
+  const s = session.steps[0];
+  return s ? s.text + " for " + spokenDuration(s.sec) : "Starting";
+}
+
+function startTicker(){
+  stopTicker();
+  ticker = setInterval(tick, 200);
+  requestWakeLock();
+  keepAliveOn();
+}
+
+function stopTicker(){
+  if(ticker){ clearInterval(ticker); ticker = null; }
+  releaseWakeLock();
+  keepAliveOff();
+}
+
+let lastPersist = 0;
+
+function tick(){
+  const t = elapsed();
+  const idx = stepAt(t);
+
+  if(idx >= session.steps.length){ finish(); return; }
+
+  if(idx !== lastStepIdx){
+    lastStepIdx = idx;
+    const s = session.steps[idx];
+    beep(s.kind === "run" ? 880 : 590);
+    speak(cueFor(idx));
+    persist();
+  }
+
+  /* Three second countdown into the next step. */
+  const left = session.steps[idx].end - t;
+  for(const n of [3, 2, 1]){
+    const key = idx + ":" + n;
+    if(left <= n && left > n - 1 && !spokenCountdown[key] && idx < session.steps.length - 1){
+      spokenCountdown[key] = true;
+      speak(String(n));
+    }
+  }
+
+  if(Date.now() - lastPersist > 3000) persist();
+  render();
+}
+
+function cueFor(i){
+  const s = session.steps[i];
+  let cue = s.text;
+  if(s.reps){
+    if(s.rep === s.reps && s.kind === "run") cue = "Last one. " + s.text;
+    cue += ", " + spokenDuration(s.sec);
+  }else{
+    cue += " for " + spokenDuration(s.sec);
+  }
+  return cue;
+}
+
+function spokenDuration(sec){
+  if(sec % 60 === 0){
+    const m = sec / 60;
+    return m + (m === 1 ? " minute" : " minutes");
+  }
+  if(sec < 60) return sec + " seconds";
+  return fmt(sec);
+}
+
+function render(){
+  if(!session) return;
+  const t = elapsed();
+  const idx = Math.min(stepAt(t), session.steps.length - 1);
+  const s = session.steps[idx];
+  const left = Math.max(0, s.end - t);
+  const kindColor = { run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)", rest:"var(--rest)" };
+  const color = kindColor[s.kind] || "var(--run)";
+
+  document.getElementById("step-label").textContent = session.startedAt ? s.text : "Ready";
+  document.getElementById("step-label").style.color = session.startedAt ? color : "var(--text)";
+  document.getElementById("step-time").textContent = fmt(session.startedAt ? left : duration());
+  document.getElementById("step-time").style.color = session.startedAt ? color : "var(--text)";
+  document.getElementById("step-meta").textContent =
+    s.reps ? "Interval " + s.rep + " of " + s.reps
+           : (session.startedAt ? "" : session.steps.length + " steps");
+
+  const next = session.steps[idx + 1];
+  document.getElementById("next-up").innerHTML = session.startedAt
+    ? (next ? "Next: <b>" + esc(next.text) + "</b> " + fmt(next.sec) : "Last step")
+    : "";
+
+  document.getElementById("bar-fill").style.width = (t / duration() * 100) + "%";
+  document.getElementById("bar-fill").style.background = color;
+  document.getElementById("total-elapsed").textContent = fmt(t) + " elapsed";
+  document.getElementById("total-left").textContent = fmt(duration() - t) + " left";
+
+  const btn = document.getElementById("main-btn");
+  btn.textContent = !session.startedAt ? "Start" : (session.pausedAt ? "Resume" : "Pause");
+  btn.style.background = session.pausedAt || !session.startedAt ? "var(--run)" : "var(--surface-2)";
+  btn.style.color = session.pausedAt || !session.startedAt ? "#08120C" : "var(--text)";
+  document.getElementById("run").classList.toggle("paused", !!session.pausedAt);
+}
+
+function skipStep(){
+  if(!session || !session.startedAt) return;
+  const idx = stepAt(elapsed());
+  if(idx >= session.steps.length) return;
+  /* Move the start time back so the clock lands exactly on the next step. */
+  const jump = (session.steps[idx].end - elapsed()) * 1000;
+  session.startedAt -= jump;
+  persist();
+  tick();
+}
+
+function finish(){
+  stopTicker();
+  const done = session;
+  progress[done.id] = new Date().toISOString().slice(0, 10);
+  save(KEY_PROGRESS, progress);
+  save(KEY_CURRENT, null);
+  beep(880); setTimeout(() => beep(1180), 260); setTimeout(() => beep(1480), 520);
+  speak("Workout complete. Well done.");
+  document.getElementById("done-name").textContent =
+    (done.planName ? done.planName + " – " : "") + done.name;
+  document.getElementById("done-stats").textContent =
+    fmtLong(duration()) + " – " + done.steps.length + " steps completed";
+  session = null;
+  showScreen("done");
+}
+
+function confirmQuit(){
+  if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); showScreen("home"); return; }
+  dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
+    stopTicker();
+    session = null;
+    save(KEY_CURRENT, null);
+    closeDialog();
+    showScreen("home");
+  });
+}
+
+/* ---- Persistence of the running session ---- */
+
+function persist(){
+  if(!session) return;
+  lastPersist = Date.now();
+  save(KEY_CURRENT, {
+    id: session.id, name: session.name, planName: session.planName,
+    steps: session.steps, startedAt: session.startedAt,
+    pausedAt: session.pausedAt, pausedTotal: session.pausedTotal
+  });
+}
+
+function resumeSaved(){
+  const s = load(KEY_CURRENT, null);
+  if(!s) return;
+  session = s;
+  lastStepIdx = -1;
+  spokenCountdown = {};
+  document.getElementById("run-title").textContent =
+    (session.planName ? session.planName + " – " : "") + session.name;
+  showScreen("run");
+  /* A session that was running when the app died keeps running: the clock is
+     rebuilt from startedAt, so the elapsed time is still correct. */
+  if(session.startedAt && !session.pausedAt) startTicker();
+  render();
+}
+
+/* =====================================================================
+   VOICE AND SOUND
+   ===================================================================== */
+
+let audioCtx = null;
+let keepAlive = null;
+let voice = null;
+
+function unlockAudio(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+  /* Speech needs one utterance inside a user gesture before it will work later. */
+  if(window.speechSynthesis && !voice){
+    pickVoice();
+    const warm = new SpeechSynthesisUtterance(" ");
+    warm.volume = 0;
+    try{ speechSynthesis.speak(warm); }catch(e){}
+  }
+}
+
+function pickVoice(){
+  if(!window.speechSynthesis) return;
+  const list = speechSynthesis.getVoices();
+  voice = list.find(v => /^en[-_]GB/i.test(v.lang)) ||
+          list.find(v => /^en[-_]US/i.test(v.lang)) ||
+          list.find(v => /^en/i.test(v.lang)) || null;
+}
+if(window.speechSynthesis) speechSynthesis.onvoiceschanged = pickVoice;
+
+function speak(text){
+  if(!window.speechSynthesis) return;
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = voice ? voice.lang : "en-GB";
+    if(voice) u.voice = voice;
+    u.rate = 1.05;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function beep(freq){
+  if(!audioCtx) return;
+  try{
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.frequency.value = freq;
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.22);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.24);
+  }catch(e){}
+}
+
+/* A near silent tone holds the audio session open so speech still comes
+   through once the screen turns off. The Android app has a proper
+   foreground service for this; on the web this is the best available. */
+function keepAliveOn(){
+  if(!audioCtx || keepAlive) return;
+  try{
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.frequency.value = 40;
+    gain.gain.value = 0.0006;
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    keepAlive = { osc: osc, gain: gain };
+  }catch(e){}
+}
+
+function keepAliveOff(){
+  if(!keepAlive) return;
+  try{ keepAlive.osc.stop(); }catch(e){}
+  keepAlive = null;
+}
+
+/* =====================================================================
+   SCREEN WAKE LOCK
+   ===================================================================== */
+
+let wakeLock = null;
+
+async function requestWakeLock(){
+  try{
+    if("wakeLock" in navigator && !wakeLock){
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => { wakeLock = null; });
+    }
+  }catch(e){}
+}
+
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(() => {}); wakeLock = null; }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden){
+    persist();
+  }else{
+    if(isRunning()) requestWakeLock();
+    if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    if(session) render();
+  }
+});
+
+window.addEventListener("pagehide", persist);
+
+/* =====================================================================
+   PROGRAM EDITOR
+
+   A program is a list of blocks: a plain step, or an interval that repeats
+   two steps a number of times. That covers every rehab plan seen so far
+   without turning the editor into a programming language.
+   ===================================================================== */
+
+let editing = null;
+
+function newProgram(){
+  editing = {
+    id: "p" + Date.now(),
+    name: "",
+    blocks: [
+      { type:"step", text:"Warm-up walk", kind:"warm", sec:600 },
+      { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
+                               b:{ text:"Walk", kind:"walk", sec:30 } },
+      { type:"step", text:"Cool-down walk", kind:"warm", sec:600 }
+    ],
+    isNew: true
+  };
+  openEditor("New program");
+}
+
+function editProgram(id){
+  const p = programs.find(x => x.id === id);
+  if(!p) return;
+  editing = JSON.parse(JSON.stringify(p));
+  editing.isNew = false;
+  openEditor("Edit program");
+}
+
+function openEditor(title){
+  document.getElementById("editor-title").textContent = title;
+  document.getElementById("edit-name").value = editing.name;
+  document.getElementById("edit-delete").style.display = editing.isNew ? "none" : "block";
+  renderBlocks();
+  showScreen("editor");
+}
+
+const KINDS = [["run","Run"], ["walk","Walk"], ["warm","Warm-up / cool-down"], ["rest","Rest"]];
+
+function kindSelect(path){
+  return '<select onchange="setField(\'' + path + '\',this.value)">' +
+    KINDS.map(k => "<option value='" + k[0] + "'>" + k[1] + "</option>").join("") +
+    "</select>";
+}
+
+function renderBlocks(){
+  const host = document.getElementById("edit-blocks");
+  host.innerHTML = editing.blocks.map((b, i) => {
+    if(b.type === "repeat"){
+      return '<div class="block">' +
+        '<div class="block-head"><b>Interval</b>' +
+          '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>' +
+        '<div class="field"><label>Repeats</label>' +
+          '<input type="number" min="1" max="99" value="' + b.reps +
+            '" onchange="setField(\'' + i + '.reps\',this.value)"></div>' +
+        sideEditor(i, "a", b.a, "First") +
+        sideEditor(i, "b", b.b, "Then") +
+      "</div>";
+    }
+    return '<div class="block">' +
+      '<div class="block-head"><b>Step</b>' +
+        '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>' +
+      '<div class="field"><label>Name</label>' +
+        '<input value="' + esc(b.text) + '" onchange="setField(\'' + i + '.text\',this.value)"></div>' +
+      '<div class="grid three">' +
+        '<div class="field"><label>Min</label><input type="number" min="0" value="' +
+          Math.floor(b.sec / 60) + '" onchange="setDur(' + i + ',null,\'m\',this.value)"></div>' +
+        '<div class="field"><label>Sec</label><input type="number" min="0" max="59" value="' +
+          (b.sec % 60) + '" onchange="setDur(' + i + ',null,\'s\',this.value)"></div>' +
+        '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
+      "</div>" +
+    "</div>";
+  }).join("");
+
+  /* Selects cannot carry their value through innerHTML, so set them after. */
+  editing.blocks.forEach((b, i) => {
+    const sels = host.children[i].querySelectorAll("select");
+    if(b.type === "repeat"){ sels[0].value = b.a.kind; sels[1].value = b.b.kind; }
+    else sels[0].value = b.kind;
+  });
+
+  document.getElementById("edit-total").textContent =
+    "Total " + fmtLong(totalSec(editing.blocks)) + " – " + flatten(editing.blocks).length + " steps";
+}
+
+function sideEditor(i, side, s, label){
+  return '<div class="field"><label>' + label + '</label>' +
+      '<input value="' + esc(s.text) + '" onchange="setField(\'' + i + "." + side + '.text\',this.value)"></div>' +
+    '<div class="grid three">' +
+      '<div class="field"><label>Min</label><input type="number" min="0" value="' +
+        Math.floor(s.sec / 60) + '" onchange="setDur(' + i + ',\'' + side + '\',\'m\',this.value)"></div>' +
+      '<div class="field"><label>Sec</label><input type="number" min="0" max="59" value="' +
+        (s.sec % 60) + '" onchange="setDur(' + i + ',\'' + side + '\',\'s\',this.value)"></div>' +
+      '<div class="field"><label>Type</label>' + kindSelect(i + "." + side + ".kind") + "</div>" +
+    "</div>";
+}
+
+function setField(path, value){
+  const parts = path.split(".");
+  let node = editing.blocks;
+  for(let i = 0; i < parts.length - 1; i++) node = node[parts[i]];
+  const last = parts[parts.length - 1];
+  node[last] = last === "reps" ? Math.max(1, parseInt(value, 10) || 1) : value;
+  renderBlocks();
+}
+
+function setDur(i, side, unit, value){
+  const target = side ? editing.blocks[i][side] : editing.blocks[i];
+  const n = Math.max(0, parseInt(value, 10) || 0);
+  const m = unit === "m" ? n : Math.floor(target.sec / 60);
+  const s = unit === "s" ? Math.min(59, n) : target.sec % 60;
+  target.sec = m * 60 + s;
+  renderBlocks();
+}
+
+function addBlock(type){
+  editing.blocks.push(type === "repeat"
+    ? { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
+                               b:{ text:"Walk", kind:"walk", sec:30 } }
+    : { type:"step", text:"Walk", kind:"warm", sec:300 });
+  renderBlocks();
+}
+
+function removeBlock(i){
+  editing.blocks.splice(i, 1);
+  renderBlocks();
+}
+
+function saveProgram(){
+  editing.name = document.getElementById("edit-name").value.trim() || "Untitled program";
+  if(!editing.blocks.length){ dialog("Nothing to save", "Add at least one step first.", "OK", closeDialog); return; }
+  const clean = { id: editing.id, name: editing.name, blocks: editing.blocks };
+  const at = programs.findIndex(p => p.id === clean.id);
+  if(at >= 0) programs[at] = clean; else programs.push(clean);
+  save(KEY_PROGRAMS, programs);
+  editing = null;
+  showScreen("home");
+}
+
+function cancelEdit(){ editing = null; showScreen("home"); }
+
+function deleteProgram(){
+  const id = editing.id, name = editing.name;
+  dialog("Delete program?", '"' + name + '" will be removed from this phone.', "Delete", () => {
+    programs = programs.filter(p => p.id !== id);
+    save(KEY_PROGRAMS, programs);
+    editing = null;
+    closeDialog();
+    showScreen("home");
+  });
+}
+
+/* =====================================================================
+   DIALOG
+   ===================================================================== */
+
+function dialog(title, text, okLabel, onOk){
+  document.getElementById("dlg-title").textContent = title;
+  document.getElementById("dlg-text").textContent = text;
+  const ok = document.getElementById("dlg-ok");
+  ok.textContent = okLabel;
+  ok.onclick = onOk;
+  document.getElementById("overlay").classList.add("show");
+}
+
+function closeDialog(){ document.getElementById("overlay").classList.remove("show"); }
+
+/* =====================================================================
+   STARTUP
+   ===================================================================== */
+
+function renderChangelog(){
+  let entries = [];
+  try{ entries = JSON.parse(document.getElementById("changelog").textContent); }catch(e){}
+  document.getElementById("changelog-view").innerHTML = entries.map(e =>
+    "<h4>" + e.version + " – " + e.date + "</h4><ul>" +
+    e.changes.map(c => "<li>" + esc(c) + "</li>").join("") + "</ul>").join("");
+  document.getElementById("about-version").textContent = "Version " + APP_VERSION;
+}
+
+renderChangelog();
+renderHome();
+pickVoice();
+</script>
+</body>
+</html>

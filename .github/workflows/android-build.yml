@@ -1,0 +1,84 @@
+name: Build and publish Training Buddy
+
+# Builds the app on every push to main and publishes the APK as a GitHub
+# Release. The version number is read straight out of docs/index.html.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Read the app version
+        id: ver
+        run: |
+          VERSION=$(grep -oP 'APP_VERSION\s*=\s*"\K[^"]+' docs/index.html | head -1)
+          if [ -z "$VERSION" ]; then echo "No APP_VERSION found"; exit 1; fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Generate app icons
+        run: npx @capacitor/assets generate --android
+
+      - name: Copy web files into the Android project
+        run: npx cap sync android
+
+      - name: Build the APK
+        run: |
+          chmod +x android/gradlew
+          cd android && ./gradlew assembleDebug
+
+      - name: Name the APK
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk dist/TrainingBuddy.apk
+          cp dist/TrainingBuddy.apk "dist/TrainingBuddy-v${{ steps.ver.outputs.version }}.apk"
+
+      - name: Save as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrainingBuddy-v${{ steps.ver.outputs.version }}
+          path: dist/TrainingBuddy.apk
+          if-no-files-found: error
+
+      # Creates a release tagged v<version>. If the tag already exists, which
+      # means the version was not bumped, the files are replaced instead.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ steps.ver.outputs.version }}
+          REPO: ${{ github.repository }}
+        run: |
+          if gh release view "v$V" >/dev/null 2>&1; then
+            echo "Release v$V already exists - replacing the files."
+            gh release upload "v$V" dist/TrainingBuddy.apk "dist/TrainingBuddy-v$V.apk" --clobber
+          else
+            printf 'Download **TrainingBuddy.apk** and open the file on your phone to install.\n\nThe latest version is always here:\nhttps://github.com/%s/releases/latest/download/TrainingBuddy.apk\n' "$REPO" > notes.md
+            gh release create "v$V" \
+              dist/TrainingBuddy.apk "dist/TrainingBuddy-v$V.apk" \
+              --title "Training Buddy v$V" \
+              --notes-file notes.md
+          fi

@@ -1,0 +1,20 @@
+{
+  "name": "Training Buddy",
+  "short_name": "Training Buddy",
+  "description": "Interval timer for training and rehab programs, with spoken cues",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1712",
+  "theme_color": "#0E1712",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "training-buddy-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

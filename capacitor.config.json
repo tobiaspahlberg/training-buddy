@@ -1,0 +1,14 @@
+{
+  "appId": "se.trainingbuddy.app",
+  "appName": "Training Buddy",
+  "webDir": "docs",
+  "android": {
+    "backgroundColor": "#0E1712"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#4ADE80"
+    }
+  }
+}
