@@ -64,6 +64,21 @@
   .card.flat{cursor:default}
   .card h3{font-size:16px;font-weight:650;margin-bottom:3px}
   .card p{font-size:13px;color:var(--dim);line-height:1.45}
+  .tag{display:inline-block;padding:2px 8px;margin-left:7px;border-radius:999px;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
+    font-size:11px;font-weight:650;letter-spacing:.3px;vertical-align:2px}
+
+  /* ---- Category filter ----
+     One row of pills above the lists. It only appears once more than one
+     category is actually in use, so a short list stays uncluttered. */
+  .chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;
+    scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips:empty{display:none}
+  .chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+    background:var(--surface);color:var(--dim);font-size:13px;font-weight:650;
+    font-family:inherit;cursor:pointer}
+  .chip.on{background:var(--run);border-color:var(--run);color:#08120C}
 
   /* ---- Plan calendar ----
      Weeks are rows and days are columns, so the plan reads like a wall
@@ -84,6 +99,13 @@
   .cell.str{background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.30);
     color:var(--warm);cursor:pointer}
   .cell.str.done{background:var(--warm);border-color:var(--warm);color:#241A02}
+  .cell.sel{box-shadow:inset 0 0 0 2px var(--text)}
+  .wk.pick{cursor:pointer;color:var(--text);text-decoration:underline}
+  /* Bar at the foot of the plan while several days are being picked. */
+  .selbar{flex-shrink:0;display:none;background:var(--surface);border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+  .selbar.show{display:block}
+  .selbar .count{display:block;font-size:12.5px;color:var(--dim);margin-bottom:10px}
   .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--dim)}
   .legend span{display:flex;align-items:center;gap:6px}
   .legend i{width:10px;height:10px;border-radius:3px;display:block}
@@ -187,8 +209,11 @@
   </header>
   <div class="scroll">
     <div id="resume-slot"></div>
-    <div class="section-title">Plans</div>
-    <div id="plan-list"></div>
+    <div class="chips" id="cat-chips"></div>
+    <div id="plan-section">
+      <div class="section-title">Plans</div>
+      <div id="plan-list"></div>
+    </div>
     <div class="section-title">My programs</div>
     <div id="custom-list"></div>
     <button class="btn ghost" onclick="newProgram()">+ New program</button>
@@ -199,13 +224,22 @@
 <!-- ============================ PLAN ============================ -->
 <div class="screen" id="plan">
   <header>
-    <button class="iconbtn" onclick="showScreen('home')">&larr;</button>
+    <button class="iconbtn" onclick="goBack()">&larr;</button>
     <div style="flex:1;min-width:0">
       <h1 id="plan-name" style="white-space:normal;font-size:17px;line-height:1.25"></h1>
       <div class="sub" id="plan-progress" style="margin-top:3px"></div>
     </div>
+    <button class="iconbtn" id="select-btn" onclick="toggleSelectMode()"
+      title="Select several days">&#9745;</button>
   </header>
   <div class="scroll" id="plan-weeks"></div>
+  <div class="selbar" id="selbar">
+    <span class="count" id="sel-count"></span>
+    <div class="row">
+      <button class="btn" onclick="markSelected(true)">Mark as done</button>
+      <button class="btn ghost" onclick="markSelected(false)">Mark as not done</button>
+    </div>
+  </div>
 </div>
 
 <!-- ============================ RUN ============================ -->
@@ -251,7 +285,7 @@
 <!-- ============================ EDITOR ============================ -->
 <div class="screen" id="editor">
   <header>
-    <button class="iconbtn" onclick="cancelEdit()">&larr;</button>
+    <button class="iconbtn" onclick="goBack()">&larr;</button>
     <h1 id="editor-title">New program</h1>
     <button class="iconbtn" onclick="saveProgram()" style="color:var(--run)">&#10003;</button>
   </header>
@@ -259,6 +293,10 @@
     <div class="field">
       <label>Name</label>
       <input id="edit-name" placeholder="e.g. Achilles week 3">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="edit-category"></select>
     </div>
     <div class="section-title">Blocks</div>
     <div id="edit-blocks"></div>
@@ -275,7 +313,7 @@
 <!-- ============================ ABOUT ============================ -->
 <div class="screen" id="about">
   <header>
-    <button class="iconbtn" onclick="showScreen('home')">&larr;</button>
+    <button class="iconbtn" onclick="goBack()">&larr;</button>
     <h1>About</h1>
   </header>
   <div class="scroll">
@@ -306,6 +344,7 @@
     <div class="steplist" id="sheet-steps"></div>
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
     <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
+    <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my programs</button>
     <button class="btn ghost" onclick="closeSheet()">Close</button>
   </div>
 </div>
@@ -323,6 +362,17 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.3.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Tick off several days at once: tap the checkbox in a plan, pick the days, mark them in one go",
+      "Tap a week number in select mode to take the whole week",
+      "The phone's back button now works everywhere, closing sheets and screens instead of the app",
+      "Programs and plans have a category, with a filter on the home screen",
+      "Copy any day of a built-in plan into your own programs and edit it freely"
+    ]
+  },
   {
     "version": "0.2.0",
     "date": "2026-08-09",
@@ -352,7 +402,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.2.0";
+const APP_VERSION = "0.3.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -365,6 +415,8 @@ const APP_VERSION = "0.2.0";
 const SPARK_RTR = {
   id: "spark-rtr-phase1",
   name: "Return to Run – Phase 1: Restore",
+  short: "Return to Run",
+  category: "Rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 3 Day Run Plan",
   note: "Six weeks, three run days per week. Every session starts and ends with a 10 minute walk.",
   warmupSec: 600,
@@ -458,6 +510,7 @@ function fmtLong(sec){
 const KEY_PROGRAMS = "tb.programs";
 const KEY_PROGRESS = "tb.progress";
 const KEY_CURRENT  = "tb.current";
+const KEY_FILTER   = "tb.filter";
 
 function load(key, fallback){
   try{ const v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; }
@@ -471,12 +524,35 @@ let programs = load(KEY_PROGRAMS, []);   // user created sessions
 let progress = load(KEY_PROGRESS, {});   // sessionId -> ISO date completed
 
 /* =====================================================================
+   CATEGORIES
+
+   A category is only a label for sorting the home screen. Programs saved
+   before categories existed simply fall back to the default.
+   ===================================================================== */
+
+const CATEGORIES = ["Training", "Rehab", "Strength", "Mobility", "Other"];
+const DEFAULT_CATEGORY = "Training";
+
+function categoryOf(item){
+  return CATEGORIES.indexOf(item.category) >= 0 ? item.category : DEFAULT_CATEGORY;
+}
+
+let filter = load(KEY_FILTER, "All");
+
+function setFilter(c){
+  filter = c;
+  save(KEY_FILTER, c);
+  renderHome();
+}
+
+/* =====================================================================
    HOME
    ===================================================================== */
 
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  armBack();
   if(id === "home") renderHome();
 }
 
@@ -493,27 +569,57 @@ function renderHome(){
     slot.innerHTML = "";
   }
 
-  document.getElementById("plan-list").innerHTML = PLANS.map(p => {
+  renderChips();
+  const visible = x => filter === "All" || categoryOf(x) === filter;
+
+  const plans = PLANS.filter(visible);
+  document.getElementById("plan-section").style.display = plans.length ? "block" : "none";
+  document.getElementById("plan-list").innerHTML = plans.map(p => {
     const total = countSessions(p), done = countDone(p);
     return '<div class="card" onclick="openPlan(\'' + p.id + '\')">' +
-      "<h3>" + esc(p.name) + "</h3>" +
+      "<h3>" + esc(p.name) + tag(p) + "</h3>" +
       "<p>" + esc(p.note) + "<br>" + done + " of " + total + " sessions done</p>" +
     "</div>";
   }).join("");
 
+  const mine = programs.filter(visible);
   const list = document.getElementById("custom-list");
-  list.innerHTML = programs.length
-    ? programs.map(p =>
+  list.innerHTML = mine.length
+    ? mine.map(p =>
         '<div class="card" onclick="startSession(' + JSON.stringify(p.id).replace(/"/g, "&quot;") + ')">' +
-          "<h3>" + esc(p.name) + "</h3>" +
+          "<h3>" + esc(p.name) + tag(p) + "</h3>" +
           "<p>" + fmtLong(totalSec(p.blocks)) + " – " + flatten(p.blocks).length + " steps" +
           ' &nbsp;<span style="color:var(--run)" onclick="event.stopPropagation();editProgram(\'' +
             p.id + '\')">Edit</span></p>' +
         "</div>")
       .join("")
-    : '<div class="empty">No programs yet.<br>Create one to time your own intervals.</div>';
+    : '<div class="empty">' + (programs.length
+        ? "No programs in this category."
+        : "No programs yet.<br>Create one to time your own intervals.") + "</div>";
 
   document.getElementById("ver-line").textContent = "Version " + APP_VERSION;
+}
+
+/* Only categories that hold something are offered, and the row stays hidden
+   until there is more than one of them to choose between. */
+function renderChips(){
+  const used = [];
+  PLANS.concat(programs).forEach(x => {
+    const c = categoryOf(x);
+    if(used.indexOf(c) < 0) used.push(c);
+  });
+  used.sort((a, b) => CATEGORIES.indexOf(a) - CATEGORIES.indexOf(b));
+  if(filter !== "All" && used.indexOf(filter) < 0) filter = "All";
+
+  document.getElementById("cat-chips").innerHTML = used.length > 1
+    ? ["All"].concat(used).map(c =>
+        '<button class="chip' + (c === filter ? " on" : "") + '" onclick="setFilter(\'' +
+          c + '\')">' + esc(c) + "</button>").join("")
+    : "";
+}
+
+function tag(item){
+  return filter === "All" ? '<span class="tag">' + esc(categoryOf(item)) + "</span>" : "";
 }
 
 function esc(s){
@@ -539,10 +645,15 @@ function openPlan(id){
   openPlanId = id;
   const plan = PLANS.find(p => p.id === id);
   document.getElementById("plan-name").textContent = plan.name;
+  selectMode = false;
+  selected = {};
+  updateSelectUI();
+  showScreen("plan");
+}
+
+function updatePlanProgress(plan){
   document.getElementById("plan-progress").textContent =
     countDone(plan) + " of " + countSessions(plan) + " sessions done";
-  renderPlan(plan);
-  showScreen("plan");
 }
 
 const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -561,7 +672,8 @@ function renderPlan(plan){
       if(d >= 0){
         const id = plan.id + ":w" + w.n + "d" + d;
         const mins = Math.round(totalSec(planSession(plan, w, d).blocks) / 60);
-        return '<div class="cell run' + (progress[id] ? " done" : "") + '" ' +
+        return '<div class="cell run' + (progress[id] ? " done" : "") +
+          (selected[id] ? " sel" : "") + '" ' +
           "onclick=\"openDay('" + plan.id + "'," + w.n + "," + d + ')">' +
           "<b>" + w.reps[d] + "×</b><span>" + mins + " min</span></div>";
       }
@@ -569,11 +681,13 @@ function renderPlan(plan){
       const strength = other && /strength/i.test(other.label);
       const key = otherKey(plan.id, w.n, day);
       return '<div class="cell ' + (strength ? "str" : "off") +
-        (strength && progress[key] ? " done" : "") + '"' +
+        (strength && progress[key] ? " done" : "") +
+        (strength && selected[key] ? " sel" : "") + '"' +
         (strength ? " onclick=\"openOther('" + plan.id + "'," + w.n + ",'" + day + "')\"" : "") +
         ">" + (strength ? "<b>Str</b>" : "Rest") + "</div>";
     }).join("");
-    return '<div class="cal-row"><span class="wk">W' + w.n + "</span>" + cells + "</div>";
+    return '<div class="cal-row"><span class="wk' + (selectMode ? " pick" : "") + '" ' +
+      "onclick=\"toggleWeek('" + plan.id + "'," + w.n + ')">W' + w.n + "</span>" + cells + "</div>";
   }).join("");
 
   const legend =
@@ -583,10 +697,81 @@ function renderPlan(plan){
       '<span><i style="background:var(--surface);border:1px solid var(--line)"></i>Rest</span>' +
     "</div>" +
     '<div class="empty" style="padding:16px 4px 0;text-align:left">' +
-      "Tap a day to see it in full, start it, or tick it off if you did it " +
-      "without the app.<br><br>Source: " + esc(plan.source) + "</div>";
+      (selectMode
+        ? "Tap the days you want, or a week number to take the whole week."
+        : "Tap a day to see it in full, start it, or tick it off if you did it " +
+          "without the app.<br><br>Source: " + esc(plan.source)) + "</div>";
 
   document.getElementById("plan-weeks").innerHTML = head + rows + legend;
+}
+
+/* =====================================================================
+   PICKING SEVERAL DAYS
+
+   Ticking off a week one sheet at a time is tedious, so the calendar has a
+   select mode: tap the days, then mark them all in one go. The keys are the
+   same ones a finished session writes, so the two ways of ticking a day off
+   cannot drift apart.
+   ===================================================================== */
+
+let selectMode = false;
+let selected = {};       // progress key -> true
+
+function toggleSelectMode(){
+  selectMode = !selectMode;
+  selected = {};
+  if(selectMode) armBack();
+  updateSelectUI();
+}
+
+function exitSelectMode(){
+  selectMode = false;
+  selected = {};
+  updateSelectUI();
+}
+
+function selectedKeys(){ return Object.keys(selected); }
+
+function updateSelectUI(){
+  const n = selectedKeys().length;
+  document.getElementById("selbar").classList.toggle("show", selectMode);
+  document.getElementById("select-btn").innerHTML = selectMode ? "&times;" : "&#9745;";
+  document.getElementById("sel-count").textContent =
+    n ? n + (n === 1 ? " day selected" : " days selected") : "Nothing selected yet";
+  const plan = PLANS.find(p => p.id === openPlanId);
+  if(plan){ renderPlan(plan); updatePlanProgress(plan); }
+}
+
+function toggleSelect(key){
+  if(selected[key]) delete selected[key]; else selected[key] = true;
+  updateSelectUI();
+}
+
+/* The week number takes or clears every day in that row that can be ticked. */
+function toggleWeek(planId, weekN){
+  if(!selectMode) return;
+  const plan = PLANS.find(p => p.id === planId);
+  const keys = weekKeys(plan, weekN);
+  const allOn = keys.every(k => selected[k]);
+  keys.forEach(k => { if(allOn) delete selected[k]; else selected[k] = true; });
+  updateSelectUI();
+}
+
+function weekKeys(plan, weekN){
+  const keys = plan.runDays.map((_, d) => plan.id + ":w" + weekN + "d" + d);
+  plan.otherDays.forEach(o => {
+    if(/strength/i.test(o.label)) keys.push(otherKey(plan.id, weekN, o.day));
+  });
+  return keys;
+}
+
+function markSelected(done){
+  const keys = selectedKeys();
+  if(!keys.length) return;
+  const today = new Date().toISOString().slice(0, 10);
+  keys.forEach(k => { if(done) progress[k] = today; else delete progress[k]; });
+  save(KEY_PROGRESS, progress);
+  exitSelectMode();
 }
 
 /* =====================================================================
@@ -602,6 +787,7 @@ function openDay(planId, weekN, dayIndex){
   const plan = PLANS.find(p => p.id === planId);
   const week = plan.weeks.find(w => w.n === weekN);
   const s = planSession(plan, week, dayIndex);
+  if(selectMode) return toggleSelect(s.id);
   sheetTarget = { kind:"run", planId, weekN, dayIndex, id:s.id };
 
   document.getElementById("sheet-title").textContent = s.name;
@@ -614,12 +800,14 @@ function openDay(planId, weekN, dayIndex){
       : "<div><span>" + b.text + "</span><span>" + fmt(b.sec) + "</span></div>"
   ).join("");
   document.getElementById("sheet-start").style.display = "block";
+  document.getElementById("sheet-copy").style.display = "block";
   showSheet();
 }
 
 function openOther(planId, weekN, day){
   const plan = PLANS.find(p => p.id === planId);
   const other = plan.otherDays.find(o => o.day === day);
+  if(selectMode) return toggleSelect(otherKey(planId, weekN, day));
   sheetTarget = { kind:"other", planId, weekN, day, id:otherKey(planId, weekN, day) };
 
   document.getElementById("sheet-title").textContent = "Week " + weekN + " – " + day;
@@ -627,6 +815,7 @@ function openOther(planId, weekN, day){
   document.getElementById("sheet-steps").innerHTML =
     "<div><span>" + other.label + "</span><span>not timed</span></div>";
   document.getElementById("sheet-start").style.display = "none";
+  document.getElementById("sheet-copy").style.display = "none";
   showSheet();
 }
 
@@ -634,6 +823,7 @@ function showSheet(){
   document.getElementById("sheet-mark").textContent =
     progress[sheetTarget.id] ? "Mark as not done" : "Mark as done";
   document.getElementById("sheet").classList.add("show");
+  armBack();
 }
 
 function closeSheet(){ document.getElementById("sheet").classList.remove("show"); }
@@ -645,8 +835,7 @@ function toggleDone(){
   save(KEY_PROGRESS, progress);
   const plan = PLANS.find(p => p.id === sheetTarget.planId);
   renderPlan(plan);
-  document.getElementById("plan-progress").textContent =
-    countDone(plan) + " of " + countSessions(plan) + " sessions done";
+  updatePlanProgress(plan);
   closeSheet();
 }
 
@@ -656,6 +845,26 @@ function startFromSheet(){
   const plan = PLANS.find(p => p.id === t.planId);
   const week = plan.weeks.find(w => w.n === t.weekN);
   begin(planSession(plan, week, t.dayIndex));
+}
+
+/* A day of a built-in plan, copied out as an ordinary program. Nothing links
+   the copy back to the plan afterwards, so it can be changed freely without
+   touching times that came from a clinician. */
+function copyToMine(){
+  const t = sheetTarget;
+  if(!t || t.kind !== "run") return;
+  closeSheet();
+  const plan = PLANS.find(p => p.id === t.planId);
+  const week = plan.weeks.find(w => w.n === t.weekN);
+  const s = planSession(plan, week, t.dayIndex);
+  editing = {
+    id: "p" + Date.now(),
+    name: (plan.short || plan.name) + " – " + s.name,
+    category: categoryOf(plan),
+    blocks: JSON.parse(JSON.stringify(s.blocks)),
+    isNew: true
+  };
+  openEditor("Copy of session");
 }
 
 function startSession(programId){
@@ -1049,6 +1258,7 @@ function newProgram(){
   editing = {
     id: "p" + Date.now(),
     name: "",
+    category: DEFAULT_CATEGORY,
     blocks: [
       { type:"step", text:"Warm-up walk", kind:"warm", sec:600 },
       { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
@@ -1071,6 +1281,9 @@ function editProgram(id){
 function openEditor(title){
   document.getElementById("editor-title").textContent = title;
   document.getElementById("edit-name").value = editing.name;
+  const cat = document.getElementById("edit-category");
+  cat.innerHTML = CATEGORIES.map(c => "<option>" + c + "</option>").join("");
+  cat.value = categoryOf(editing);
   document.getElementById("edit-delete").style.display = editing.isNew ? "none" : "block";
   renderBlocks();
   showScreen("editor");
@@ -1170,10 +1383,17 @@ function removeBlock(i){
 function saveProgram(){
   editing.name = document.getElementById("edit-name").value.trim() || "Untitled program";
   if(!editing.blocks.length){ dialog("Nothing to save", "Add at least one step first.", "OK", closeDialog); return; }
-  const clean = { id: editing.id, name: editing.name, blocks: editing.blocks };
+  const clean = {
+    id: editing.id, name: editing.name,
+    category: document.getElementById("edit-category").value,
+    blocks: editing.blocks
+  };
   const at = programs.findIndex(p => p.id === clean.id);
   if(at >= 0) programs[at] = clean; else programs.push(clean);
   save(KEY_PROGRAMS, programs);
+  /* Saving into a category that is filtered away would look like the program
+     vanished, so follow it there. */
+  if(filter !== "All" && filter !== clean.category) setFilter(clean.category);
   editing = null;
   showScreen("home");
 }
@@ -1202,9 +1422,63 @@ function dialog(title, text, okLabel, onOk){
   ok.textContent = okLabel;
   ok.onclick = onOk;
   document.getElementById("overlay").classList.add("show");
+  armBack();
 }
 
 function closeDialog(){ document.getElementById("overlay").classList.remove("show"); }
+
+/* =====================================================================
+   THE BACK BUTTON
+
+   The app is a single page, so the phone's back button has nothing to go
+   back to on its own and Android would simply close the app. We keep one
+   spare history entry armed and put it straight back every time it is
+   consumed; what "back" means is then decided in one place, the same way for
+   the app and for the web version.
+   ===================================================================== */
+
+const APP = NATIVE && window.Capacitor.Plugins ? window.Capacitor.Plugins.App : null;
+
+let backArmed = false;
+
+function armBack(){
+  if(backArmed) return;
+  try{ history.pushState({ tb:1 }, ""); backArmed = true; }catch(e){}
+}
+
+function currentScreen(){
+  const el = document.querySelector(".screen.active");
+  return el ? el.id : "home";
+}
+
+function dialogOpen(){ return document.getElementById("overlay").classList.contains("show"); }
+function sheetOpen(){ return document.getElementById("sheet").classList.contains("show"); }
+
+/* Closes whatever is on top: first anything covering the screen, then the
+   screen itself. A running session is never left without asking. */
+function goBack(){
+  if(dialogOpen()){ closeDialog(); return; }
+  if(sheetOpen()){ closeSheet(); return; }
+  if(selectMode){ exitSelectMode(); return; }
+  switch(currentScreen()){
+    case "run":    confirmQuit(); return;
+    case "editor": cancelEdit();  return;
+    case "home":   if(APP) APP.exitApp(); return;
+    default:       showScreen("home");
+  }
+}
+
+window.addEventListener("popstate", () => {
+  backArmed = false;
+  /* Home with nothing open is the way out: let the browser have the press so
+     the web version is not a trap. In the app the press never gets this far. */
+  if(currentScreen() === "home" && !selectMode && !dialogOpen() && !sheetOpen()) return;
+  armBack();
+  goBack();
+});
+
+/* Android sends the hardware button here instead, so history is left alone. */
+if(APP && APP.addListener) APP.addListener("backButton", () => goBack());
 
 /* =====================================================================
    STARTUP

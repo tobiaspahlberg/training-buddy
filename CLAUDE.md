@@ -60,7 +60,12 @@ program times by feel** – they come from a clinician's plan. Change them only
 against the source document in `programs/`.
 
 The editor works at session level, so a user-made program is simply a plan
-with one session.
+with one session. Copying a day out of a built-in plan produces exactly that:
+an ordinary program with no link back to the plan.
+
+A **category** (`CATEGORIES` in the script) is only a label for sorting the
+home screen. Programs saved before categories existed fall back to the
+default, so `categoryOf()` is the only place that reads the field.
 
 ## Pitfalls
 
@@ -76,6 +81,13 @@ delete with confirmation.
 **Speech needs a user gesture before it works.** `unlockAudio()` runs on the
 Start tap and speaks one silent utterance; without it the browser stays quiet
 for the rest of the session.
+
+**The back button is handled in one place.** The app is a single page, so
+there is nothing to go back to on its own: one spare history entry is kept
+armed and re-armed, and `goBack()` decides what a press means. Android routes
+its hardware button to the same function through the `App` plugin instead of
+through history. Anything new that covers the screen has to be closed there
+too, or the button will skip past it.
 
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
