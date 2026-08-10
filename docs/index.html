@@ -160,7 +160,9 @@
      Some workouts are a single block of time with a list of movements in it.
      The list has no timing of its own, so it is only ever shown, never run. */
   .worklist{font-size:18px;line-height:1.6;color:var(--dim);text-align:left}
-  .worklist div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* A line too long for the screen wraps and hangs, rather than being cut off:
+     losing the end of "15 cal row / ski erg / assault bike" loses the choice. */
+  .worklist div{padding-left:1em;text-indent:-1em}
   .worklist.ro{background:var(--bg);border:1px solid var(--line);border-radius:11px;
     padding:10px 12px}
 
@@ -430,6 +432,16 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.7.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Eight more built-in workouts, from team AMRAPs and chippers to a deck of cards",
+      "Interval workouts announce each station by name as it comes up",
+      "The Team of 2 AMRAP now says overhead lunges and alternating dumbbell snatches, as the board does",
+      "A long line in a work list now wraps instead of being cut off"
+    ]
+  },
+  {
     "version": "0.6.0",
     "date": "2026-08-10",
     "changes": [
@@ -499,7 +511,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.6.0";
+const APP_VERSION = "0.7.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -561,16 +573,251 @@ const TEAM_AMRAP_25 = {
       "80 kettlebell swings",
       "70 wall balls",
       "60 burpees",
-      "50 lunges",
+      "50 overhead lunges",
       "40 hanging knee raises",
-      "30 snatches",
+      "30 alternating dumbbell snatches",
       "20 pull-ups",
-      "1000 m ski erg / row"
+      "1000 m row / ski erg"
     ] }
   ]
 };
 
-const BUILTIN_PROGRAMS = [TEAM_AMRAP_25];
+/* Work for a while, rest a little, move to the next station, go round again.
+   Each station is a step of its own so it is announced by name. */
+function stations(names, workSec, restSec, rounds){
+  const blocks = [];
+  for(let r = 0; r < rounds; r++){
+    names.forEach(name => {
+      blocks.push({ type:"step", text:name, kind:"run", sec:workSec });
+      blocks.push({ type:"step", text:"Rest", kind:"rest", sec:restSec });
+    });
+  }
+  blocks.pop();   /* a workout should end on the work, not on a rest */
+  return blocks;
+}
+
+const TOTAL_TRAINING_25 = {
+  id: "wod-total-training-25",
+  name: "Total Training – Team AMRAP 25 min",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "As many rounds as possible in 25 minutes, shared between two. " +
+        "Split the reps however you like.",
+  blocks: [
+    { type:"step", text:"AMRAP", kind:"run", sec:1500, list:[
+      "50 burpees",
+      "100 kettlebell swings",
+      "50 push-ups",
+      "100 air squats",
+      "50 C-crunches",
+      "100 wall balls",
+      "50 push press",
+      "100 cal row / ski erg",
+      "50 renegade rows",
+      "100 box jump overs",
+      "50 broad jumps"
+    ] }
+  ]
+};
+
+const ROW_YOUR_BOAT_35 = {
+  id: "wod-row-your-boat-35",
+  name: "Row Your Boat – Team AMRAP 35 min",
+  category: "Training",
+  source: "Gym handout",
+  note: "Team of 2, I go you go: one works while the other rests. Two rounds of " +
+        "the warm-up first, then 35 minutes of work.",
+  blocks: [
+    /* The handout gives no length for the warm-up. Six minutes is enough for
+       two rounds of it and is the only time here that did not come off the
+       paper. */
+    { type:"step", text:"Warm-up", kind:"warm", sec:360, list:[
+      "2 rounds:",
+      "10 good mornings",
+      "10 ostrich walks",
+      "10 push-ups",
+      "5 bow bend squats",
+      "5 burpees"
+    ] },
+    { type:"step", text:"AMRAP", kind:"run", sec:2100, list:[
+      "400 m row / 24 cal assault bike",
+      "50 goblet squats, kettlebell",
+      "50 push-ups",
+      "50 Russian twists, kettlebell",
+      "400 m row",
+      "50 walking lunges",
+      "50 strict press, barbell",
+      "50 sit-ups",
+      "400 m row",
+      "50 wall balls",
+      "50 push press, barbell, heavier",
+      "50 hip thrusts",
+      "400 m row",
+      "50 kettlebell swings, heavy",
+      "50 gorilla rows",
+      "50 heel touches",
+      "400 m row",
+      "50 thrusters, single kettlebell",
+      "50 overhead triceps extensions",
+      "50 plank knee-to-elbow"
+    ] }
+  ]
+};
+
+const DB_SNATCH_2115 = {
+  id: "wod-db-snatch-21-15-9",
+  name: "Dumbbell Snatch & Burpees – 21-15-9",
+  category: "Training",
+  source: "CrossFit workout",
+  note: "For time, with a 15 minute cap. 22.5 kg dumbbell, or 15 kg for the " +
+        "lighter standard.",
+  blocks: [
+    { type:"step", text:"For time", kind:"run", sec:900, list:[
+      "21 dumbbell snatches, arm 1",
+      "21 lateral burpees over dumbbell",
+      "21 dumbbell snatches, arm 2",
+      "21 lateral burpees over dumbbell",
+      "15 dumbbell snatches, arm 1",
+      "15 lateral burpees over dumbbell",
+      "15 dumbbell snatches, arm 2",
+      "15 lateral burpees over dumbbell",
+      "9 dumbbell snatches, arm 1",
+      "9 lateral burpees over dumbbell",
+      "9 dumbbell snatches, arm 2",
+      "9 lateral burpees over dumbbell"
+    ] }
+  ]
+};
+
+/* The card sheet gives the movements but no length, and the app cannot deal
+   the cards, so the clock is only a cap and the sheet is carried as the list. */
+const DECK_OF_CARDS = {
+  id: "wod-deck-of-cards",
+  name: "Deck of Cards",
+  category: "Training",
+  source: "Gym handout",
+  note: "Turn a card and do its number in the movement for that suit. Face cards " +
+        "count 10 and aces 11. The 40 minute cap is not part of the original.",
+  blocks: [
+    { type:"step", text:"Deck of cards", kind:"run", sec:2400, list:[
+      "Spades – burpee box jumps",
+      "Diamonds – burpee pull-ups",
+      "Clubs – devil's press",
+      "Hearts – thrusters",
+      "Joker – 15 cal row / ski erg / assault bike"
+    ] }
+  ]
+};
+
+const ROW_REPS_PLANK = {
+  id: "wod-row-reps-plank",
+  name: "Row, Reps, Plank – Team of 3",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "Three stations, rotating when the rower is done: one rows 200 m, one " +
+        "works through the reps, one holds a plank. The 30 minute cap is not " +
+        "part of the original.",
+  blocks: [
+    { type:"step", text:"Rotate", kind:"run", sec:1800, list:[
+      "P1: 200 m row",
+      "P2: reps",
+      "P3: plank",
+      "—",
+      "100 thrusters",
+      "100 push-ups",
+      "100 strict press",
+      "100 knee raises",
+      "100 snatches, kettlebell or dumbbell"
+    ] }
+  ]
+};
+
+/* Two six minute couplets, then six stations at 40 seconds on, 20 off. The
+   board does not say how many rounds of the stations, so three it is – that
+   makes 18 minutes of intervals and 30 for the session. */
+const COUPLETS_AND_4020 = {
+  id: "wod-couplets-40-20",
+  name: "Couplets & 40/20 Intervals",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "Two six minute blocks, then three rounds of six stations at 40 seconds " +
+        "work and 20 seconds rest. The number of rounds is not on the board.",
+  blocks: [
+    { type:"step", text:"Lunges and press", kind:"run", sec:360, list:[
+      "As many rounds as possible:",
+      "6 reverse lunges, barbell",
+      "5 strict press, dumbbells"
+    ] },
+    { type:"step", text:"Knee raises and Pallof", kind:"run", sec:360, list:[
+      "As many rounds as possible:",
+      "10 rotating hanging knee raises",
+      "6/6 Pallof press"
+    ] }
+  ].concat(stations([
+    "Rope slams or tank push",
+    "Lateral jumps",
+    "Ski erg",
+    "Kneeling ball slams",
+    "Box jumps",
+    "Reverse lunge with press"
+  ], 40, 20, 3))
+};
+
+/* "15 min, conditioning, 60 seconds" – the work is 60 seconds at a time, and
+   30 seconds of rest between them lands the block on exactly 15 minutes. */
+const INTERVALS_AND_LADDER = {
+  id: "wod-intervals-ladder",
+  name: "Intervals & 20-16-12-8-4",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "Part one is 15 minutes of conditioning in 60 second efforts – pick the " +
+        "machine. Part two is for time, capped at 20 minutes. Neither the rest " +
+        "between efforts nor the cap is on the board.",
+  blocks: [
+    { type:"repeat", reps:10,
+      a:{ text:"Conditioning", kind:"run", sec:60 },
+      b:{ text:"Rest", kind:"rest", sec:30 } },
+    { type:"step", text:"For time", kind:"run", sec:1200, list:[
+      "20-16-12-8-4 of:",
+      "Gorilla rows",
+      "Push-ups",
+      "Snatches",
+      "Box jumps"
+    ] }
+  ]
+};
+
+/* A chipper: work down the list, then spend whatever is left on the AMRAP.
+   That only works against a fixed total, which the board does not give. */
+const TEAM_CHIPPER = {
+  id: "wod-team-chipper",
+  name: "Team Chipper – I Go You Go",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "Team of 2, one works while the other rests. Work down the list, then " +
+        "spend the time that is left on the last block. The 30 minute total is " +
+        "not on the board.",
+  blocks: [
+    { type:"step", text:"Chipper", kind:"run", sec:1800, list:[
+      "50 wall balls",
+      "20 rounds of: 8 sit-ups, 3 thrusters",
+      "100 air squats",
+      "10 rounds of: 6 deadlifts, 6 kettlebell swings",
+      "50 hanging knee raises",
+      "—",
+      "AMRAP with the time that is left:",
+      "2 push-ups",
+      "2 ball slams",
+      "4 sumo deadlift high pulls"
+    ] }
+  ]
+};
+
+const BUILTIN_PROGRAMS = [
+  TEAM_AMRAP_25, TOTAL_TRAINING_25, ROW_YOUR_BOAT_35, TEAM_CHIPPER,
+  DB_SNATCH_2115, INTERVALS_AND_LADDER, COUPLETS_AND_4020,
+  DECK_OF_CARDS, ROW_REPS_PLANK
+];
 
 /* Builds the session for one run day of a plan week. A copied plan carries
    its sessions as stored blocks instead of generating them, so they can be
