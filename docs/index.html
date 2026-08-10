@@ -76,8 +76,16 @@
      itself overnight and the date below it carries the longer memory. */
   .card.done{border-color:var(--run);background:rgba(74,222,128,.07)}
   .card.done h3::before{content:"\2713\00a0";color:var(--run)}
-  .card .link{color:var(--run)}
-  .card .link.mute{color:var(--dim)}
+  /* What a card can do, as buttons rather than as words in a sentence.
+     Grey text beside grey text says nothing about being tappable, however
+     it is coloured, so these carry a border, an icon and a label. */
+  .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+  .act{display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:8px 12px;font-family:inherit;
+    font-size:14px;font-weight:600}
+  .act svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   /* A plan's name is a heading with a rule under it, the way a chapter is
      titled and a paragraph is not: it says "there is a whole thing in here"
      before you have read the weeks or the hours underneath. */
@@ -282,6 +290,9 @@
     padding:12px 12px 12px 16px;align-items:center;gap:12px;
     box-shadow:0 8px 24px rgba(0,0,0,.45)}
   .undo.show{display:flex}
+  /* The bar floats over the foot of the list, so the list gives back the room
+     while it is there – otherwise it sits on top of the last button. */
+  body.undo-up .scroll{padding-bottom:96px}
   .undo span{flex:1;min-width:0;font-size:15px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .undo button{background:none;border:none;color:var(--run);font-family:inherit;
@@ -495,6 +506,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.13.2",
+    "date": "2026-08-10",
+    "changes": [
+      "Edit and Reset are buttons with icons now, instead of words that gave no sign of being tappable",
+      "The undo offer stands for five seconds, and the list makes room for it rather than being covered by it"
+    ]
+  },
+  {
     "version": "0.13.1",
     "date": "2026-08-10",
     "changes": [
@@ -678,7 +697,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.13.1";
+const APP_VERSION = "0.13.2";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1291,7 +1310,9 @@ const ICON = {
           '<path d="M10 11v6M14 11v6"/><path d="M6 7l1 12.1A2 2 0 0 0 9 21h6a2 2 0 0 0 2-1.9L18 7"/></svg>',
   back:   '<svg viewBox="0 0 24 24"><path d="M20 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
   skip:   '<svg viewBox="0 0 24 24"><path d="M5 5l10 7-10 7V5Z"/><path d="M19 5v14"/></svg>',
-  check:  '<svg viewBox="0 0 24 24"><path d="M4 12.5l6 6L20 6"/></svg>'
+  check:  '<svg viewBox="0 0 24 24"><path d="M4 12.5l6 6L20 6"/></svg>',
+  rotate: '<svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.8-6.3"/>' +
+          '<path d="M3 4.5V10h5.5"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -1482,10 +1503,10 @@ function renderCategory(){
         (own ? "prog:" : "wod:") + p.id + '"><div class="cardtop"><div>' +
       "<h3>" + esc(p.name) + (own ? "" : tag(p, false, "Built in")) + "</h3>" +
       "<p>" + fmtSpan(sec) + " – " + count(flatten(p.blocks).length, "step") +
-      (when ? "<br>Last done " + dayName(when).toLowerCase() : "") +
-      (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
-      (when ? ' &nbsp;<span class="link mute" data-act="reset" data-id="' + p.id +
-        '">Reset</span>' : "") + "</p>" +
+      (when ? "<br>Last done " + dayName(when).toLowerCase() : "") + "</p>" +
+      (own || when ? '<div class="acts">' +
+        (own ? actButton("edit", p.id, ICON.pencil, "Edit") : "") +
+        (when ? actButton("reset", p.id, ICON.rotate, "Reset") : "") + "</div>" : "") +
       "</div>" + (own ? binButton("prog", p.id, p.name) : "") + "</div>" +
       miniTimeline(p.blocks, barWidth(sec, most)) +
     "</div>";
@@ -1501,6 +1522,12 @@ function renderCategory(){
 
 /* Only what is yours carries a bin, which is also how a glance tells your own
    from what came with the app. It still asks before anything goes. */
+/* Icon and label both: an icon alone leaves you guessing what it undoes. */
+function actButton(act, id, icon, label){
+  return '<button class="act" data-act="' + act + '" data-id="' + id + '">' +
+    icon + label + "</button>";
+}
+
 function binButton(kind, id, name){
   return '<button class="trash" data-act="drop-' + kind + '" data-id="' + id +
     '" title="Delete ' + esc(name) + '">' + ICON.trash + "</button>";
@@ -2754,7 +2781,7 @@ function cancelEdit(){
    last one" means.
    ===================================================================== */
 
-const UNDO_MS = 9000;
+const UNDO_MS = 5000;
 let undone = null;      // { what, put, name }
 let undoTimer = null;
 
@@ -2767,6 +2794,7 @@ function showUndoBar(text, offering, ms){
   document.getElementById("undo-text").textContent = text;
   bar.classList.toggle("quiet", !offering);
   bar.classList.add("show");
+  document.body.classList.add("undo-up");
   if(undoTimer) clearTimeout(undoTimer);
   undoTimer = setTimeout(hideUndo, ms);
 }
@@ -2787,6 +2815,7 @@ function hideUndo(){
   if(undoTimer){ clearTimeout(undoTimer); undoTimer = null; }
   undone = null;
   document.getElementById("undo").classList.remove("show", "quiet");
+  document.body.classList.remove("undo-up");
 }
 
 function undoDelete(){
