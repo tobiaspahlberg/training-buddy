@@ -446,6 +446,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.11.1",
+    "date": "2026-08-10",
+    "changes": [
+      "A plan now looks heavier than a single session: a thicker coloured edge and a wash of its category's colour, so you can see it holds weeks rather than minutes"
+    ]
+  },
+  {
     "version": "0.11.0",
     "date": "2026-08-10",
     "changes": [
@@ -583,7 +590,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.11.0";
+const APP_VERSION = "0.11.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1198,10 +1205,23 @@ const CAT_FADE = {
   Strength:"rgba(251,191,36,.34)", Mobility:"rgba(167,139,250,.34)",
   Other:"rgba(140,167,154,.34)"
 };
+const CAT_TINT = {
+  Training:"rgba(74,222,128,.07)", Rehab:"rgba(56,189,248,.07)",
+  Strength:"rgba(251,191,36,.07)", Mobility:"rgba(167,139,250,.07)",
+  Other:"rgba(140,167,154,.07)"
+};
 
-function catColour(item, own){
+/* Two things to say about a card, so they get a channel each rather than four
+   shades of one colour. How much is inside is weight: a plan wears a thick
+   edge and a wash of its colour, a single session a thin one and no wash.
+   Whose it is stays the shade, full for yours and faded for what came with
+   the app. The padding makes up the difference so the names still line up. */
+function cardStyle(item, own, isPlan){
   const c = categoryOf(item);
-  return own ? CAT_COLOR[c] : CAT_FADE[c];
+  const edge = own ? CAT_COLOR[c] : CAT_FADE[c];
+  return isPlan
+    ? "border-left:9px solid " + edge + ";padding-left:12px;background:" + CAT_TINT[c]
+    : "border-left:5px solid " + edge;
 }
 
 /* The pill beside a name. What you made yourself wears the category's colour;
@@ -1293,7 +1313,7 @@ function renderCategory(){
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p);
-    return '<div class="card" style="border-left:5px solid ' + catColour(p, p.custom) +
+    return '<div class="card" style="' + cardStyle(p, p.custom, true) +
         '" data-open="plan:' + p.id + '">' +
       "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + done + " of " + total + " sessions done</p>" +
@@ -1311,7 +1331,7 @@ function renderCategory(){
     const own = programs.indexOf(p) >= 0;
     const when = progress[p.id];
     return '<div class="card' + (doneToday(p.id) ? " done" : "") +
-        '" style="border-left:5px solid ' + catColour(p, own) + '" data-open="' +
+        '" style="' + cardStyle(p, own, false) + '" data-open="' +
         (own ? "prog:" : "wod:") + p.id + '">' +
       "<h3>" + esc(p.name) + (own ? "" : tag(p, false, "Built in")) + "</h3>" +
       "<p>" + fmtLong(totalSec(p.blocks)) + " – " + count(flatten(p.blocks).length, "step") +
