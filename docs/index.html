@@ -50,13 +50,13 @@
   header .sub{font-size:12px;color:var(--dim);font-weight:500}
   .iconbtn{
     background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    width:38px;height:38px;border-radius:11px;font-size:17px;flex-shrink:0;
+    width:46px;height:46px;border-radius:13px;font-size:19px;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;cursor:pointer;
   }
   /* Filled in while the mode it turns on is running. */
   .iconbtn.on{background:var(--run);border-color:var(--run);color:#08120C}
   /* Icons are drawn, not written, so they line up whatever the font does. */
-  .iconbtn svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
+  .iconbtn svg{width:24px;height:24px;display:block;fill:none;stroke:currentColor;
     stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;min-height:0}
   .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
@@ -78,11 +78,11 @@
   /* A card with something to the right of its text: the bin on what is yours. */
   .card.row{display:flex;align-items:center;gap:10px}
   .card.row > div{flex:1;min-width:0}
-  .trash{background:none;border:none;color:var(--dim);flex-shrink:0;
-    width:38px;height:38px;border-radius:10px;cursor:pointer;
+  .trash{background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
+    flex-shrink:0;width:54px;height:54px;border-radius:14px;cursor:pointer;
     display:flex;align-items:center;justify-content:center}
-  .trash svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
-    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .trash svg{width:28px;height:28px;display:block;fill:none;stroke:currentColor;
+    stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
   /* ---- How long a thing takes ----
      A bar as wide as its share of the longest thing in the same list, so a
@@ -301,7 +301,7 @@
 <!-- ============================ HISTORY ============================ -->
 <div class="screen" id="history">
   <header>
-    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <h1>History</h1>
   </header>
   <div class="scroll" id="history-body"></div>
@@ -310,7 +310,7 @@
 <!-- ============================ CATEGORY ============================ -->
 <div class="screen" id="category">
   <header>
-    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <h1 id="cat-title"></h1>
   </header>
   <div class="scroll" id="cat-body"></div>
@@ -319,7 +319,7 @@
 <!-- ============================ PLAN ============================ -->
 <div class="screen" id="plan">
   <header>
-    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <div style="flex:1;min-width:0">
       <h1 id="plan-name" style="white-space:normal;font-size:17px;line-height:1.25"></h1>
       <div class="sub" id="plan-progress" style="margin-top:3px"></div>
@@ -342,9 +342,9 @@
 <!-- ============================ RUN ============================ -->
 <div class="screen" id="run">
   <div class="runtop">
-    <button class="iconbtn" onclick="confirmQuit()">&times;</button>
+    <button class="iconbtn" id="run-quit" onclick="confirmQuit()" title="Leave this workout"></button>
     <div class="title" id="run-title"></div>
-    <button class="iconbtn" onclick="skipStep()" title="Skip step">&#9197;</button>
+    <button class="iconbtn" id="run-skip" onclick="skipStep()" title="Skip this step"></button>
   </div>
   <div class="stage" id="run-stage">
     <div class="steplabel" id="step-label">Ready</div>
@@ -384,9 +384,9 @@
 <!-- ============================ EDITOR ============================ -->
 <div class="screen" id="editor">
   <header>
-    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <h1 id="editor-title">New program</h1>
-    <button class="iconbtn" onclick="saveProgram()" style="color:var(--run)">&#10003;</button>
+    <button class="iconbtn" id="edit-save" onclick="saveProgram()" style="color:var(--run)" title="Save"></button>
   </header>
   <div class="scroll">
     <div class="field">
@@ -412,7 +412,7 @@
 <!-- ============================ ABOUT ============================ -->
 <div class="screen" id="about">
   <header>
-    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <h1>About</h1>
   </header>
   <div class="scroll">
@@ -462,6 +462,15 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.12.1",
+    "date": "2026-08-10",
+    "changes": [
+      "Plans and programs are measured on one scale now, so six weeks no longer looks like twenty minutes",
+      "Bigger bin, bigger back arrow, and both drawn rather than set as characters",
+      "Strength for Runners dropped the length from its name, which disagreed with the length underneath it"
+    ]
+  },
   {
     "version": "0.12.0",
     "date": "2026-08-10",
@@ -617,7 +626,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.12.0";
+const APP_VERSION = "0.12.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -966,7 +975,7 @@ const TEAM_CHIPPER = {
 
 const STRENGTH_FOR_RUNNERS = {
   id: "rehab-strength-for-runners",
-  name: "Strength for Runners – 25 min",
+  name: "Strength for Runners",
   category: "Rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 25 minute strength for runners",
   note: "Seven exercises, timed the way the video is chaptered. Each block covers " +
@@ -1227,7 +1236,10 @@ const ICON = {
           '<path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>',
   close:  '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   trash:  '<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/>' +
-          '<path d="M10 11v6M14 11v6"/><path d="M6 7l1 12.1A2 2 0 0 0 9 21h6a2 2 0 0 0 2-1.9L18 7"/></svg>'
+          '<path d="M10 11v6M14 11v6"/><path d="M6 7l1 12.1A2 2 0 0 0 9 21h6a2 2 0 0 0 2-1.9L18 7"/></svg>',
+  back:   '<svg viewBox="0 0 24 24"><path d="M20 12H5"/><path d="M12 19l-7-7 7-7"/></svg>',
+  skip:   '<svg viewBox="0 0 24 24"><path d="M5 5l10 7-10 7V5Z"/><path d="M19 5v14"/></svg>',
+  check:  '<svg viewBox="0 0 24 24"><path d="M4 12.5l6 6L20 6"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -1258,8 +1270,21 @@ function planTotalSec(plan){
   return sec;
 }
 
-/* Never narrower than a stub, or the shortest thing in a list would vanish. */
-function barWidth(sec, most){ return Math.max(11, Math.round(sec / most * 100)); }
+/* Plans and sessions share one axis, so a plan has to dwarf a session – but
+   the range is enormous, fourteen hours against ten minutes, and straight
+   proportion would leave every session a two per cent stub. The width follows
+   the logarithm instead: order and distance still read, a plan is plainly a
+   different order of thing, and ten minutes against forty still differ. The
+   figure is written beside the bar, which is what to trust for the exact
+   number. Five minutes is the floor, below which everything is just short. */
+const BAR_FLOOR = 300;
+
+function barWidth(sec, most){
+  const lo = Math.log(BAR_FLOOR);
+  const hi = Math.log(Math.max(most, BAR_FLOOR * 4));
+  const at = Math.log(Math.max(sec, BAR_FLOOR));
+  return Math.max(8, Math.round((at - lo) / (hi - lo) * 100));
+}
 
 /* A session drawn as its steps, in their own colours: the run screen's
    timeline, shrunk to a line. */
@@ -1372,11 +1397,11 @@ function renderCategory(){
   document.getElementById("cat-title").innerHTML =
     '<i class="dot" style="background:' + CAT_COLOR[c] + '"></i>' + esc(c);
 
-  /* Each list is measured against its own longest, since a plan runs to hours
-     and a single session to minutes; on one scale every session would be a
-     sliver. The figure is written out beside the bar either way. */
-  const mostPlan = Math.max(1, ...plansIn(c).map(planTotalSec));
-  const mostProg = Math.max(1, ...programsIn(c).map(p => totalSec(p.blocks)));
+  /* One scale for the whole category, so a plan and a session can be held
+     against each other rather than each being the longest of its own kind. */
+  const most = Math.max(1,
+    ...plansIn(c).map(planTotalSec),
+    ...programsIn(c).map(p => totalSec(p.blocks)));
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p), sec = planTotalSec(p);
@@ -1385,7 +1410,7 @@ function renderCategory(){
       "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + count(p.weeks.length, "week") + " · " +
         done + " of " + total + " sessions done · " + fmtSpan(sec) + " in all</p>" +
-      '<div class="span" style="width:' + barWidth(sec, mostPlan) + "%;background:" +
+      '<div class="span" style="width:' + barWidth(sec, most) + "%;background:" +
         CAT_COLOR[categoryOf(p)] + '"></div>' +
       "</div>" + (p.custom ? binButton("plan", p.id, p.name) : "") +
     "</div>";
@@ -1403,7 +1428,7 @@ function renderCategory(){
       (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
       (when ? ' &nbsp;<span class="link mute" data-act="reset" data-id="' + p.id +
         '">Reset</span>' : "") + "</p>" +
-      miniTimeline(p.blocks, barWidth(sec, mostProg)) +
+      miniTimeline(p.blocks, barWidth(sec, most)) +
       "</div>" + (own ? binButton("prog", p.id, p.name) : "") +
     "</div>";
   }).join("");
@@ -2771,6 +2796,13 @@ function testVoice(){
   beep(880);
   speak("Run for two minutes. Then walk.");
 }
+
+/* The buttons that are the same on every screen are drawn once, here, rather
+   than written out five times in the markup. */
+document.querySelectorAll(".iconbtn.back").forEach(b => { b.innerHTML = ICON.back; });
+document.getElementById("run-quit").innerHTML = ICON.close;
+document.getElementById("run-skip").innerHTML = ICON.skip;
+document.getElementById("edit-save").innerHTML = ICON.check;
 
 renderChangelog();
 renderHome();
