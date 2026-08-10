@@ -65,7 +65,18 @@ Two levels, and the distinction matters:
 Built-in plans are written the way their source PDF is laid out, one row per
 week, so they can be checked against the original at a glance. **Never adjust
 program times by feel** – they come from a clinician's plan. Change them only
-against the source document in `programs/`.
+against the source document in `programs/`. Where a source contradicts itself,
+code the recipe and let the app work the total out: the printed total is the
+part that can be a typo. Say so in a comment rather than picking silently.
+
+A week either spells its days out in `days`, or – as Return to Run does –
+gives one interval for the whole week and only the repeats per day, which
+`daySpec()` reads either way. A day is one of five things, and the builders
+`intervals()`, `walkDay()`, `optionalDay()`, `restDay()` and `raceDay()` are
+how a plan says which. Only `isSession()` days have a clock to run; the rest
+are ticked off and no more, and they are not counted in "3 of 18 done".
+`runDays` is every day that carries something, not only the days with running
+in them – the name is older than the idea, and stored copies use it.
 
 `planSession(plan, week, dayIndex)` is the one door into a plan's sessions.
 A built-in plan generates them from `runSec`/`walkSec`/`reps`; a **copied

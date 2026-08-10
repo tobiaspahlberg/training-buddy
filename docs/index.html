@@ -106,6 +106,15 @@
   .cell.str{background:rgba(251,191,36,.10);border-color:rgba(251,191,36,.30);
     color:var(--warm);cursor:pointer}
   .cell.str.done{background:var(--warm);border-color:var(--warm);color:#241A02}
+  .cell.walk{background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.36);
+    color:var(--walk);cursor:pointer}
+  .cell.walk.done{background:var(--walk);border-color:var(--walk);color:#04121B}
+  .cell.opt{background:rgba(167,139,250,.10);border-color:rgba(167,139,250,.30);
+    color:var(--rest);cursor:pointer}
+  .cell.opt.done{background:var(--rest);border-color:var(--rest);color:#150C24}
+  .cell.race{background:rgba(251,191,36,.16);border-color:rgba(251,191,36,.5);
+    color:var(--warm);cursor:pointer}
+  .cell.race.done{background:var(--warm);border-color:var(--warm);color:#241A02}
   .cell.sel{box-shadow:inset 0 0 0 2px var(--text)}
   .wk.pick{cursor:pointer;color:var(--text);text-decoration:underline}
   /* The button that turns picking on. It says what it does rather than
@@ -432,6 +441,15 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.10.0",
+    "date": "2026-08-10",
+    "changes": [
+      "New plan: How to Start Running, the eight week beginner 5K plan, ending on race day",
+      "A plan can now set every day of the week on its own, and hold walk days, optional days and a race alongside its run days",
+      "The calendar legend now says what the plan you are looking at actually uses"
+    ]
+  },
+  {
     "version": "0.9.1",
     "date": "2026-08-10",
     "changes": [
@@ -534,7 +552,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.9.1";
+const APP_VERSION = "0.10.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -571,7 +589,39 @@ const SPARK_RTR = {
   ]
 };
 
-const PLANS = [SPARK_RTR];
+/* Eight weeks from nothing to a 5K. Written the way the sheet is laid out,
+   one row per week, six columns in calendar order, so it can be checked
+   against the PDF at a glance. Saturday is the only day off every week.
+
+   Three of the interval cells on the sheet print a total that does not match
+   their own recipe: week 5 Friday says 20 minutes, week 6 Wednesday 24 and
+   week 8 Tuesday 24, and in each case that is the running time with the walks
+   left out. The recipe is the same everywhere and is what is coded here; the
+   app works the totals out itself. */
+const SPARK_5K = {
+  id: "spark-beginner-5k",
+  name: "How to Start Running – Beginner 5K",
+  short: "Beginner 5K",
+  category: "Training",
+  source: "Spark Healthy Runner, coach Cat Aniballi – How to Start Running, Beginner 5K Training Plan",
+  note: "Eight weeks to a 5K. Four run days and two walk days a week, building from " +
+        "one minute of running at a time up to fifteen.",
+  runDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sunday"],
+  otherDays: [{ day: "Saturday", label: "Rest Day" }],
+  /*              Monday          Tuesday            Wednesday          Thursday        Friday             Sunday          */
+  weeks: [
+    { n: 1, days: [walkDay(25), intervals( 1, 2, 6), intervals( 1, 2, 6), walkDay(25),   intervals( 1, 2, 8), intervals( 2, 2, 6)] },
+    { n: 2, days: [walkDay(25), intervals( 1, 2, 8), intervals( 2, 2, 6), walkDay(25),   intervals( 3, 2, 5), intervals( 4, 2, 4)] },
+    { n: 3, days: [walkDay(25), intervals( 4, 2, 5), intervals( 4, 2, 5), walkDay(25),   intervals( 5, 2, 4), intervals( 6, 3, 3)] },
+    { n: 4, days: [walkDay(25), intervals( 6, 3, 3), intervals( 4, 2, 5), optionalDay(), intervals( 7, 3, 3), intervals( 7, 2, 3)] },
+    { n: 5, days: [walkDay(30), intervals( 8, 3, 3), intervals( 8, 2, 3), optionalDay(), intervals(10, 2, 2), intervals(10, 2, 3)] },
+    { n: 6, days: [walkDay(30), intervals(12, 2, 2), intervals(12, 1, 2), optionalDay(), intervals(14, 2, 2), intervals(14, 1, 2)] },
+    { n: 7, days: [walkDay(30), intervals(15, 2, 2), intervals(15, 1, 2), restDay(),     intervals(12, 1, 3), intervals(15, 1, 2)] },
+    { n: 8, days: [walkDay(25), intervals(12, 2, 2), intervals(10, 2, 3), restDay(),     intervals( 5, 1, 4), raceDay()]           }
+  ]
+};
+
+const PLANS = [SPARK_RTR, SPARK_5K];
 
 /* =====================================================================
    BUILT-IN WORKOUTS
@@ -902,9 +952,51 @@ const BUILTIN_PROGRAMS = [
   DECK_OF_CARDS, ROW_REPS_PLANK
 ];
 
-/* Builds the session for one run day of a plan week. A copied plan carries
-   its sessions as stored blocks instead of generating them, so they can be
-   edited one by one; everything downstream sees the same shape either way. */
+/* =====================================================================
+   WHAT A PLAN ASKS OF A DAY
+
+   Plans are not all shaped alike. Return to Run gives one interval for a
+   whole week and varies only the number of repeats per day; the 5K plan
+   spells out every day, and mixes interval days with plain walks, days
+   that are the runner's choice, and a race at the end. A week may write
+   its days out in `days`, or leave them to be read off the week.
+
+   `runDays` is the list of days that hold something, in calendar order.
+   Everything a plan can ask of one of them is a spec, and these four
+   builders are how a plan is written. ===================================== */
+
+function intervals(runMin, walkMin, reps){
+  return { runSec:runMin * 60, walkSec:walkMin * 60, reps:reps };
+}
+function walkDay(min){ return { walkSec:min * 60 }; }
+function optionalDay(){ return { optional:true }; }
+function restDay(){ return { rest:true }; }
+function raceDay(){ return { race:true }; }
+
+function daySpec(week, dayIndex){
+  if(week.days) return week.days[dayIndex] || restDay();
+  return { runSec:week.runSec, walkSec:week.walkSec, reps:week.reps[dayIndex] };
+}
+
+/* A day the clock can actually run, as opposed to one that is only ticked. */
+function isSession(spec){ return !!(spec.reps || (spec.walkSec && !spec.optional)); }
+
+/* Every day of a plan that carries anything, session or not. */
+function planDays(plan){
+  const out = [];
+  plan.weeks.forEach(week => plan.runDays.forEach((day, d) => {
+    const spec = daySpec(week, d);
+    if(spec.rest) return;
+    out.push({ weekN:week.n, dayIndex:d, day:day, spec:spec,
+               id:plan.id + ":w" + week.n + "d" + d });
+  }));
+  return out;
+}
+
+/* Builds the session for one day of a plan week. A copied plan carries its
+   sessions as stored blocks instead of generating them, so they can be edited
+   one by one; everything downstream sees the same shape either way. A day
+   with nothing to time comes back with no blocks. */
 function planSession(plan, week, dayIndex){
   if(plan.custom){
     const s = week.sessions[dayIndex] || { name:"Session", blocks:[] };
@@ -915,18 +1007,32 @@ function planSession(plan, week, dayIndex){
       blocks: s.blocks
     };
   }
-  const reps = week.reps[dayIndex];
+  const spec = daySpec(week, dayIndex);
+  const blocks = [];
+  if(isSession(spec) && plan.warmupSec)
+    blocks.push({ type:"step", text:"Warm-up walk", kind:"warm", sec:plan.warmupSec });
+  if(spec.reps){
+    blocks.push({ type:"repeat", reps:spec.reps,
+                  a:{ text:"Run",  kind:"run",  sec:spec.runSec },
+                  b:{ text:"Walk", kind:"walk", sec:spec.walkSec } });
+  }else if(spec.walkSec && !spec.optional){
+    blocks.push({ type:"step", text:"Walk", kind:"walk", sec:spec.walkSec });
+  }
+  if(isSession(spec) && plan.cooldownSec)
+    blocks.push({ type:"step", text:"Cool-down walk", kind:"warm", sec:plan.cooldownSec });
   return {
     id: plan.id + ":w" + week.n + "d" + dayIndex,
     name: "Week " + week.n + " – " + plan.runDays[dayIndex],
     planName: plan.name,
-    blocks: [
-      { type:"step",   text:"Warm-up walk", kind:"warm", sec:plan.warmupSec },
-      { type:"repeat", reps:reps, a:{ text:"Run",  kind:"run",  sec:week.runSec },
-                                  b:{ text:"Walk", kind:"walk", sec:week.walkSec } },
-      { type:"step",   text:"Cool-down walk", kind:"warm", sec:plan.cooldownSec }
-    ]
+    blocks: blocks
   };
+}
+
+/* What a day that is not timed is called, in the calendar and in the sheet. */
+function dayLabel(spec){
+  if(spec.race) return "Race day";
+  if(spec.optional) return "Optional walk, or take the day off";
+  return "Rest day";
 }
 
 /* =====================================================================
@@ -1237,13 +1343,26 @@ function esc(s){
   return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
 }
 
-function countSessions(plan){ return plan.weeks.length * plan.runDays.length; }
-function countDone(plan){
-  let n = 0;
-  plan.weeks.forEach(w => plan.runDays.forEach((_, d) => {
-    if(progress[plan.id + ":w" + w.n + "d" + d]) n++;
+/* Only the days the clock can run are counted, so a rest day or a race is
+   never held against you in "3 of 18 done". */
+function customSessions(plan){
+  const out = [];
+  plan.weeks.forEach(w => (w.sessions || []).forEach((s, d) => {
+    if(s.blocks.length) out.push(plan.id + ":w" + w.n + "d" + d);
   }));
-  return n;
+  return out;
+}
+
+function countSessions(plan){
+  return plan.custom
+    ? customSessions(plan).length
+    : planDays(plan).filter(x => isSession(x.spec)).length;
+}
+
+function countDone(plan){
+  return plan.custom
+    ? customSessions(plan).filter(id => progress[id]).length
+    : planDays(plan).filter(x => isSession(x.spec) && progress[x.id]).length;
 }
 
 /* =====================================================================
@@ -1286,15 +1405,7 @@ function renderPlan(plan){
   const rows = plan.weeks.map(w => {
     const cells = DAYS.map(day => {
       const d = plan.runDays.indexOf(day);
-      if(d >= 0){
-        const id = plan.id + ":w" + w.n + "d" + d;
-        const mins = Math.round(totalSec(planSession(plan, w, d).blocks) / 60);
-        return '<div class="cell run' + (progress[id] ? " done" : "") +
-          (selected[id] ? " sel" : "") + '" data-sel="' + id +
-          '" data-w="' + w.n + '" data-d="' + d + '"><b>' +
-          (plan.custom ? mins : w.reps[d] + "×") + "</b><span>" +
-          (plan.custom ? "min" : mins + " min") + "</span></div>";
-      }
+      if(d >= 0) return planCell(plan, w, d);
       const other = plan.otherDays.find(o => o.day === day);
       if(!(other && /strength/i.test(other.label))) return '<div class="cell off">Rest</div>';
       const key = otherKey(plan.id, w.n, day);
@@ -1306,12 +1417,7 @@ function renderPlan(plan){
       '" data-week="' + w.n + '">W' + w.n + "</span>" + cells + "</div>";
   }).join("");
 
-  const legend =
-    '<div class="legend">' +
-      '<span><i style="background:var(--run)"></i>Run session</span>' +
-      '<span><i style="background:var(--warm)"></i>Strength</span>' +
-      '<span><i style="background:var(--surface);border:1px solid var(--line)"></i>Rest</span>' +
-    "</div>" +
+  const legend = '<div class="legend">' + planLegend(plan) + "</div>" +
     '<div class="empty" style="padding:16px 4px 0;text-align:left">' +
       (selectMode
         ? "Tap the days you want, or a week number to take the whole week."
@@ -1331,6 +1437,42 @@ function renderPlan(plan){
       : "");
 
   document.getElementById("plan-weeks").innerHTML = head + rows + legend + actions;
+}
+
+/* One day in the calendar. The cell has room for two lines, so it carries
+   what tells the days apart and nothing else; the rest is in the sheet. */
+function planCell(plan, plaWeek, d){
+  const id = plan.id + ":w" + plaWeek.n + "d" + d;
+  const state = (progress[id] ? " done" : "") + (selected[id] ? " sel" : "");
+  const data = ' data-sel="' + id + '" data-w="' + plaWeek.n + '" data-d="' + d + '"';
+  const mins = Math.round(totalSec(planSession(plan, plaWeek, d).blocks) / 60);
+
+  if(plan.custom){
+    return mins
+      ? '<div class="cell run' + state + '"' + data + "><b>" + mins + "</b><span>min</span></div>"
+      : '<div class="cell off">Rest</div>';
+  }
+  const spec = daySpec(plaWeek, d);
+  if(spec.rest)     return '<div class="cell off">Rest</div>';
+  if(spec.race)     return '<div class="cell race' + state + '"' + data + "><b>5K</b><span>race</span></div>";
+  if(spec.optional) return '<div class="cell opt' + state + '"' + data + "><b>Opt</b><span>walk</span></div>";
+  if(spec.reps)     return '<div class="cell run' + state + '"' + data + "><b>" + spec.reps +
+                             "×</b><span>" + mins + " min</span></div>";
+  return '<div class="cell walk' + state + '"' + data + "><b>Walk</b><span>" + mins + " min</span></div>";
+}
+
+/* The legend says what this plan actually uses, not what plans can hold. */
+function planLegend(plan){
+  const specs = plan.custom ? [] : planDays(plan).map(x => x.spec);
+  const bits = [];
+  const add = (colour, text) => bits.push('<span><i style="background:' + colour + '"></i>' + text + "</span>");
+  if(plan.custom || specs.some(s => s.reps)) add("var(--run)", "Run session");
+  if(specs.some(s => isSession(s) && !s.reps)) add("var(--walk)", "Walk");
+  if(specs.some(s => s.optional)) add("var(--rest)", "Optional");
+  if(plan.otherDays.some(o => /strength/i.test(o.label))) add("var(--warm)", "Strength");
+  if(specs.some(s => s.race)) add("var(--warm)", "Race day");
+  add("var(--surface);border:1px solid var(--line)", "Rest");
+  return bits.join("");
 }
 
 /* =====================================================================
@@ -1473,7 +1615,9 @@ function toggleWeek(weekN){
 }
 
 function weekKeys(plan, weekN){
-  const keys = plan.runDays.map((_, d) => plan.id + ":w" + weekN + "d" + d);
+  const keys = plan.custom
+    ? plan.runDays.map((_, d) => plan.id + ":w" + weekN + "d" + d)
+    : planDays(plan).filter(x => x.weekN === weekN).map(x => x.id);
   plan.otherDays.forEach(o => {
     if(/strength/i.test(o.label)) keys.push(otherKey(plan.id, weekN, o.day));
   });
@@ -1588,11 +1732,17 @@ function openDay(weekN, dayIndex){
   if(selectMode) return toggleSelect(s.id);
   sheetTarget = { kind:"run", planId:plan.id, weekN, dayIndex, id:s.id };
 
+  /* A race, or a day the plan leaves to you, has nothing for the clock. */
+  const timed = s.blocks.length > 0;
+  const label = plan.custom ? "Nothing planned" : dayLabel(daySpec(week, dayIndex));
+
   document.getElementById("sheet-title").textContent = s.name;
-  document.getElementById("sheet-when").textContent =
-    plan.name + " – " + fmtLong(totalSec(s.blocks)) + " in total";
-  document.getElementById("sheet-steps").innerHTML = blockRows(s.blocks);
-  showSheet({ start:true, edit:!!plan.custom, mark:true, copy:true });
+  document.getElementById("sheet-when").textContent = plan.name + " – " +
+    (timed ? fmtLong(totalSec(s.blocks)) + " in total" : label);
+  document.getElementById("sheet-steps").innerHTML = timed
+    ? blockRows(s.blocks)
+    : "<div><span>" + esc(label) + "</span><span>not timed</span></div>";
+  showSheet({ start:timed, edit:!!plan.custom && timed, mark:true, copy:timed });
 }
 
 function openOther(weekN, day){
