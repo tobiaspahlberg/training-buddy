@@ -68,17 +68,18 @@
     background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
     font-size:11px;font-weight:650;letter-spacing:.3px;vertical-align:2px}
 
-  /* ---- Category filter ----
-     One row of pills above the lists. It only appears once more than one
-     category is actually in use, so a short list stays uncluttered. */
-  .chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:18px;padding-bottom:2px;
-    scrollbar-width:none}
-  .chips::-webkit-scrollbar{display:none}
-  .chips:empty{display:none}
-  .chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--line);
-    background:var(--surface);color:var(--dim);font-size:13px;font-weight:650;
-    font-family:inherit;cursor:pointer}
-  .chip.on{background:var(--run);border-color:var(--run);color:#08120C}
+  /* ---- Category buttons ----
+     The home screen is a list of categories, not of programs. Each card
+     carries the colour of its category so the eye finds it again on the
+     screen behind it. */
+  .catcard{display:flex;align-items:center;gap:14px;background:var(--surface);
+    border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;
+    cursor:pointer}
+  .catcard i{width:6px;align-self:stretch;border-radius:3px;flex-shrink:0}
+  .catcard div{flex:1;min-width:0}
+  .catcard h3{font-size:17px;font-weight:650;margin-bottom:2px}
+  .catcard p{font-size:13px;color:var(--dim)}
+  .catcard span{color:var(--dim);font-size:20px}
 
   /* ---- Plan calendar ----
      Weeks are rows and days are columns, so the plan reads like a wall
@@ -101,6 +102,14 @@
   .cell.str.done{background:var(--warm);border-color:var(--warm);color:#241A02}
   .cell.sel{box-shadow:inset 0 0 0 2px var(--text)}
   .wk.pick{cursor:pointer;color:var(--text);text-decoration:underline}
+  /* The button that turns picking on. It says what it does rather than
+     showing a bare glyph, and it fills in while picking is on. */
+  .selbtn{display:flex;align-items:center;gap:6px;flex-shrink:0;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    padding:9px 13px;border-radius:11px;font-size:13px;font-weight:650;
+    font-family:inherit;cursor:pointer}
+  .selbtn b{font-size:15px;line-height:1}
+  .selbtn.on{background:var(--run);border-color:var(--run);color:#08120C}
   /* Bar at the foot of the plan while several days are being picked. */
   .selbar{flex-shrink:0;display:none;background:var(--surface);border-top:1px solid var(--line);
     padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
@@ -124,6 +133,15 @@
     font-size:14px;border-bottom:1px solid var(--line)}
   .steplist div:last-child{border-bottom:none}
   .steplist div span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
+  .steplist div.sub{padding:8px 14px 8px 26px;font-size:13px;color:var(--dim)}
+
+  /* ---- Work list ----
+     Some workouts are a single block of time with a list of movements in it.
+     The list has no timing of its own, so it is only ever shown, never run. */
+  .worklist{font-size:13.5px;line-height:1.75;color:var(--dim);text-align:left}
+  .worklist div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .worklist.ro{background:var(--bg);border:1px solid var(--line);border-radius:11px;
+    padding:10px 12px}
 
   /* ---- Buttons ---- */
   .btn{
@@ -143,7 +161,10 @@
   .runtop .title{flex:1;min-width:0;font-size:13px;color:var(--dim);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:12px 16px;min-height:0}
+    padding:12px 16px;min-height:0;overflow:hidden}
+  /* A step that carries a work list needs the room, so the clock gives some up. */
+  .stage.haslist .bigtime{font-size:12vh;letter-spacing:-2px;margin:8px 0 2px}
+  .stage.haslist #work-list{margin-top:10px;max-width:340px;overflow-y:auto;min-height:0}
   .steplabel{font-size:34px;font-weight:800;letter-spacing:-.5px;text-align:center;line-height:1.1}
   .stepmeta{font-size:14px;color:var(--dim);margin-top:8px}
   .bigtime{font-size:19vh;font-weight:800;line-height:1;letter-spacing:-4px;
@@ -209,16 +230,20 @@
   </header>
   <div class="scroll">
     <div id="resume-slot"></div>
-    <div class="chips" id="cat-chips"></div>
-    <div id="plan-section">
-      <div class="section-title">Plans</div>
-      <div id="plan-list"></div>
-    </div>
-    <div class="section-title">My programs</div>
-    <div id="custom-list"></div>
+    <div class="section-title">Categories</div>
+    <div id="cat-list"></div>
     <button class="btn ghost" onclick="newProgram()">+ New program</button>
     <div class="ver" id="ver-line"></div>
   </div>
+</div>
+
+<!-- ============================ CATEGORY ============================ -->
+<div class="screen" id="category">
+  <header>
+    <button class="iconbtn" onclick="goBack()">&larr;</button>
+    <h1 id="cat-title"></h1>
+  </header>
+  <div class="scroll" id="cat-body"></div>
 </div>
 
 <!-- ============================ PLAN ============================ -->
@@ -229,8 +254,8 @@
       <h1 id="plan-name" style="white-space:normal;font-size:17px;line-height:1.25"></h1>
       <div class="sub" id="plan-progress" style="margin-top:3px"></div>
     </div>
-    <button class="iconbtn" id="select-btn" onclick="toggleSelectMode()"
-      title="Select several days">&#9745;</button>
+    <button class="selbtn" id="select-btn" onclick="toggleSelectMode()"
+      title="Select several days"><b id="select-box">&#9744;</b><span id="select-label">Select</span></button>
   </header>
   <div class="scroll" id="plan-weeks"></div>
   <div class="selbar" id="selbar">
@@ -254,6 +279,7 @@
     <div class="stepmeta" id="step-meta"></div>
     <div class="bigtime" id="step-time">0:00</div>
     <div class="nextup" id="next-up"></div>
+    <div class="worklist" id="work-list"></div>
   </div>
   <div class="runfoot">
     <div class="timeline" id="timeline">
@@ -294,7 +320,7 @@
       <label>Name</label>
       <input id="edit-name" placeholder="e.g. Achilles week 3">
     </div>
-    <div class="field">
+    <div class="field" id="edit-cat-field">
       <label>Category</label>
       <select id="edit-category"></select>
     </div>
@@ -343,6 +369,7 @@
     <div class="when" id="sheet-when"></div>
     <div class="steplist" id="sheet-steps"></div>
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
+    <button class="btn ghost" id="sheet-edit" onclick="editPlanSession()">Edit this session</button>
     <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
     <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my programs</button>
     <button class="btn ghost" onclick="closeSheet()">Close</button>
@@ -362,6 +389,17 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.4.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Copy a whole plan, not just a single day: every week and every session comes along and can be edited",
+      "The home screen starts with the categories, and the plans and programs sit inside them",
+      "The select button in a plan now says what it does and lights up while it is on",
+      "Hold a day to start picking, or hold a week number to take the whole week",
+      "New built-in workout: Team of 2 – AMRAP 25 min, with the movement list on screen while it runs"
+    ]
+  },
   {
     "version": "0.3.0",
     "date": "2026-08-10",
@@ -402,7 +440,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.3.0";
+const APP_VERSION = "0.4.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -441,8 +479,53 @@ const SPARK_RTR = {
 
 const PLANS = [SPARK_RTR];
 
-/* Builds the session for one run day of a plan week. */
+/* =====================================================================
+   BUILT-IN WORKOUTS
+
+   A single session with no schedule around it. Written from a gym
+   whiteboard: the clock only knows the 25 minutes, the movements are a
+   list you work through in that time, so they are carried as a plain
+   list on the step and shown rather than timed.
+   ===================================================================== */
+
+const TEAM_AMRAP_25 = {
+  id: "wod-team-amrap-25",
+  name: "Team of 2 – AMRAP 25 min",
+  category: "Training",
+  source: "Gym whiteboard",
+  note: "As many rounds as possible in 25 minutes, shared between two. " +
+        "Split the reps however you like – one works while the other rests.",
+  blocks: [
+    { type:"step", text:"AMRAP", kind:"run", sec:1500, list:[
+      "1000 m ski erg / row",
+      "90 box jump overs",
+      "80 kettlebell swings",
+      "70 wall balls",
+      "60 burpees",
+      "50 lunges",
+      "40 hanging knee raises",
+      "30 snatches",
+      "20 pull-ups",
+      "1000 m ski erg / row"
+    ] }
+  ]
+};
+
+const BUILTIN_PROGRAMS = [TEAM_AMRAP_25];
+
+/* Builds the session for one run day of a plan week. A copied plan carries
+   its sessions as stored blocks instead of generating them, so they can be
+   edited one by one; everything downstream sees the same shape either way. */
 function planSession(plan, week, dayIndex){
+  if(plan.custom){
+    const s = week.sessions[dayIndex] || { name:"Session", blocks:[] };
+    return {
+      id: plan.id + ":w" + week.n + "d" + dayIndex,
+      name: s.name,
+      planName: plan.name,
+      blocks: s.blocks
+    };
+  }
   const reps = week.reps[dayIndex];
   return {
     id: plan.id + ":w" + week.n + "d" + dayIndex,
@@ -477,7 +560,7 @@ function flatten(blocks){
         }
       }
     }else if(b.sec > 0){
-      steps.push({ text:b.text, kind:b.kind, sec:b.sec });
+      steps.push({ text:b.text, kind:b.kind, sec:b.sec, list:b.list });
     }
   }
   let at = 0;
@@ -508,9 +591,9 @@ function fmtLong(sec){
    ===================================================================== */
 
 const KEY_PROGRAMS = "tb.programs";
+const KEY_MYPLANS  = "tb.myplans";
 const KEY_PROGRESS = "tb.progress";
 const KEY_CURRENT  = "tb.current";
-const KEY_FILTER   = "tb.filter";
 
 function load(key, fallback){
   try{ const v = JSON.parse(localStorage.getItem(key)); return v === null ? fallback : v; }
@@ -521,6 +604,7 @@ function save(key, value){
 }
 
 let programs = load(KEY_PROGRAMS, []);   // user created sessions
+let myPlans  = load(KEY_MYPLANS, []);    // plans copied out of a built-in one
 let progress = load(KEY_PROGRESS, {});   // sessionId -> ISO date completed
 
 /* =====================================================================
@@ -537,16 +621,21 @@ function categoryOf(item){
   return CATEGORIES.indexOf(item.category) >= 0 ? item.category : DEFAULT_CATEGORY;
 }
 
-let filter = load(KEY_FILTER, "All");
+const CAT_COLOR = {
+  Training:"var(--run)", Rehab:"var(--walk)", Strength:"var(--warm)",
+  Mobility:"var(--rest)", Other:"var(--dim)"
+};
 
-function setFilter(c){
-  filter = c;
-  save(KEY_FILTER, c);
-  renderHome();
-}
+/* Everything that can sit inside a category, in the order it is listed. */
+function plansIn(c){ return PLANS.concat(myPlans).filter(p => categoryOf(p) === c); }
+function programsIn(c){ return BUILTIN_PROGRAMS.concat(programs).filter(p => categoryOf(p) === c); }
 
 /* =====================================================================
    HOME
+
+   The home screen is the list of categories. What is inside one only
+   appears once a category is opened, so the first screen stays short no
+   matter how many programs pile up.
    ===================================================================== */
 
 function showScreen(id){
@@ -569,57 +658,73 @@ function renderHome(){
     slot.innerHTML = "";
   }
 
-  renderChips();
-  const visible = x => filter === "All" || categoryOf(x) === filter;
-
-  const plans = PLANS.filter(visible);
-  document.getElementById("plan-section").style.display = plans.length ? "block" : "none";
-  document.getElementById("plan-list").innerHTML = plans.map(p => {
-    const total = countSessions(p), done = countDone(p);
-    return '<div class="card" onclick="openPlan(\'' + p.id + '\')">' +
-      "<h3>" + esc(p.name) + tag(p) + "</h3>" +
-      "<p>" + esc(p.note) + "<br>" + done + " of " + total + " sessions done</p>" +
-    "</div>";
-  }).join("");
-
-  const mine = programs.filter(visible);
-  const list = document.getElementById("custom-list");
-  list.innerHTML = mine.length
-    ? mine.map(p =>
-        '<div class="card" onclick="startSession(' + JSON.stringify(p.id).replace(/"/g, "&quot;") + ')">' +
-          "<h3>" + esc(p.name) + tag(p) + "</h3>" +
-          "<p>" + fmtLong(totalSec(p.blocks)) + " – " + flatten(p.blocks).length + " steps" +
-          ' &nbsp;<span style="color:var(--run)" onclick="event.stopPropagation();editProgram(\'' +
-            p.id + '\')">Edit</span></p>' +
-        "</div>")
-      .join("")
-    : '<div class="empty">' + (programs.length
-        ? "No programs in this category."
-        : "No programs yet.<br>Create one to time your own intervals.") + "</div>";
+  const used = CATEGORIES.filter(c => plansIn(c).length || programsIn(c).length);
+  document.getElementById("cat-list").innerHTML = used.length
+    ? used.map(c => {
+        const parts = [];
+        if(plansIn(c).length) parts.push(count(plansIn(c).length, "plan"));
+        if(programsIn(c).length) parts.push(count(programsIn(c).length, "program"));
+        return '<div class="catcard" onclick="openCategory(\'' + c + '\')">' +
+          '<i style="background:' + CAT_COLOR[c] + '"></i>' +
+          "<div><h3>" + esc(c) + "</h3><p>" + parts.join(" · ") + "</p></div>" +
+          "<span>&rsaquo;</span></div>";
+      }).join("")
+    : '<div class="empty">Nothing here yet.<br>Create a program to time your own intervals.</div>';
 
   document.getElementById("ver-line").textContent = "Version " + APP_VERSION;
 }
 
-/* Only categories that hold something are offered, and the row stays hidden
-   until there is more than one of them to choose between. */
-function renderChips(){
-  const used = [];
-  PLANS.concat(programs).forEach(x => {
-    const c = categoryOf(x);
-    if(used.indexOf(c) < 0) used.push(c);
-  });
-  used.sort((a, b) => CATEGORIES.indexOf(a) - CATEGORIES.indexOf(b));
-  if(filter !== "All" && used.indexOf(filter) < 0) filter = "All";
+function count(n, word){ return n + " " + word + (n === 1 ? "" : "s"); }
 
-  document.getElementById("cat-chips").innerHTML = used.length > 1
-    ? ["All"].concat(used).map(c =>
-        '<button class="chip' + (c === filter ? " on" : "") + '" onclick="setFilter(\'' +
-          c + '\')">' + esc(c) + "</button>").join("")
-    : "";
+/* =====================================================================
+   CATEGORY
+
+   One category, with everything in it: the plans first, then the single
+   sessions. Copies made by the user sit next to the built-in ones.
+   ===================================================================== */
+
+let currentCategory = null;
+
+function openCategory(c){
+  currentCategory = c;
+  renderCategory();
+  showScreen("category");
 }
 
-function tag(item){
-  return filter === "All" ? '<span class="tag">' + esc(categoryOf(item)) + "</span>" : "";
+function renderCategory(){
+  const c = currentCategory;
+  document.getElementById("cat-title").textContent = c;
+
+  const plans = plansIn(c).map(p => {
+    const total = countSessions(p), done = countDone(p);
+    return '<div class="card" onclick="openPlan(\'' + p.id + '\')">' +
+      "<h3>" + esc(p.name) + (p.custom ? '<span class="tag">Copy</span>' : "") + "</h3>" +
+      "<p>" + esc(p.note || "") + "<br>" + done + " of " + total + " sessions done</p>" +
+    "</div>";
+  }).join("");
+
+  const single = programsIn(c).map(p => {
+    const mine = programs.indexOf(p) >= 0;
+    return '<div class="card" onclick="' +
+        (mine ? "startSession('" + p.id + "')" : "openProgram('" + p.id + "')") + '">' +
+      "<h3>" + esc(p.name) + (mine ? "" : '<span class="tag">Built in</span>') + "</h3>" +
+      "<p>" + fmtLong(totalSec(p.blocks)) + " – " + flatten(p.blocks).length + " steps" +
+      (mine ? ' &nbsp;<span style="color:var(--run)" onclick="event.stopPropagation();editProgram(\'' +
+        p.id + '\')">Edit</span>' : "") + "</p>" +
+    "</div>";
+  }).join("");
+
+  document.getElementById("cat-body").innerHTML =
+    (plans ? '<div class="section-title">Plans</div>' + plans : "") +
+    '<div class="section-title">Programs</div>' +
+    (single || '<div class="empty">No programs in ' + esc(c) + " yet.</div>") +
+    '<button class="btn ghost" style="margin-top:12px" onclick="newProgram(\'' + c +
+      '\')">+ New program</button>';
+}
+
+/* Back out of a plan or the editor to wherever the user came in from. */
+function goHomeish(){
+  if(currentCategory) openCategory(currentCategory); else showScreen("home");
 }
 
 function esc(s){
@@ -641,9 +746,12 @@ function countDone(plan){
 
 let openPlanId = null;
 
+function findPlan(id){ return PLANS.concat(myPlans).find(p => p.id === id); }
+
 function openPlan(id){
   openPlanId = id;
-  const plan = PLANS.find(p => p.id === id);
+  const plan = findPlan(id);
+  if(!plan) return goHomeish();
   document.getElementById("plan-name").textContent = plan.name;
   selectMode = false;
   selected = {};
@@ -662,6 +770,9 @@ const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sun
    so strength days can be ticked off as well. */
 function otherKey(planId, weekN, day){ return planId + ":w" + weekN + ":" + day; }
 
+/* Cells carry their identity in data attributes instead of an onclick, so the
+   same element can answer to a tap and to a long press. Both are handled once,
+   on the container, further down. */
 function renderPlan(plan){
   const head = '<div class="cal-head"><span></span>' +
     DAYS.map(d => "<span>" + d.slice(0, 3) + "</span>").join("") + "</div>";
@@ -673,21 +784,20 @@ function renderPlan(plan){
         const id = plan.id + ":w" + w.n + "d" + d;
         const mins = Math.round(totalSec(planSession(plan, w, d).blocks) / 60);
         return '<div class="cell run' + (progress[id] ? " done" : "") +
-          (selected[id] ? " sel" : "") + '" ' +
-          "onclick=\"openDay('" + plan.id + "'," + w.n + "," + d + ')">' +
-          "<b>" + w.reps[d] + "×</b><span>" + mins + " min</span></div>";
+          (selected[id] ? " sel" : "") + '" data-sel="' + id +
+          '" data-w="' + w.n + '" data-d="' + d + '"><b>' +
+          (plan.custom ? mins : w.reps[d] + "×") + "</b><span>" +
+          (plan.custom ? "min" : mins + " min") + "</span></div>";
       }
       const other = plan.otherDays.find(o => o.day === day);
-      const strength = other && /strength/i.test(other.label);
+      if(!(other && /strength/i.test(other.label))) return '<div class="cell off">Rest</div>';
       const key = otherKey(plan.id, w.n, day);
-      return '<div class="cell ' + (strength ? "str" : "off") +
-        (strength && progress[key] ? " done" : "") +
-        (strength && selected[key] ? " sel" : "") + '"' +
-        (strength ? " onclick=\"openOther('" + plan.id + "'," + w.n + ",'" + day + "')\"" : "") +
-        ">" + (strength ? "<b>Str</b>" : "Rest") + "</div>";
+      return '<div class="cell str' + (progress[key] ? " done" : "") +
+        (selected[key] ? " sel" : "") + '" data-sel="' + key +
+        '" data-w="' + w.n + '" data-day="' + day + '"><b>Str</b></div>';
     }).join("");
-    return '<div class="cal-row"><span class="wk' + (selectMode ? " pick" : "") + '" ' +
-      "onclick=\"toggleWeek('" + plan.id + "'," + w.n + ')">W' + w.n + "</span>" + cells + "</div>";
+    return '<div class="cal-row"><span class="wk' + (selectMode ? " pick" : "") +
+      '" data-week="' + w.n + '">W' + w.n + "</span>" + cells + "</div>";
   }).join("");
 
   const legend =
@@ -700,10 +810,81 @@ function renderPlan(plan){
       (selectMode
         ? "Tap the days you want, or a week number to take the whole week."
         : "Tap a day to see it in full, start it, or tick it off if you did it " +
-          "without the app.<br><br>Source: " + esc(plan.source)) + "</div>";
+          "without the app.<br>Hold a day &ndash; or a week number &ndash; to tick " +
+          "off several at once." +
+          (plan.source ? "<br><br>Source: " + esc(plan.source) : "")) + "</div>";
 
-  document.getElementById("plan-weeks").innerHTML = head + rows + legend;
+  const actions =
+    '<button class="btn ghost" style="margin-top:18px" onclick="copyPlan()">' +
+      "Copy this plan to my plans</button>" +
+    (plan.custom
+      ? '<button class="btn danger" onclick="deletePlan()">Delete this plan</button>'
+      : "");
+
+  document.getElementById("plan-weeks").innerHTML = head + rows + legend + actions;
 }
+
+/* =====================================================================
+   COPYING A WHOLE PLAN
+
+   A copy is a plan of its own: same weeks, same days, but with every
+   session written out as blocks so each one can be edited. Nothing links
+   it back to the original, and it keeps its own progress, so the built-in
+   plan is never touched by what happens in a copy.
+   ===================================================================== */
+
+function copyPlan(){
+  const plan = findPlan(openPlanId);
+  if(!plan) return;
+  dialog("Copy this plan?",
+    'A full copy of "' + plan.name + '" is added to your plans, with every ' +
+    "session ready to edit. The original stays as it is.",
+    "Copy", () => {
+      closeDialog();
+      const copy = {
+        id: "up" + Date.now(),
+        custom: true,
+        name: plan.name + " (copy)",
+        short: plan.short || plan.name,
+        category: categoryOf(plan),
+        note: plan.note || "",
+        source: plan.custom ? plan.source : "Copied from " + plan.name,
+        runDays: plan.runDays.slice(),
+        otherDays: clone(plan.otherDays),
+        weeks: plan.weeks.map(w => ({
+          n: w.n,
+          sessions: plan.runDays.map((_, d) => {
+            const s = planSession(plan, w, d);
+            return { name: s.name, blocks: clone(s.blocks) };
+          })
+        }))
+      };
+      myPlans.push(copy);
+      save(KEY_MYPLANS, myPlans);
+      currentCategory = copy.category;
+      openPlan(copy.id);
+    });
+}
+
+function deletePlan(){
+  const plan = findPlan(openPlanId);
+  if(!plan || !plan.custom) return;
+  dialog("Delete this plan?",
+    '"' + plan.name + '" and everything ticked off in it will be removed from this phone.',
+    "Delete", () => {
+      myPlans = myPlans.filter(p => p.id !== plan.id);
+      save(KEY_MYPLANS, myPlans);
+      Object.keys(progress).forEach(k => {
+        if(k.indexOf(plan.id + ":") === 0) delete progress[k];
+      });
+      save(KEY_PROGRESS, progress);
+      openPlanId = null;
+      closeDialog();
+      goHomeish();
+    });
+}
+
+function clone(x){ return JSON.parse(JSON.stringify(x)); }
 
 /* =====================================================================
    PICKING SEVERAL DAYS
@@ -735,10 +916,12 @@ function selectedKeys(){ return Object.keys(selected); }
 function updateSelectUI(){
   const n = selectedKeys().length;
   document.getElementById("selbar").classList.toggle("show", selectMode);
-  document.getElementById("select-btn").innerHTML = selectMode ? "&times;" : "&#9745;";
+  document.getElementById("select-btn").classList.toggle("on", selectMode);
+  document.getElementById("select-box").innerHTML = selectMode ? "&times;" : "&#9744;";
+  document.getElementById("select-label").textContent = selectMode ? "Cancel" : "Select";
   document.getElementById("sel-count").textContent =
     n ? n + (n === 1 ? " day selected" : " days selected") : "Nothing selected yet";
-  const plan = PLANS.find(p => p.id === openPlanId);
+  const plan = findPlan(openPlanId);
   if(plan){ renderPlan(plan); updatePlanProgress(plan); }
 }
 
@@ -748,10 +931,9 @@ function toggleSelect(key){
 }
 
 /* The week number takes or clears every day in that row that can be ticked. */
-function toggleWeek(planId, weekN){
+function toggleWeek(weekN){
   if(!selectMode) return;
-  const plan = PLANS.find(p => p.id === planId);
-  const keys = weekKeys(plan, weekN);
+  const keys = weekKeys(findPlan(openPlanId), weekN);
   const allOn = keys.every(k => selected[k]);
   keys.forEach(k => { if(allOn) delete selected[k]; else selected[k] = true; });
   updateSelectUI();
@@ -774,6 +956,66 @@ function markSelected(done){
   exitSelectMode();
 }
 
+/* ---- Tapping and holding a day ----
+   The calendar is rebuilt on every change, so both gestures are handled once
+   on the container that survives. A long press is the shortcut into select
+   mode: hold a day and it is already picked, hold a week and the row is. */
+
+const LONG_PRESS_MS = 450;
+const weeksHost = document.getElementById("plan-weeks");
+let holdTimer = null, holdAt = null, heldDown = false;
+
+function targetOf(e){
+  const el = e.target.closest ? e.target.closest("[data-sel],[data-week]") : null;
+  return el && weeksHost.contains(el) ? el : null;
+}
+
+function cancelHold(){
+  if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+}
+
+weeksHost.addEventListener("pointerdown", e => {
+  heldDown = false;
+  const el = targetOf(e);
+  if(!el) return;
+  holdAt = { x: e.clientX, y: e.clientY };
+  cancelHold();
+  holdTimer = setTimeout(() => {
+    holdTimer = null;
+    heldDown = true;              /* swallow the click that follows the press */
+    longPress(el);
+  }, LONG_PRESS_MS);
+});
+
+/* A scroll must not count as a press, so any real movement gives up on it. */
+weeksHost.addEventListener("pointermove", e => {
+  if(holdTimer && holdAt &&
+     (Math.abs(e.clientX - holdAt.x) > 10 || Math.abs(e.clientY - holdAt.y) > 10)) cancelHold();
+});
+["pointerup", "pointercancel", "pointerleave"].forEach(t =>
+  weeksHost.addEventListener(t, cancelHold));
+weeksHost.addEventListener("contextmenu", e => { if(targetOf(e)) e.preventDefault(); });
+
+weeksHost.addEventListener("click", e => {
+  if(heldDown){ heldDown = false; return; }
+  const el = targetOf(e);
+  if(!el) return;
+  if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
+  else if(el.dataset.d !== undefined) openDay(parseInt(el.dataset.w, 10), parseInt(el.dataset.d, 10));
+  else openOther(parseInt(el.dataset.w, 10), el.dataset.day);
+});
+
+function longPress(el){
+  if(navigator.vibrate) navigator.vibrate(18);
+  if(!selectMode){
+    selectMode = true;
+    selected = {};
+    armBack();
+  }
+  if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
+  else toggleSelect(el.dataset.sel);
+}
+
 /* =====================================================================
    DAY SHEET
 
@@ -781,45 +1023,65 @@ function markSelected(done){
    fit in a cell lives, and where a day is ticked off by hand.
    ===================================================================== */
 
-let sheetTarget = null;   // { kind:"run"|"other", planId, weekN, dayIndex|day, id }
+let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayIndex|day, id }
 
-function openDay(planId, weekN, dayIndex){
-  const plan = PLANS.find(p => p.id === planId);
+/* The block list as it is shown in the sheet. A work list has no timing of
+   its own, so its lines hang under the step they belong to. */
+function blockRows(blocks){
+  return blocks.map(b =>
+    b.type === "repeat"
+      ? "<div><span>" + esc(b.reps + " × " + b.a.text + " : " + b.b.text) + "</span><span>" +
+        fmt(b.a.sec) + " : " + fmt(b.b.sec) + "</span></div>"
+      : "<div><span>" + esc(b.text) + "</span><span>" + fmt(b.sec) + "</span></div>" +
+        (b.list ? b.list.map(x => '<div class="sub"><span>' + esc(x) + "</span></div>").join("") : "")
+  ).join("");
+}
+
+function openDay(weekN, dayIndex){
+  const plan = findPlan(openPlanId);
   const week = plan.weeks.find(w => w.n === weekN);
   const s = planSession(plan, week, dayIndex);
   if(selectMode) return toggleSelect(s.id);
-  sheetTarget = { kind:"run", planId, weekN, dayIndex, id:s.id };
+  sheetTarget = { kind:"run", planId:plan.id, weekN, dayIndex, id:s.id };
 
   document.getElementById("sheet-title").textContent = s.name;
   document.getElementById("sheet-when").textContent =
     plan.name + " – " + fmtLong(totalSec(s.blocks)) + " in total";
-  document.getElementById("sheet-steps").innerHTML = s.blocks.map(b =>
-    b.type === "repeat"
-      ? "<div><span>" + b.reps + " × " + b.a.text + " : " + b.b.text + "</span><span>" +
-        fmt(b.a.sec) + " : " + fmt(b.b.sec) + "</span></div>"
-      : "<div><span>" + b.text + "</span><span>" + fmt(b.sec) + "</span></div>"
-  ).join("");
-  document.getElementById("sheet-start").style.display = "block";
-  document.getElementById("sheet-copy").style.display = "block";
-  showSheet();
+  document.getElementById("sheet-steps").innerHTML = blockRows(s.blocks);
+  showSheet({ start:true, edit:!!plan.custom, mark:true, copy:true });
 }
 
-function openOther(planId, weekN, day){
-  const plan = PLANS.find(p => p.id === planId);
+function openOther(weekN, day){
+  const plan = findPlan(openPlanId);
   const other = plan.otherDays.find(o => o.day === day);
-  if(selectMode) return toggleSelect(otherKey(planId, weekN, day));
-  sheetTarget = { kind:"other", planId, weekN, day, id:otherKey(planId, weekN, day) };
+  if(selectMode) return toggleSelect(otherKey(plan.id, weekN, day));
+  sheetTarget = { kind:"other", planId:plan.id, weekN, day, id:otherKey(plan.id, weekN, day) };
 
   document.getElementById("sheet-title").textContent = "Week " + weekN + " – " + day;
   document.getElementById("sheet-when").textContent = plan.name + " – " + other.label;
   document.getElementById("sheet-steps").innerHTML =
-    "<div><span>" + other.label + "</span><span>not timed</span></div>";
-  document.getElementById("sheet-start").style.display = "none";
-  document.getElementById("sheet-copy").style.display = "none";
-  showSheet();
+    "<div><span>" + esc(other.label) + "</span><span>not timed</span></div>";
+  showSheet({ mark:true });
 }
 
-function showSheet(){
+/* A built-in workout: one session, no schedule around it. */
+function openProgram(id){
+  const p = BUILTIN_PROGRAMS.find(x => x.id === id);
+  if(!p) return;
+  sheetTarget = { kind:"program", programId:p.id, id:p.id };
+  document.getElementById("sheet-title").textContent = p.name;
+  document.getElementById("sheet-when").textContent =
+    p.note || fmtLong(totalSec(p.blocks)) + " in total";
+  document.getElementById("sheet-steps").innerHTML = blockRows(p.blocks);
+  showSheet({ start:true, copy:true });
+}
+
+function showSheet(show){
+  const on = (el, yes) => { document.getElementById(el).style.display = yes ? "block" : "none"; };
+  on("sheet-start", show.start);
+  on("sheet-edit", show.edit);
+  on("sheet-mark", show.mark);
+  on("sheet-copy", show.copy);
   document.getElementById("sheet-mark").textContent =
     progress[sheetTarget.id] ? "Mark as not done" : "Mark as done";
   document.getElementById("sheet").classList.add("show");
@@ -833,38 +1095,66 @@ function toggleDone(){
   if(progress[sheetTarget.id]) delete progress[sheetTarget.id];
   else progress[sheetTarget.id] = new Date().toISOString().slice(0, 10);
   save(KEY_PROGRESS, progress);
-  const plan = PLANS.find(p => p.id === sheetTarget.planId);
-  renderPlan(plan);
-  updatePlanProgress(plan);
+  const plan = findPlan(sheetTarget.planId);
+  if(plan){ renderPlan(plan); updatePlanProgress(plan); }
   closeSheet();
 }
 
 function startFromSheet(){
   const t = sheetTarget;
   closeSheet();
-  const plan = PLANS.find(p => p.id === t.planId);
+  if(t.kind === "program"){
+    begin(BUILTIN_PROGRAMS.find(p => p.id === t.programId));
+    return;
+  }
+  const plan = findPlan(t.planId);
   const week = plan.weeks.find(w => w.n === t.weekN);
   begin(planSession(plan, week, t.dayIndex));
 }
 
-/* A day of a built-in plan, copied out as an ordinary program. Nothing links
-   the copy back to the plan afterwards, so it can be changed freely without
-   touching times that came from a clinician. */
+/* One session of a plan, or a built-in workout, copied out as an ordinary
+   program. Nothing links the copy back afterwards, so it can be changed
+   freely without touching times that came from a clinician. */
 function copyToMine(){
   const t = sheetTarget;
-  if(!t || t.kind !== "run") return;
+  if(!t) return;
   closeSheet();
-  const plan = PLANS.find(p => p.id === t.planId);
+  if(t.kind === "program"){
+    const p = BUILTIN_PROGRAMS.find(x => x.id === t.programId);
+    editing = {
+      id: "p" + Date.now(), name: p.name + " (copy)",
+      category: categoryOf(p), blocks: clone(p.blocks), isNew: true
+    };
+    return openEditor("Copy of workout");
+  }
+  if(t.kind !== "run") return;
+  const plan = findPlan(t.planId);
   const week = plan.weeks.find(w => w.n === t.weekN);
   const s = planSession(plan, week, t.dayIndex);
   editing = {
     id: "p" + Date.now(),
     name: (plan.short || plan.name) + " – " + s.name,
     category: categoryOf(plan),
-    blocks: JSON.parse(JSON.stringify(s.blocks)),
+    blocks: clone(s.blocks),
     isNew: true
   };
   openEditor("Copy of session");
+}
+
+/* A session inside a copied plan is edited in place: the same editor, but
+   what it saves goes back into the plan instead of into the program list. */
+function editPlanSession(){
+  const t = sheetTarget;
+  if(!t || t.kind !== "run") return;
+  const plan = findPlan(t.planId);
+  if(!plan || !plan.custom) return;
+  closeSheet();
+  const s = plan.weeks.find(w => w.n === t.weekN).sessions[t.dayIndex];
+  editing = {
+    planId: plan.id, weekN: t.weekN, dayIndex: t.dayIndex,
+    name: s.name, blocks: clone(s.blocks), isNew: false
+  };
+  openEditor("Edit session");
 }
 
 function startSession(programId){
@@ -1037,6 +1327,11 @@ function render(){
   document.getElementById("next-up").innerHTML = session.startedAt
     ? (next ? "Next: <b>" + esc(next.text) + "</b> " + fmt(next.sec) : "Last step")
     : "";
+
+  /* The work list stays on screen for as long as its step runs. */
+  document.getElementById("work-list").innerHTML =
+    s.list ? s.list.map(x => "<div>" + esc(x) + "</div>").join("") : "";
+  document.getElementById("run-stage").classList.toggle("haslist", !!s.list);
 
   const pct = Math.min(100, t / duration() * 100);
   document.getElementById("tl-veil").style.width = pct + "%";
@@ -1254,11 +1549,11 @@ window.addEventListener("pagehide", persist);
 
 let editing = null;
 
-function newProgram(){
+function newProgram(category){
   editing = {
     id: "p" + Date.now(),
     name: "",
-    category: DEFAULT_CATEGORY,
+    category: category || DEFAULT_CATEGORY,
     blocks: [
       { type:"step", text:"Warm-up walk", kind:"warm", sec:600 },
       { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
@@ -1284,7 +1579,11 @@ function openEditor(title){
   const cat = document.getElementById("edit-category");
   cat.innerHTML = CATEGORIES.map(c => "<option>" + c + "</option>").join("");
   cat.value = categoryOf(editing);
-  document.getElementById("edit-delete").style.display = editing.isNew ? "none" : "block";
+  /* A session inside a plan takes its category from the plan, and is deleted
+     with the plan, so neither control belongs here. */
+  document.getElementById("edit-cat-field").style.display = editing.planId ? "none" : "block";
+  document.getElementById("edit-delete").style.display =
+    editing.isNew || editing.planId ? "none" : "block";
   renderBlocks();
   showScreen("editor");
 }
@@ -1316,6 +1615,10 @@ function renderBlocks(){
         '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>' +
       '<div class="field"><label>Name</label>' +
         '<input value="' + esc(b.text) + '" onchange="setField(\'' + i + '.text\',this.value)"></div>' +
+      /* A work list is carried along and shown, but there is nothing to time
+         in it, so the editor only displays it. */
+      (b.list ? '<div class="field"><label>Work list</label><div class="worklist ro">' +
+        b.list.map(x => "<div>" + esc(x) + "</div>").join("") + "</div></div>" : "") +
       '<div class="grid three">' +
         '<div class="field"><label>Min</label><input type="number" min="0" value="' +
           Math.floor(b.sec / 60) + '" onchange="setDur(' + i + ',null,\'m\',this.value)"></div>' +
@@ -1383,6 +1686,18 @@ function removeBlock(i){
 function saveProgram(){
   editing.name = document.getElementById("edit-name").value.trim() || "Untitled program";
   if(!editing.blocks.length){ dialog("Nothing to save", "Add at least one step first.", "OK", closeDialog); return; }
+
+  if(editing.planId){
+    const plan = findPlan(editing.planId);
+    const week = plan.weeks.find(w => w.n === editing.weekN);
+    week.sessions[editing.dayIndex] = { name: editing.name, blocks: editing.blocks };
+    save(KEY_MYPLANS, myPlans);
+    const planId = editing.planId;
+    editing = null;
+    openPlan(planId);
+    return;
+  }
+
   const clean = {
     id: editing.id, name: editing.name,
     category: document.getElementById("edit-category").value,
@@ -1391,14 +1706,17 @@ function saveProgram(){
   const at = programs.findIndex(p => p.id === clean.id);
   if(at >= 0) programs[at] = clean; else programs.push(clean);
   save(KEY_PROGRAMS, programs);
-  /* Saving into a category that is filtered away would look like the program
-     vanished, so follow it there. */
-  if(filter !== "All" && filter !== clean.category) setFilter(clean.category);
   editing = null;
-  showScreen("home");
+  /* Land on the category the program ended up in, so it is in plain sight. */
+  currentCategory = clean.category;
+  openCategory(currentCategory);
 }
 
-function cancelEdit(){ editing = null; showScreen("home"); }
+function cancelEdit(){
+  const planId = editing && editing.planId;
+  editing = null;
+  if(planId) openPlan(planId); else goHomeish();
+}
 
 function deleteProgram(){
   const id = editing.id, name = editing.name;
@@ -1407,7 +1725,7 @@ function deleteProgram(){
     save(KEY_PROGRAMS, programs);
     editing = null;
     closeDialog();
-    showScreen("home");
+    goHomeish();
   });
 }
 
@@ -1461,10 +1779,12 @@ function goBack(){
   if(sheetOpen()){ closeSheet(); return; }
   if(selectMode){ exitSelectMode(); return; }
   switch(currentScreen()){
-    case "run":    confirmQuit(); return;
-    case "editor": cancelEdit();  return;
-    case "home":   if(APP) APP.exitApp(); return;
-    default:       showScreen("home");
+    case "run":      confirmQuit(); return;
+    case "editor":   cancelEdit();  return;
+    case "plan":     openPlanId = null; goHomeish(); return;
+    case "category": currentCategory = null; showScreen("home"); return;
+    case "home":     if(APP) APP.exitApp(); return;
+    default:         showScreen("home");
   }
 }
 

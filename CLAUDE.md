@@ -59,13 +59,29 @@ week, so they can be checked against the original at a glance. **Never adjust
 program times by feel** – they come from a clinician's plan. Change them only
 against the source document in `programs/`.
 
-The editor works at session level, so a user-made program is simply a plan
-with one session. Copying a day out of a built-in plan produces exactly that:
-an ordinary program with no link back to the plan.
+`planSession(plan, week, dayIndex)` is the one door into a plan's sessions.
+A built-in plan generates them from `runSec`/`walkSec`/`reps`; a **copied
+plan** (`custom: true`, stored in `tb.myplans`) carries them as written-out
+blocks in `week.sessions` so each one can be edited. Both come back in the
+same shape, so the calendar, the sheet and the clock never need to know which
+kind they are looking at. A copy keeps its own id, and progress keys are built
+from that id, so ticking days off in a copy never touches the original.
 
-A **category** (`CATEGORIES` in the script) is only a label for sorting the
-home screen. Programs saved before categories existed fall back to the
-default, so `categoryOf()` is the only place that reads the field.
+The editor works at session level. A user-made program is simply a plan with
+one session; copying a single day out of a plan produces exactly that, an
+ordinary program with no link back. Editing a session *inside* a copied plan
+uses the same editor, but `editing.planId` sends the result back into the plan
+instead of into the program list.
+
+`BUILTIN_PROGRAMS` are single sessions with no schedule around them. A step
+may carry a `list` of strings – movements to work through, as on a gym
+whiteboard. The list has no timing, so it is only ever displayed: in the
+sheet, on the run screen and read-only in the editor.
+
+A **category** (`CATEGORIES` in the script) is what the home screen is made
+of: home lists the categories that hold something, and the plans and programs
+only appear once one is opened. Programs saved before categories existed fall
+back to the default, so `categoryOf()` is the only place that reads the field.
 
 ## Pitfalls
 
@@ -88,6 +104,12 @@ armed and re-armed, and `goBack()` decides what a press means. Android routes
 its hardware button to the same function through the `App` plugin instead of
 through history. Anything new that covers the screen has to be closed there
 too, or the button will skip past it.
+
+**The calendar is rebuilt on every change**, so its cells cannot own their
+handlers. Days carry `data-sel`, `data-w` and `data-d`/`data-day`, and the tap
+and the long press are handled once on the `#plan-weeks` container, which
+survives the rebuild. A long press sets a flag that swallows the click the
+browser sends afterwards; the flag is cleared on the next `pointerdown`.
 
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
