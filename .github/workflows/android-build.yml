@@ -46,16 +46,65 @@ jobs:
       - name: Copy web files into the Android project
         run: npx cap sync android
 
+      # 0.5.0 becomes 500, 1.2.3 becomes 10203: it only has to keep going up.
+      - name: Work out the version code
+        id: code
+        run: |
+          CODE=$(echo "${{ steps.ver.outputs.version }}" | awk -F. '{printf "%d", $1*10000 + $2*100 + $3}')
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "Version code: $CODE"
+
+      # Without a key of our own every build signs with a fresh throwaway debug
+      # key, and a phone refuses to update an app whose signature changed. The
+      # build still works without the secrets, it just cannot be installed over
+      # an older version, so it says so loudly instead of failing.
+      - name: Look for a signing key
+        id: signing
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE" ]; then
+            echo "have=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=no" >> "$GITHUB_OUTPUT"
+            echo "### No signing key" >> "$GITHUB_STEP_SUMMARY"
+            echo "Built with a throwaway debug key, so this APK cannot be installed over an older version." >> "$GITHUB_STEP_SUMMARY"
+            echo "Add the ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD secrets to fix that." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Unpack the signing key
+        if: steps.signing.outputs.have == 'yes'
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/tb-release.jks"
+
       - name: Build the APK
+        env:
+          TB_KEYSTORE_FILE: ${{ steps.signing.outputs.have == 'yes' && format('{0}/tb-release.jks', runner.temp) || '' }}
+          TB_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          TB_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          TB_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           chmod +x android/gradlew
-          cd android && ./gradlew assembleDebug
+          TASK=${{ steps.signing.outputs.have == 'yes' && 'assembleRelease' || 'assembleDebug' }}
+          cd android && ./gradlew "$TASK" \
+            -PtbVersionCode=${{ steps.code.outputs.code }} \
+            -PtbVersionName=${{ steps.ver.outputs.version }}
 
       - name: Name the APK
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/TrainingBuddy.apk
+          if [ "${{ steps.signing.outputs.have }}" = "yes" ]; then
+            APK=android/app/build/outputs/apk/release/app-release.apk
+          else
+            APK=android/app/build/outputs/apk/debug/app-debug.apk
+          fi
+          cp "$APK" dist/TrainingBuddy.apk
           cp dist/TrainingBuddy.apk "dist/TrainingBuddy-v${{ steps.ver.outputs.version }}.apk"
+
+      - name: Forget the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/tb-release.jks"
 
       - name: Save as artifact
         uses: actions/upload-artifact@v4

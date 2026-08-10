@@ -82,6 +82,14 @@ may carry a `list` of strings – movements to work through, as on a gym
 whiteboard. The list has no timing, so it is only ever displayed: in the
 sheet, on the run screen and read-only in the editor.
 
+**Done** means two different things, deliberately. `progress` holds the day a
+session was last finished. For a day of a plan that is final: it is done and
+stays done, because a plan is walked through once. A program is repeated, so
+its green mark only shows while `progress[id]` is today – it clears itself
+overnight – and the date under the name is what remembers. `tb.history` is the
+permanent record: every finished session with its date and length. Resetting a
+program or a plan clears marks, never history.
+
 A **category** (`CATEGORIES` in the script) is what the home screen is made
 of: home lists the categories that hold something, and the plans and programs
 only appear once one is opened. Programs saved before categories existed fall
@@ -118,6 +126,20 @@ browser sends afterwards; the flag is cleared on the next `pointerdown`.
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
 the old settings until the app is reinstalled.
+
+**A phone only accepts an update signed with the same key.** The cloud build
+signs with a keystore kept in the repository secrets
+(`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+`ANDROID_KEY_PASSWORD`), handed to Gradle through `TB_*` environment
+variables. Lose that keystore and no future build can update an installed app
+– it has to be uninstalled first. Without the secrets the build falls back to
+a debug key and says in the job summary that the APK cannot be installed over
+an older version.
+
+**`versionCode` has to go up on every release**, or Android sees the same app.
+It is derived from `APP_VERSION` by the cloud build (`major*10000 +
+minor*100 + patch`) and passed in as `-PtbVersionCode`; a local build without
+the flag gets 1.
 
 **`npx cap sync android` only copies the web files** – icons come from
 `npx @capacitor/assets generate --android`. The cloud build runs both.

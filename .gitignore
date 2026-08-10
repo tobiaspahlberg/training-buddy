@@ -8,6 +8,10 @@ android/app/build/
 android/local.properties
 android/.idea/
 android/app/src/main/assets/public/
+
+# Signing keys never belong in the repository
+*.jks
+*.keystore
 android/app/src/main/res/xml/config.xml
 *.apk
 *.aab

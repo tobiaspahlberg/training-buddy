@@ -7,8 +7,11 @@ android {
         applicationId "se.trainingbuddy.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // Both come from APP_VERSION in docs/index.html, passed in by the cloud
+        // build. Android only offers an update when versionCode goes up, so a
+        // build that keeps the number looks like the same app to the phone.
+        versionCode project.hasProperty('tbVersionCode') ? project.tbVersionCode.toInteger() : 1
+        versionName project.hasProperty('tbVersionName') ? project.tbVersionName : "0.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +19,27 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // The phone only accepts an update signed with the same key as the version
+    // it already has, so the key cannot be a throwaway. It is kept out of the
+    // repository and handed to the build through the environment; without it
+    // the release build is simply left unsigned.
+    signingConfigs {
+        release {
+            if (System.getenv("TB_KEYSTORE_FILE")) {
+                storeFile file(System.getenv("TB_KEYSTORE_FILE"))
+                storePassword System.getenv("TB_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("TB_KEY_ALIAS")
+                keyPassword System.getenv("TB_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv("TB_KEYSTORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
