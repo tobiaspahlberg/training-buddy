@@ -432,6 +432,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.9.1",
+    "date": "2026-08-10",
+    "changes": [
+      "The five exercise rehab session is now named after the video it comes from, and says it needs a miniband"
+    ]
+  },
+  {
     "version": "0.9.0",
     "date": "2026-08-10",
     "changes": [
@@ -527,7 +534,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.9.0";
+const APP_VERSION = "0.9.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -867,16 +874,18 @@ const STRENGTH_FOR_RUNNERS = {
    a countdown for a physical therapist's exercises, the whole thing is one
    block with the five of them listed: the clock keeps the overall length and
    you work down the list at your own pace, for the reps the video gives. */
-const CORE_HIP_STABILITY = {
+const MINIBAND_FOR_RUNNING = {
+  /* The id is what progress and history hang on, so it stays as it was
+     first written even though the name has since been put right. */
   id: "rehab-core-hip-stability",
-  name: "Core and Hip Stability – 5 exercises",
+  name: "5 Miniband Exercises for Running",
   category: "Rehab",
-  source: "Spark Healthy Runner, Dr. Duane Scotti",
-  note: "Five exercises to work through at your own pace, for the reps the video " +
-        "gives. The ten minutes on the clock is a working length, not a " +
-        "prescription – the video holds no times of its own.",
+  source: "Spark Healthy Runner, Dr. Duane Scotti – 5 Simple Miniband Exercises for Running",
+  note: "Bring a miniband. Five exercises to work through at your own pace, for " +
+        "the reps the video gives. The ten minutes on the clock is a working " +
+        "length, not a prescription – the video holds no times of its own.",
   blocks: [
-    { type:"step", text:"Core and hip work", kind:"run", sec:600, list:[
+    { type:"step", text:"Miniband exercises", kind:"run", sec:600, list:[
       "Clamshells",
       "Bridging with marching",
       "Deadbugs",
@@ -887,7 +896,7 @@ const CORE_HIP_STABILITY = {
 };
 
 const BUILTIN_PROGRAMS = [
-  STRENGTH_FOR_RUNNERS, CORE_HIP_STABILITY,
+  STRENGTH_FOR_RUNNERS, MINIBAND_FOR_RUNNING,
   TEAM_AMRAP_25, TOTAL_TRAINING_25, ROW_YOUR_BOAT_35, TEAM_CHIPPER,
   DB_SNATCH_2115, INTERVALS_AND_LADDER, COUPLETS_AND_4020,
   DECK_OF_CARDS, ROW_REPS_PLANK
