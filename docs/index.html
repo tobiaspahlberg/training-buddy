@@ -432,6 +432,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.8.0",
+    "date": "2026-08-10",
+    "changes": [
+      "New in Rehab: Strength for Runners, seven exercises timed the way the video is chaptered",
+      "Wall hip abduction, short foot and the rest are announced as they come up, so the phone can stay on the floor"
+    ]
+  },
+  {
     "version": "0.7.0",
     "date": "2026-08-10",
     "changes": [
@@ -511,7 +519,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.7.0";
+const APP_VERSION = "0.8.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -813,7 +821,40 @@ const TEAM_CHIPPER = {
   ]
 };
 
+/* =====================================================================
+   STRENGTH FOR RUNNERS
+
+   From the same physical therapist as the Return to Run plan, so it sits
+   with it under Rehab: it is what the strength days of that plan are for.
+
+   The lengths are the chapter marks of the video, which is a follow-along.
+   That means each one covers the coaching as well as the work, and both
+   sides of the ones done a leg at a time. They are not prescribed set
+   times, and the only honest thing to do with them is to say so rather
+   than to tidy them into round numbers.
+   ===================================================================== */
+
+const STRENGTH_FOR_RUNNERS = {
+  id: "rehab-strength-for-runners",
+  name: "Strength for Runners – 25 min",
+  category: "Rehab",
+  source: "Spark Healthy Runner, Dr. Duane Scotti – 25 minute strength for runners",
+  note: "Seven exercises, timed the way the video is chaptered. Each block covers " +
+        "both sides and the coaching in between, so it is a follow-along length, " +
+        "not a prescribed set time.",
+  blocks: [
+    { type:"step", text:"Fire hydrants",              kind:"run", sec:102 },
+    { type:"step", text:"Clamshells",                 kind:"run", sec:202 },
+    { type:"step", text:"Wall hip abduction",         kind:"run", sec:214 },
+    { type:"step", text:"Elevated single-leg bridge", kind:"run", sec:182 },
+    { type:"step", text:"Short foot",                 kind:"run", sec:240 },
+    { type:"step", text:"Calf raise with ball squeeze", kind:"run", sec:63 },
+    { type:"step", text:"Front step-ups",             kind:"run", sec:423 }
+  ]
+};
+
 const BUILTIN_PROGRAMS = [
+  STRENGTH_FOR_RUNNERS,
   TEAM_AMRAP_25, TOTAL_TRAINING_25, ROW_YOUR_BOAT_35, TEAM_CHIPPER,
   DB_SNATCH_2115, INTERVALS_AND_LADDER, COUPLETS_AND_4020,
   DECK_OF_CARDS, ROW_REPS_PLANK
@@ -1749,13 +1790,15 @@ function cueFor(i){
   return cue;
 }
 
+/* Said out loud, so "1:42" will not do: a speech engine reads that as a
+   number, not as a length of time. */
 function spokenDuration(sec){
-  if(sec % 60 === 0){
-    const m = sec / 60;
-    return m + (m === 1 ? " minute" : " minutes");
-  }
-  if(sec < 60) return sec + " seconds";
-  return fmt(sec);
+  const m = Math.floor(sec / 60), s = sec % 60;
+  const mins = m + (m === 1 ? " minute" : " minutes");
+  const secs = s + (s === 1 ? " second" : " seconds");
+  if(!m) return secs;
+  if(!s) return mins;
+  return mins + " " + secs;
 }
 
 const KIND_COLOR = { run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)", rest:"var(--rest)" };
