@@ -75,6 +75,23 @@
   .card.done h3::before{content:"\2713\00a0";color:var(--run)}
   .card .link{color:var(--run)}
   .card .link.mute{color:var(--dim)}
+  /* A card with something to the right of its text: the bin on what is yours. */
+  .card.row{display:flex;align-items:center;gap:10px}
+  .card.row > div{flex:1;min-width:0}
+  .trash{background:none;border:none;color:var(--dim);flex-shrink:0;
+    width:38px;height:38px;border-radius:10px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center}
+  .trash svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
+    stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---- How long a thing takes ----
+     A bar as wide as its share of the longest thing in the same list, so a
+     15 minute workout is plainly a third of a 40 minute one. A session shows
+     its own shape in the colours of its steps; a plan is one solid block,
+     because the shape of thirty sessions is not a thing to read. */
+  .mini,.span{height:8px;border-radius:4px;margin-top:9px;min-width:16px}
+  .mini{display:flex;overflow:hidden;background:var(--surface-2)}
+  .mini i{height:100%;box-shadow:inset -1px 0 0 rgba(14,23,18,.5)}
   .tag{display:inline-block;padding:2px 8px;margin-left:7px;border-radius:999px;
     background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
     font-size:11px;font-weight:650;letter-spacing:.3px;vertical-align:2px}
@@ -359,7 +376,7 @@
       <h3 id="done-name" style="font-size:18px"></h3>
       <p id="done-stats" style="margin-top:8px"></p>
     </div>
-    <button class="btn" onclick="showScreen('home')">Done</button>
+    <button class="btn" onclick="leaveRun()">Done</button>
     <button class="btn ghost" onclick="openHistory()">See history</button>
   </div>
 </div>
@@ -445,6 +462,16 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.12.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Leaving a workout puts you back where you started it, in the plan or the category, instead of at the top of the app",
+      "A bin on everything of your own, so it goes in one tap - and so a glance tells yours from what came with the app",
+      "Every plan and program shows how long it takes as a bar, measured against the longest in the same list",
+      "A program draws its own shape in the bar, run and walk in their own colours, the way the run screen does"
+    ]
+  },
   {
     "version": "0.11.1",
     "date": "2026-08-10",
@@ -590,7 +617,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.11.1";
+const APP_VERSION = "0.12.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1116,6 +1143,15 @@ function fmtLong(sec){
   return m + " min";
 }
 
+/* Minutes stop being readable somewhere around an hour and a half, which a
+   whole plan passes long before it is finished. */
+function fmtSpan(sec){
+  const m = Math.round(sec / 60);
+  if(m < 90) return m + " min";
+  const h = Math.floor(m / 60), rest = m % 60;
+  return h + " h" + (rest ? " " + rest + " min" : "");
+}
+
 /* =====================================================================
    STORAGE
 
@@ -1189,7 +1225,9 @@ const ICON = {
   pencil: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>',
   copy:   '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/>' +
           '<path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>',
-  close:  '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+  close:  '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  trash:  '<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/>' +
+          '<path d="M10 11v6M14 11v6"/><path d="M6 7l1 12.1A2 2 0 0 0 9 21h6a2 2 0 0 0 2-1.9L18 7"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -1210,6 +1248,29 @@ const CAT_TINT = {
   Strength:"rgba(251,191,36,.07)", Mobility:"rgba(167,139,250,.07)",
   Other:"rgba(140,167,154,.07)"
 };
+
+/* Everything a plan asks of you, added up. Rest days count nothing. */
+function planTotalSec(plan){
+  let sec = 0;
+  plan.weeks.forEach(w => plan.runDays.forEach((_, d) => {
+    sec += totalSec(planSession(plan, w, d).blocks);
+  }));
+  return sec;
+}
+
+/* Never narrower than a stub, or the shortest thing in a list would vanish. */
+function barWidth(sec, most){ return Math.max(11, Math.round(sec / most * 100)); }
+
+/* A session drawn as its steps, in their own colours: the run screen's
+   timeline, shrunk to a line. */
+function miniTimeline(blocks, pct){
+  const steps = flatten(blocks);
+  const total = steps.length ? steps[steps.length - 1].end : 0;
+  if(!total) return "";
+  return '<div class="mini" style="width:' + pct + '%">' + steps.map(s =>
+    '<i style="flex:0 0 ' + (s.sec / total * 100) + "%;background:" + colorOf(s.kind) + '"></i>'
+  ).join("") + "</div>";
+}
 
 /* Two things to say about a card, so they get a channel each rather than four
    shades of one colour. How much is inside is weight: a plan wears a thick
@@ -1311,34 +1372,39 @@ function renderCategory(){
   document.getElementById("cat-title").innerHTML =
     '<i class="dot" style="background:' + CAT_COLOR[c] + '"></i>' + esc(c);
 
+  /* Each list is measured against its own longest, since a plan runs to hours
+     and a single session to minutes; on one scale every session would be a
+     sliver. The figure is written out beside the bar either way. */
+  const mostPlan = Math.max(1, ...plansIn(c).map(planTotalSec));
+  const mostProg = Math.max(1, ...programsIn(c).map(p => totalSec(p.blocks)));
+
   const plans = plansIn(c).map(p => {
-    const total = countSessions(p), done = countDone(p);
-    return '<div class="card" style="' + cardStyle(p, p.custom, true) +
-        '" data-open="plan:' + p.id + '">' +
+    const total = countSessions(p), done = countDone(p), sec = planTotalSec(p);
+    return '<div class="card row" style="' + cardStyle(p, p.custom, true) +
+        '" data-open="plan:' + p.id + '"><div>' +
       "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
-      "<p>" + esc(p.note || "") + "<br>" + done + " of " + total + " sessions done</p>" +
+      "<p>" + esc(p.note || "") + "<br>" + count(p.weeks.length, "week") + " · " +
+        done + " of " + total + " sessions done · " + fmtSpan(sec) + " in all</p>" +
+      '<div class="span" style="width:' + barWidth(sec, mostPlan) + "%;background:" +
+        CAT_COLOR[categoryOf(p)] + '"></div>' +
+      "</div>" + (p.custom ? binButton("plan", p.id, p.name) : "") +
     "</div>";
   }).join("");
 
-  const mineCount = programsIn(c).filter(p => programs.indexOf(p) >= 0).length;
-  const copyCount = plansIn(c).filter(p => p.custom).length;
-  const hint = mineCount && copyCount
-      ? "Hold a copy of a plan, or a program of your own, to delete it."
-    : copyCount ? "Hold a copy of a plan to delete it."
-    : mineCount ? "Hold a program of your own to delete it."
-    : "";
   const single = programsIn(c).map(p => {
     const own = programs.indexOf(p) >= 0;
-    const when = progress[p.id];
-    return '<div class="card' + (doneToday(p.id) ? " done" : "") +
+    const when = progress[p.id], sec = totalSec(p.blocks);
+    return '<div class="card row' + (doneToday(p.id) ? " done" : "") +
         '" style="' + cardStyle(p, own, false) + '" data-open="' +
-        (own ? "prog:" : "wod:") + p.id + '">' +
+        (own ? "prog:" : "wod:") + p.id + '"><div>' +
       "<h3>" + esc(p.name) + (own ? "" : tag(p, false, "Built in")) + "</h3>" +
-      "<p>" + fmtLong(totalSec(p.blocks)) + " – " + count(flatten(p.blocks).length, "step") +
+      "<p>" + fmtSpan(sec) + " – " + count(flatten(p.blocks).length, "step") +
       (when ? "<br>Last done " + dayName(when).toLowerCase() : "") +
       (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
       (when ? ' &nbsp;<span class="link mute" data-act="reset" data-id="' + p.id +
         '">Reset</span>' : "") + "</p>" +
+      miniTimeline(p.blocks, barWidth(sec, mostProg)) +
+      "</div>" + (own ? binButton("prog", p.id, p.name) : "") +
     "</div>";
   }).join("");
 
@@ -1346,9 +1412,15 @@ function renderCategory(){
     (plans ? '<div class="section-title">Plans</div>' + plans : "") +
     '<div class="section-title">Programs</div>' +
     (single || '<div class="empty">No programs in ' + esc(c) + " yet.</div>") +
-    (hint ? '<div class="hint">' + hint + "</div>" : "") +
     '<button class="btn ghost" style="margin-top:12px" onclick="newProgram(\'' + c +
       '\')">+ New program</button>';
+}
+
+/* Only what is yours carries a bin, which is also how a glance tells your own
+   from what came with the app. It still asks before anything goes. */
+function binButton(kind, id, name){
+  return '<button class="trash" data-act="drop-' + kind + '" data-id="' + id +
+    '" title="Delete ' + esc(name) + '">' + ICON.trash + "</button>";
 }
 
 /* Tap opens, hold deletes – but only what is yours. A copy of a plan is as
@@ -1382,8 +1454,13 @@ function splitOnce(s){
 document.getElementById("cat-body").addEventListener("click", e => {
   const link = e.target.closest("[data-act]");
   if(!link) return;
-  if(link.dataset.act === "edit") editProgram(link.dataset.id);
-  else resetProgram(link.dataset.id);
+  const id = link.dataset.id;
+  switch(link.dataset.act){
+    case "edit":      editProgram(id); break;
+    case "reset":     resetProgram(id); break;
+    case "drop-prog": confirmDeleteProgram(id, renderCategory); break;
+    case "drop-plan": confirmDeletePlan(id, renderCategory); break;
+  }
 });
 
 /* The history is a log, so a row has nothing to open – but an entry that
@@ -2230,8 +2307,17 @@ function finish(){
   showScreen("done");
 }
 
+/* Leaving a workout puts you back where you picked it up – the plan it is a
+   day of, or the category it sits in – rather than at the top of the app.
+   After the app has been killed and the session resumed there is nowhere to
+   go back to, and that lands on home, which is right. */
+function leaveRun(){
+  if(openPlanId && findPlan(openPlanId)) openPlan(openPlanId);
+  else goHomeish();
+}
+
 function confirmQuit(){
-  if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); showScreen("home"); return; }
+  if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); leaveRun(); return; }
   dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
     stopTicker();
     if(TTS) TTS.stop().catch(() => {});
@@ -2239,7 +2325,7 @@ function confirmQuit(){
     session = null;
     save(KEY_CURRENT, null);
     closeDialog();
-    showScreen("home");
+    leaveRun();
   });
 }
 
@@ -2644,6 +2730,7 @@ function goBack(){
   if(selectMode){ exitSelectMode(); return; }
   switch(currentScreen()){
     case "run":      confirmQuit(); return;
+    case "done":     leaveRun();    return;
     case "editor":   cancelEdit();  return;
     case "plan":     openPlanId = null; goHomeish(); return;
     case "category": currentCategory = null; showScreen("home"); return;

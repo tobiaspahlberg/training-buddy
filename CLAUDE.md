@@ -142,9 +142,16 @@ sends afterwards; the flag is cleared on the next `pointerdown`.
 
 **A long press is never the only way to do something.** Holding a day is a
 shortcut into select mode, which the header button also opens; holding a
-program or a copied plan deletes it, which the editor and the plan itself
-also do. Nothing is reachable by gesture alone, and a hold that declines a
-row returns `false` so the phone does not buzz at nobody.
+program or a copied plan deletes it, which the bin on its card, the editor
+and the plan itself also do. Nothing is reachable by gesture alone, and a
+hold that declines a row returns `false` so the phone does not buzz at
+nobody.
+
+**Leaving a workout goes back where it was started**, through `leaveRun()`:
+the plan a day belongs to, or the category it sits in. It reads the live
+`openPlanId` and `currentCategory` rather than anything stored, so a session
+resumed after the app was killed has nothing behind it and lands on home,
+which is right.
 
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
