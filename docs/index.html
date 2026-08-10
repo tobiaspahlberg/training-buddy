@@ -441,6 +441,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.10.1",
+    "date": "2026-08-10",
+    "changes": [
+      "Holding a copy of a plan now deletes it, the same way holding your own program does",
+      "The delete dialog says how many ticked off sessions go with the plan"
+    ]
+  },
+  {
     "version": "0.10.0",
     "date": "2026-08-10",
     "changes": [
@@ -552,7 +560,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.10.0";
+const APP_VERSION = "0.10.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1235,7 +1243,13 @@ function renderCategory(){
     "</div>";
   }).join("");
 
-  const mine = programsIn(c).filter(p => programs.indexOf(p) >= 0).length;
+  const mineCount = programsIn(c).filter(p => programs.indexOf(p) >= 0).length;
+  const copyCount = plansIn(c).filter(p => p.custom).length;
+  const hint = mineCount && copyCount
+      ? "Hold a copy of a plan, or a program of your own, to delete it."
+    : copyCount ? "Hold a copy of a plan to delete it."
+    : mineCount ? "Hold a program of your own to delete it."
+    : "";
   const single = programsIn(c).map(p => {
     const own = programs.indexOf(p) >= 0;
     const when = progress[p.id];
@@ -1254,14 +1268,15 @@ function renderCategory(){
     (plans ? '<div class="section-title">Plans</div>' + plans : "") +
     '<div class="section-title">Programs</div>' +
     (single || '<div class="empty">No programs in ' + esc(c) + " yet.</div>") +
-    (mine ? '<div class="hint">Hold a program of your own to delete it.</div>' : "") +
+    (hint ? '<div class="hint">' + hint + "</div>" : "") +
     '<button class="btn ghost" style="margin-top:12px" onclick="newProgram(\'' + c +
       '\')">+ New program</button>';
 }
 
-/* Tap opens, hold deletes – but only what is yours. A built-in workout cannot
-   be removed, and a plan is deleted from inside itself, where the number of
-   sessions that go with it is in plain sight. */
+/* Tap opens, hold deletes – but only what is yours. A copy of a plan is as
+   much yours as a program you wrote, so both answer to the gesture; what is
+   built in cannot be removed, since it would only come back with the next
+   version of the app. */
 bindTapAndHold(document.getElementById("cat-body"), {
   select: "[data-open]",
   ignore: "[data-act]",
@@ -1273,7 +1288,10 @@ bindTapAndHold(document.getElementById("cat-body"), {
   },
   hold: el => {
     const [kind, id] = splitOnce(el.dataset.open);
-    if(kind === "prog") confirmDeleteProgram(id, renderCategory);
+    if(kind === "prog"){ confirmDeleteProgram(id, renderCategory); return true; }
+    const plan = kind === "plan" ? findPlan(id) : null;
+    if(plan && plan.custom){ confirmDeletePlan(id, renderCategory); return true; }
+    return false;   /* built in: nothing to delete, so no buzz either */
   }
 });
 
@@ -1541,11 +1559,17 @@ function resetPlan(){
     });
 }
 
-function deletePlan(){
-  const plan = findPlan(openPlanId);
+/* The one place a copied plan is removed, whether the ask came from inside
+   the plan or from holding its card. A plan carries a lot with it, so the
+   dialog says how much before it goes. */
+function confirmDeletePlan(id, after){
+  const plan = findPlan(id);
   if(!plan || !plan.custom) return;
+  const done = countDone(plan);
   dialog("Delete this plan?",
-    '"' + plan.name + '" and everything ticked off in it will be removed from this phone.',
+    '"' + plan.name + '" will be removed from this phone.' +
+    (done ? " The " + count(done, "session") + " ticked off in it go too." : "") +
+    " Your history is kept.",
     "Delete", () => {
       myPlans = myPlans.filter(p => p.id !== plan.id);
       save(KEY_MYPLANS, myPlans);
@@ -1553,10 +1577,13 @@ function deletePlan(){
         if(k.indexOf(plan.id + ":") === 0) delete progress[k];
       });
       save(KEY_PROGRESS, progress);
-      openPlanId = null;
       closeDialog();
-      goHomeish();
+      after();
     });
+}
+
+function deletePlan(){
+  confirmDeletePlan(openPlanId, () => { openPlanId = null; goHomeish(); });
 }
 
 function clone(x){ return JSON.parse(JSON.stringify(x)); }
@@ -1665,8 +1692,8 @@ function bindTapAndHold(host, opts){
     timer = setTimeout(() => {
       timer = null;
       held = true;             /* swallow the click that follows the press */
-      if(navigator.vibrate) navigator.vibrate(18);
-      opts.hold(el);
+      /* A hold that declines the row buzzes at nobody. */
+      if(opts.hold(el) !== false && navigator.vibrate) navigator.vibrate(18);
     }, LONG_PRESS_MS);
   });
 

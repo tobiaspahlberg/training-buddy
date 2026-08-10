@@ -142,8 +142,9 @@ sends afterwards; the flag is cleared on the next `pointerdown`.
 
 **A long press is never the only way to do something.** Holding a day is a
 shortcut into select mode, which the header button also opens; holding a
-program deletes it, which the editor also does. Nothing is reachable by
-gesture alone.
+program or a copied plan deletes it, which the editor and the plan itself
+also do. Nothing is reachable by gesture alone, and a hold that declines a
+row returns `false` so the phone does not buzz at nobody.
 
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
