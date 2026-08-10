@@ -53,6 +53,11 @@
     width:38px;height:38px;border-radius:11px;font-size:17px;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;cursor:pointer;
   }
+  /* Filled in while the mode it turns on is running. */
+  .iconbtn.on{background:var(--run);border-color:var(--run);color:#08120C}
+  /* Icons are drawn, not written, so they line up whatever the font does. */
+  .iconbtn svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;min-height:0}
   .section-title{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
     color:var(--dim);margin:22px 0 10px}
@@ -86,6 +91,9 @@
   .catcard h3{font-size:19px;font-weight:650;margin-bottom:3px}
   .catcard p{font-size:15px;color:var(--dim)}
   .catcard span{color:var(--dim);font-size:22px}
+  /* The category's colour, wherever its name is written. */
+  .dot{display:inline-block;width:11px;height:11px;border-radius:4px;
+    margin-right:9px;vertical-align:1px;flex-shrink:0}
 
   /* ---- Plan calendar ----
      Weeks are rows and days are columns, so the plan reads like a wall
@@ -117,14 +125,6 @@
   .cell.race.done{background:var(--warm);border-color:var(--warm);color:#241A02}
   .cell.sel{box-shadow:inset 0 0 0 2px var(--text)}
   .wk.pick{cursor:pointer;color:var(--text);text-decoration:underline}
-  /* The button that turns picking on. It says what it does rather than
-     showing a bare glyph, and it fills in while picking is on. */
-  .selbtn{display:flex;align-items:center;gap:6px;flex-shrink:0;
-    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
-    padding:9px 13px;border-radius:11px;font-size:13px;font-weight:650;
-    font-family:inherit;cursor:pointer}
-  .selbtn b{font-size:15px;line-height:1}
-  .selbtn.on{background:var(--run);border-color:var(--run);color:#08120C}
   /* Bar at the foot of the plan while several days are being picked. */
   .selbar{flex-shrink:0;display:none;background:var(--surface);border-top:1px solid var(--line);
     padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
@@ -307,8 +307,10 @@
       <h1 id="plan-name" style="white-space:normal;font-size:17px;line-height:1.25"></h1>
       <div class="sub" id="plan-progress" style="margin-top:3px"></div>
     </div>
-    <button class="selbtn" id="select-btn" onclick="toggleSelectMode()"
-      title="Select several days"><b id="select-box">&#9744;</b><span id="select-label">Select</span></button>
+    <button class="iconbtn" id="plan-copy" onclick="copyPlan()"
+      title="Copy this plan to my plans"></button>
+    <button class="iconbtn" id="select-btn" onclick="toggleSelectMode()"
+      title="Tick several days off"></button>
   </header>
   <div class="scroll" id="plan-weeks"></div>
   <div class="selbar" id="selbar">
@@ -444,6 +446,16 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.11.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Drawn icons in the plan header: a pencil to tick several days off, and a copy button beside it",
+      "Every category has a colour now, and it runs through the whole app: the category card, the name at the top, the edge of every plan and program inside it",
+      "What you made yourself wears the colour in full; what came with the app is faded and says Built in",
+      "A finished session in the history carries the colour of the category it came from"
+    ]
+  },
+  {
     "version": "0.10.2",
     "date": "2026-08-10",
     "changes": [
@@ -571,7 +583,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.10.2";
+const APP_VERSION = "0.11.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1164,10 +1176,42 @@ function categoryOf(item){
   return CATEGORIES.indexOf(item.category) >= 0 ? item.category : DEFAULT_CATEGORY;
 }
 
+/* Drawn rather than written: a glyph from the system font sits differently on
+   every phone, and these have to line up inside a 38 pixel button. */
+const ICON = {
+  pencil: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="M14.5 5.5l4 4"/></svg>',
+  copy:   '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/>' +
+          '<path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>',
+  close:  '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+};
+
+/* Each category owns a colour, and it is carried through: the card on the home
+   screen, the dot beside the category's name, the edge of everything inside
+   it, and the dot on a finished session in the history. The faded shade marks
+   what came with the app, as against what you made yourself. */
 const CAT_COLOR = {
   Training:"var(--run)", Rehab:"var(--walk)", Strength:"var(--warm)",
   Mobility:"var(--rest)", Other:"var(--dim)"
 };
+const CAT_FADE = {
+  Training:"rgba(74,222,128,.34)", Rehab:"rgba(56,189,248,.34)",
+  Strength:"rgba(251,191,36,.34)", Mobility:"rgba(167,139,250,.34)",
+  Other:"rgba(140,167,154,.34)"
+};
+
+function catColour(item, own){
+  const c = categoryOf(item);
+  return own ? CAT_COLOR[c] : CAT_FADE[c];
+}
+
+/* The pill beside a name. What you made yourself wears the category's colour;
+   what came with the app stays quiet, so the two are told apart at a glance. */
+function tag(item, own, text){
+  const colour = own ? CAT_COLOR[categoryOf(item)] : "";
+  return '<span class="tag"' +
+    (colour ? ' style="color:' + colour + ';border-color:' + colour + '"' : "") +
+    ">" + esc(text) + "</span>";
+}
 
 /* Everything that can sit inside a category, in the order it is listed. */
 function plansIn(c){ return PLANS.concat(myPlans).filter(p => categoryOf(p) === c); }
@@ -1244,12 +1288,14 @@ function openCategory(c){
 
 function renderCategory(){
   const c = currentCategory;
-  document.getElementById("cat-title").textContent = c;
+  document.getElementById("cat-title").innerHTML =
+    '<i class="dot" style="background:' + CAT_COLOR[c] + '"></i>' + esc(c);
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p);
-    return '<div class="card" data-open="plan:' + p.id + '">' +
-      "<h3>" + esc(p.name) + (p.custom ? '<span class="tag">Copy</span>' : "") + "</h3>" +
+    return '<div class="card" style="border-left:5px solid ' + catColour(p, p.custom) +
+        '" data-open="plan:' + p.id + '">' +
+      "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + done + " of " + total + " sessions done</p>" +
     "</div>";
   }).join("");
@@ -1264,9 +1310,10 @@ function renderCategory(){
   const single = programsIn(c).map(p => {
     const own = programs.indexOf(p) >= 0;
     const when = progress[p.id];
-    return '<div class="card' + (doneToday(p.id) ? " done" : "") + '" data-open="' +
+    return '<div class="card' + (doneToday(p.id) ? " done" : "") +
+        '" style="border-left:5px solid ' + catColour(p, own) + '" data-open="' +
         (own ? "prog:" : "wod:") + p.id + '">' +
-      "<h3>" + esc(p.name) + (own ? "" : '<span class="tag">Built in</span>') + "</h3>" +
+      "<h3>" + esc(p.name) + (own ? "" : tag(p, false, "Built in")) + "</h3>" +
       "<p>" + fmtLong(totalSec(p.blocks)) + " – " + count(flatten(p.blocks).length, "step") +
       (when ? "<br>Last done " + dayName(when).toLowerCase() : "") +
       (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
@@ -1361,10 +1408,22 @@ function openHistory(){
   showScreen("history");
 }
 
+/* A finished session remembers only what it was called, so the colour is
+   looked up from whatever it came from. Something since deleted has none. */
+function historyColour(h){
+  const at = String(h.id).indexOf(":");
+  const owner = at > 0
+    ? findPlan(h.id.slice(0, at))
+    : programs.concat(BUILTIN_PROGRAMS).find(p => p.id === h.id);
+  return owner ? CAT_COLOR[categoryOf(owner)] : "var(--line)";
+}
+
 function renderHistory(){
   document.getElementById("history-body").innerHTML = history.length
     ? '<div class="hist">' + history.map(h =>
-        '<div data-hist="' + h.at + '"><div><b>' + esc(h.name) + "</b><small>" +
+        '<div data-hist="' + h.at + '"><div><b>' +
+          '<i class="dot" style="background:' + historyColour(h) + '"></i>' +
+          esc(h.name) + "</b><small>" +
           (h.planName ? esc(h.planName) + " – " : "") + fmtLong(h.sec) +
           ' &nbsp;<span class="link mute" data-act="drop" data-at="' + h.at +
             '">Delete</span></small></div>' +
@@ -1441,6 +1500,7 @@ function openPlan(id){
   const plan = findPlan(id);
   if(!plan) return goHomeish();
   document.getElementById("plan-name").textContent = plan.name;
+  document.getElementById("plan-copy").innerHTML = ICON.copy;
   selectMode = false;
   selected = {};
   updateSelectUI();
@@ -1490,13 +1550,13 @@ function renderPlan(plan){
           (plan.source ? "<br><br>Source: " + esc(plan.source) : "")) + "</div>";
 
   const actions =
-    '<button class="btn ghost" style="margin-top:18px" onclick="copyPlan()">' +
-      "Copy this plan to my plans</button>" +
     (countDone(plan) || planOtherDone(plan)
-      ? '<button class="btn ghost" onclick="resetPlan()">Start this plan over</button>'
+      ? '<button class="btn ghost" style="margin-top:18px" onclick="resetPlan()">' +
+        "Start this plan over</button>"
       : "") +
     (plan.custom
-      ? '<button class="btn danger" onclick="deletePlan()">Delete this plan</button>'
+      ? '<button class="btn danger" style="margin-top:18px" onclick="deletePlan()">' +
+        "Delete this plan</button>"
       : "");
 
   document.getElementById("plan-weeks").innerHTML = head + rows + legend + actions;
@@ -1663,9 +1723,12 @@ function selectedKeys(){ return Object.keys(selected); }
 function updateSelectUI(){
   const n = selectedKeys().length;
   document.getElementById("selbar").classList.toggle("show", selectMode);
-  document.getElementById("select-btn").classList.toggle("on", selectMode);
-  document.getElementById("select-box").innerHTML = selectMode ? "&times;" : "&#9744;";
-  document.getElementById("select-label").textContent = selectMode ? "Cancel" : "Select";
+  const btn = document.getElementById("select-btn");
+  btn.classList.toggle("on", selectMode);
+  btn.innerHTML = selectMode ? ICON.close : ICON.pencil;
+  btn.title = selectMode ? "Stop picking days" : "Tick several days off";
+  /* Copying while picking days would be a second thing at once. */
+  document.getElementById("plan-copy").style.display = selectMode ? "none" : "flex";
   document.getElementById("sel-count").textContent =
     n ? n + (n === 1 ? " day selected" : " days selected") : "Nothing selected yet";
   const plan = findPlan(openPlanId);
