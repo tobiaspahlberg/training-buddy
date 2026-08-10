@@ -37,6 +37,10 @@ This is not optional: the version drives the release tag in the cloud build.
 **Semantic versioning:** bug fix → patch (0.1.1), new feature → minor (0.2.0),
 larger rework → major.
 
+**Commit and push straight to `main`.** No pull requests, no feature branches,
+unless asked for one. The cloud build only runs on a push to `main`, so work
+that stays on a branch never becomes an APK. Finished work belongs on `main`.
+
 ## Conventions
 
 - English in all UI text, comments and changelog. Spoken cues are English too.
