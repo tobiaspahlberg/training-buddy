@@ -78,6 +78,11 @@
   .card.done h3::before{content:"\2713\00a0";color:var(--run)}
   .card .link{color:var(--run)}
   .card .link.mute{color:var(--dim)}
+  /* A plan's name is a heading with a rule under it, the way a chapter is
+     titled and a paragraph is not: it says "there is a whole thing in here"
+     before you have read the weeks or the hours underneath. */
+  .card.plan h3{font-size:20.5px;line-height:1.25;padding-bottom:10px;margin-bottom:10px;
+    border-bottom:2px solid var(--rule,var(--line))}
   /* The bin sits beside the text, but the bar below spans the whole card:
      measured inside the text column it would come out shorter on everything
      that has a bin, and two equal lengths would not look equal. */
@@ -490,6 +495,15 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.13.1",
+    "date": "2026-08-10",
+    "changes": [
+      "Fixed: after undoing a delete, the next delete showed no Undo button to press",
+      "The undo offer no longer follows you onto another screen",
+      "A plan's name is set as a heading with a rule under it, so it reads as bigger than a session before you have read a word"
+    ]
+  },
+  {
     "version": "0.13.0",
     "date": "2026-08-10",
     "changes": [
@@ -664,7 +678,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.13.0";
+const APP_VERSION = "0.13.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1344,7 +1358,8 @@ function cardStyle(item, own, isPlan){
   const c = categoryOf(item);
   const edge = own ? CAT_COLOR[c] : CAT_FADE[c];
   return isPlan
-    ? "border-left:9px solid " + edge + ";padding-left:12px;background:" + CAT_TINT[c]
+    ? "--rule:" + CAT_COLOR[c] + ";border-left:9px solid " + edge +
+      ";padding-left:12px;background:" + CAT_TINT[c]
     : "border-left:5px solid " + edge;
 }
 
@@ -1372,6 +1387,9 @@ function programsIn(c){ return BUILTIN_PROGRAMS.concat(programs).filter(p => cat
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+  /* The offer belongs to the list it was made in; it must not follow you
+     onto the run screen and hang there over the clock. */
+  hideUndo();
   armBack();
   if(id === "home") renderHome();
 }
@@ -1445,7 +1463,7 @@ function renderCategory(){
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p), sec = planTotalSec(p);
-    return '<div class="card" style="' + cardStyle(p, p.custom, true) +
+    return '<div class="card plan" style="' + cardStyle(p, p.custom, true) +
         '" data-open="plan:' + p.id + '"><div class="cardtop"><div>' +
       "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + count(p.weeks.length, "week") + " · " +
@@ -2740,36 +2758,44 @@ const UNDO_MS = 9000;
 let undone = null;      // { what, put, name }
 let undoTimer = null;
 
+/* The bar has two faces and one place that sets them, so neither can leave
+   anything of itself behind for the other to inherit. It said "Deleted X"
+   with no Undo beside it for a while, because the wordless face hid the
+   button by adding a class and the offer never took it off again. */
+function showUndoBar(text, offering, ms){
+  const bar = document.getElementById("undo");
+  document.getElementById("undo-text").textContent = text;
+  bar.classList.toggle("quiet", !offering);
+  bar.classList.add("show");
+  if(undoTimer) clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndo, ms);
+}
+
 function offerUndo(name, put){
   undone = { name: name, put: put };
-  if(undoTimer) clearTimeout(undoTimer);
-  document.getElementById("undo-text").textContent = "Deleted " + name;
-  document.getElementById("undo").classList.add("show");
-  undoTimer = setTimeout(hideUndo, UNDO_MS);
+  showUndoBar("Deleted " + name, true, UNDO_MS);
+}
+
+/* A word that fades, for something that worked. Nothing to undo, nothing
+   to dismiss. */
+function flash(text){
+  undone = null;
+  showUndoBar(text, false, 2200);
 }
 
 function hideUndo(){
   if(undoTimer){ clearTimeout(undoTimer); undoTimer = null; }
   undone = null;
-  document.getElementById("undo").classList.remove("show");
+  document.getElementById("undo").classList.remove("show", "quiet");
 }
 
 function undoDelete(){
   if(!undone) return;
-  undone.put();
   const back = undone;
+  back.put();
   hideUndo();
   if(currentScreen() === "category") renderCategory();
-  dialogFree(back.name + " is back");
-}
-
-/* A word that fades, for something that worked. Nothing to dismiss. */
-function dialogFree(text){
-  document.getElementById("undo-text").textContent = text;
-  document.getElementById("undo").classList.add("show", "quiet");
-  undoTimer = setTimeout(() => {
-    document.getElementById("undo").classList.remove("show", "quiet");
-  }, 2200);
+  flash(back.name + " is back");
 }
 
 function dropProgram(id, after){
