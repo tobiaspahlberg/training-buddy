@@ -47,6 +47,9 @@
   }
   header h1{font-size:19px;font-weight:700;letter-spacing:.2px;flex:1;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* The way in to the app says its name properly, once. */
+  header.big{padding:20px 16px 18px}
+  header.big h1{font-size:29px;font-weight:800;letter-spacing:-.4px}
   header .sub{font-size:12px;color:var(--dim);font-weight:500}
   .iconbtn{
     background:var(--surface-2);border:1px solid var(--line);color:var(--text);
@@ -75,9 +78,11 @@
   .card.done h3::before{content:"\2713\00a0";color:var(--run)}
   .card .link{color:var(--run)}
   .card .link.mute{color:var(--dim)}
-  /* A card with something to the right of its text: the bin on what is yours. */
-  .card.row{display:flex;align-items:center;gap:10px}
-  .card.row > div{flex:1;min-width:0}
+  /* The bin sits beside the text, but the bar below spans the whole card:
+     measured inside the text column it would come out shorter on everything
+     that has a bin, and two equal lengths would not look equal. */
+  .cardtop{display:flex;align-items:center;gap:10px}
+  .cardtop > div{flex:1;min-width:0}
   .trash{background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
     flex-shrink:0;width:54px;height:54px;border-radius:14px;cursor:pointer;
     display:flex;align-items:center;justify-content:center}
@@ -105,6 +110,8 @@
     cursor:pointer}
   .catcard i{width:6px;align-self:stretch;border-radius:3px;flex-shrink:0}
   .catcard div{flex:1;min-width:0}
+  /* An empty category is still worth reaching, but should not shout. */
+  .catcard.bare{opacity:.62}
   .catcard h3{font-size:19px;font-weight:650;margin-bottom:3px}
   .catcard p{font-size:15px;color:var(--dim)}
   .catcard span{color:var(--dim);font-size:22px}
@@ -262,6 +269,20 @@
   .del{background:none;border:none;color:var(--stop);font-size:13px;font-weight:600;
     cursor:pointer;font-family:inherit;padding:4px}
 
+  /* ---- Undo ----
+     Sits above the thumb, says what went, and takes itself away. */
+  .undo{position:fixed;left:12px;right:12px;z-index:70;display:none;
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
+    padding:12px 12px 12px 16px;align-items:center;gap:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .undo.show{display:flex}
+  .undo span{flex:1;min-width:0;font-size:15px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .undo button{background:none;border:none;color:var(--run);font-family:inherit;
+    font-size:16px;font-weight:700;padding:6px 10px;cursor:pointer;flex-shrink:0}
+  .undo.quiet button{display:none}
+
   /* ---- Dialogs and misc ---- */
   .overlay{position:fixed;inset:0;background:rgba(6,12,9,.86);display:none;
     align-items:center;justify-content:center;padding:24px;z-index:50}
@@ -284,7 +305,7 @@
 
 <!-- ============================ HOME ============================ -->
 <div class="screen active" id="home">
-  <header>
+  <header class="big">
     <h1>Training Buddy</h1>
     <button class="iconbtn" onclick="showScreen('about')">i</button>
   </header>
@@ -405,7 +426,7 @@
     </div>
     <div class="ver" id="edit-total"></div>
     <button class="btn danger" id="edit-delete" onclick="deleteProgram()"
-      style="display:none">Delete program</button>
+      style="display:none">Delete session</button>
   </div>
 </div>
 
@@ -444,9 +465,15 @@
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
     <button class="btn ghost" id="sheet-edit" onclick="editPlanSession()">Edit this session</button>
     <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
-    <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my programs</button>
+    <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my sessions</button>
     <button class="btn ghost" onclick="closeSheet()">Close</button>
   </div>
+</div>
+
+<!-- ============================ UNDO ============================ -->
+<div class="undo" id="undo">
+  <span id="undo-text"></span>
+  <button onclick="undoDelete()">Undo</button>
 </div>
 
 <!-- ============================ DIALOG ============================ -->
@@ -462,6 +489,17 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.13.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Your own programs are called sessions now, which is what they are",
+      "The bin deletes at once and offers to undo it, instead of asking first every time",
+      "Fixed: two plans of the same length drew bars of different lengths if one of them had a bin",
+      "Every category is on the home screen, empty or not, so there is somewhere to put a new session",
+      "Training Buddy is written as a proper heading"
+    ]
+  },
   {
     "version": "0.12.1",
     "date": "2026-08-10",
@@ -626,7 +664,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.12.1";
+const APP_VERSION = "0.13.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1351,18 +1389,20 @@ function renderHome(){
     slot.innerHTML = "";
   }
 
-  const used = CATEGORIES.filter(c => plansIn(c).length || programsIn(c).length);
-  document.getElementById("cat-list").innerHTML = used.length
-    ? used.map(c => {
-        const parts = [];
-        if(plansIn(c).length) parts.push(count(plansIn(c).length, "plan"));
-        if(programsIn(c).length) parts.push(count(programsIn(c).length, "program"));
-        return '<div class="catcard" onclick="openCategory(\'' + c + '\')">' +
-          '<i style="background:' + CAT_COLOR[c] + '"></i>' +
-          "<div><h3>" + esc(c) + "</h3><p>" + parts.join(" · ") + "</p></div>" +
-          "<span>&rsaquo;</span></div>";
-      }).join("")
-    : '<div class="empty">Nothing here yet.<br>Create a program to time your own intervals.</div>';
+  /* Every category is listed, empty or not: an empty one is where a session
+     of that kind goes, and it cannot be found if it is not shown. */
+  document.getElementById("cat-list").innerHTML = CATEGORIES.map(c => {
+    const parts = [];
+    if(plansIn(c).length) parts.push(count(plansIn(c).length, "plan"));
+    if(programsIn(c).length) parts.push(count(programsIn(c).length, "session"));
+    const empty = !parts.length;
+    return '<div class="catcard' + (empty ? " bare" : "") +
+      '" onclick="openCategory(\'' + c + '\')">' +
+      '<i style="background:' + CAT_COLOR[c] + '"></i>' +
+      "<div><h3>" + esc(c) + "</h3><p>" +
+        (empty ? "Nothing here yet" : parts.join(" · ")) + "</p></div>" +
+      "<span>&rsaquo;</span></div>";
+  }).join("");
 
   const last = history[0];
   document.getElementById("history-slot").innerHTML = last
@@ -1405,40 +1445,40 @@ function renderCategory(){
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p), sec = planTotalSec(p);
-    return '<div class="card row" style="' + cardStyle(p, p.custom, true) +
-        '" data-open="plan:' + p.id + '"><div>' +
+    return '<div class="card" style="' + cardStyle(p, p.custom, true) +
+        '" data-open="plan:' + p.id + '"><div class="cardtop"><div>' +
       "<h3>" + esc(p.name) + tag(p, p.custom, p.custom ? "Copy" : "Built in") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + count(p.weeks.length, "week") + " · " +
         done + " of " + total + " sessions done · " + fmtSpan(sec) + " in all</p>" +
+      "</div>" + (p.custom ? binButton("plan", p.id, p.name) : "") + "</div>" +
       '<div class="span" style="width:' + barWidth(sec, most) + "%;background:" +
         CAT_COLOR[categoryOf(p)] + '"></div>' +
-      "</div>" + (p.custom ? binButton("plan", p.id, p.name) : "") +
     "</div>";
   }).join("");
 
   const single = programsIn(c).map(p => {
     const own = programs.indexOf(p) >= 0;
     const when = progress[p.id], sec = totalSec(p.blocks);
-    return '<div class="card row' + (doneToday(p.id) ? " done" : "") +
+    return '<div class="card' + (doneToday(p.id) ? " done" : "") +
         '" style="' + cardStyle(p, own, false) + '" data-open="' +
-        (own ? "prog:" : "wod:") + p.id + '"><div>' +
+        (own ? "prog:" : "wod:") + p.id + '"><div class="cardtop"><div>' +
       "<h3>" + esc(p.name) + (own ? "" : tag(p, false, "Built in")) + "</h3>" +
       "<p>" + fmtSpan(sec) + " – " + count(flatten(p.blocks).length, "step") +
       (when ? "<br>Last done " + dayName(when).toLowerCase() : "") +
       (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
       (when ? ' &nbsp;<span class="link mute" data-act="reset" data-id="' + p.id +
         '">Reset</span>' : "") + "</p>" +
+      "</div>" + (own ? binButton("prog", p.id, p.name) : "") + "</div>" +
       miniTimeline(p.blocks, barWidth(sec, most)) +
-      "</div>" + (own ? binButton("prog", p.id, p.name) : "") +
     "</div>";
   }).join("");
 
   document.getElementById("cat-body").innerHTML =
     (plans ? '<div class="section-title">Plans</div>' + plans : "") +
-    '<div class="section-title">Programs</div>' +
-    (single || '<div class="empty">No programs in ' + esc(c) + " yet.</div>") +
+    '<div class="section-title">Sessions</div>' +
+    (single || '<div class="empty">No sessions in ' + esc(c) + " yet.</div>") +
     '<button class="btn ghost" style="margin-top:12px" onclick="newProgram(\'' + c +
-      '\')">+ New program</button>';
+      '\')">+ New session</button>';
 }
 
 /* Only what is yours carries a bin, which is also how a glance tells your own
@@ -1463,9 +1503,9 @@ bindTapAndHold(document.getElementById("cat-body"), {
   },
   hold: el => {
     const [kind, id] = splitOnce(el.dataset.open);
-    if(kind === "prog"){ confirmDeleteProgram(id, renderCategory); return true; }
+    if(kind === "prog"){ dropProgram(id, renderCategory); return true; }
     const plan = kind === "plan" ? findPlan(id) : null;
-    if(plan && plan.custom){ confirmDeletePlan(id, renderCategory); return true; }
+    if(plan && plan.custom){ dropPlan(id, renderCategory); return true; }
     return false;   /* built in: nothing to delete, so no buzz either */
   }
 });
@@ -1483,8 +1523,8 @@ document.getElementById("cat-body").addEventListener("click", e => {
   switch(link.dataset.act){
     case "edit":      editProgram(id); break;
     case "reset":     resetProgram(id); break;
-    case "drop-prog": confirmDeleteProgram(id, renderCategory); break;
-    case "drop-plan": confirmDeletePlan(id, renderCategory); break;
+    case "drop-prog": dropProgram(id, renderCategory); break;
+    case "drop-plan": dropPlan(id, renderCategory); break;
   }
 });
 
@@ -1564,7 +1604,7 @@ function confirmDeleteHistory(at){
   const h = history[i];
   dialog("Delete this entry?",
     '"' + h.name + '" (' + dayName(h.at) + ") will be removed from your history. " +
-    "The program itself is not touched.",
+    "The session itself is not touched.",
     "Delete", () => {
       history.splice(i, 1);
       save(KEY_HISTORY, history);
@@ -1575,7 +1615,7 @@ function confirmDeleteHistory(at){
 
 function clearHistory(){
   dialog("Clear history?", "Every finished session will be removed from this phone. " +
-    "The green marks on your programs are not touched.", "Clear", () => {
+    "The green marks on your sessions are not touched.", "Clear", () => {
     history = [];
     save(KEY_HISTORY, history);
     closeDialog();
@@ -1786,31 +1826,30 @@ function resetPlan(){
     });
 }
 
-/* The one place a copied plan is removed, whether the ask came from inside
-   the plan or from holding its card. A plan carries a lot with it, so the
-   dialog says how much before it goes. */
-function confirmDeletePlan(id, after){
-  const plan = findPlan(id);
-  if(!plan || !plan.custom) return;
-  const done = countDone(plan);
-  dialog("Delete this plan?",
-    '"' + plan.name + '" will be removed from this phone.' +
-    (done ? " The " + count(done, "session") + " ticked off in it go too." : "") +
-    " Your history is kept.",
-    "Delete", () => {
-      myPlans = myPlans.filter(p => p.id !== plan.id);
-      save(KEY_MYPLANS, myPlans);
-      Object.keys(progress).forEach(k => {
-        if(k.indexOf(plan.id + ":") === 0) delete progress[k];
-      });
-      save(KEY_PROGRESS, progress);
-      closeDialog();
-      after();
-    });
+/* A plan takes the days ticked off in it as well, so those are held aside
+   too and go back with it. */
+function dropPlan(id, after){
+  const at = myPlans.findIndex(p => p.id === id);
+  if(at < 0 || !myPlans[at].custom) return;
+  const gone = myPlans[at];
+  const ticks = {};
+  Object.keys(progress).forEach(k => {
+    if(k.indexOf(gone.id + ":") === 0){ ticks[k] = progress[k]; delete progress[k]; }
+  });
+  myPlans.splice(at, 1);
+  save(KEY_MYPLANS, myPlans);
+  save(KEY_PROGRESS, progress);
+  after();
+  offerUndo('"' + gone.name + '"', () => {
+    myPlans.splice(Math.min(at, myPlans.length), 0, gone);
+    Object.keys(ticks).forEach(k => { progress[k] = ticks[k]; });
+    save(KEY_MYPLANS, myPlans);
+    save(KEY_PROGRESS, progress);
+  });
 }
 
 function deletePlan(){
-  confirmDeletePlan(openPlanId, () => { openPlanId = null; goHomeish(); });
+  dropPlan(openPlanId, () => { openPlanId = null; goHomeish(); });
 }
 
 function clone(x){ return JSON.parse(JSON.stringify(x)); }
@@ -2077,7 +2116,7 @@ function copyToMine(){
       id: "p" + Date.now(), name: p.name + " (copy)",
       category: categoryOf(p), blocks: clone(p.blocks), isNew: true
     };
-    return openEditor("Copy of workout");
+    return openEditor("Copy of session");
   }
   if(t.kind !== "run") return;
   const plan = findPlan(t.planId);
@@ -2530,7 +2569,7 @@ function newProgram(category){
     ],
     isNew: true
   };
-  openEditor("New program");
+  openEditor("New session");
 }
 
 function editProgram(id){
@@ -2538,7 +2577,7 @@ function editProgram(id){
   if(!p) return;
   editing = JSON.parse(JSON.stringify(p));
   editing.isNew = false;
-  openEditor("Edit program");
+  openEditor("Edit session");
 }
 
 function openEditor(title){
@@ -2652,7 +2691,7 @@ function removeBlock(i){
 }
 
 function saveProgram(){
-  editing.name = document.getElementById("edit-name").value.trim() || "Untitled program";
+  editing.name = document.getElementById("edit-name").value.trim() || "Untitled session";
   if(!editing.blocks.length){ dialog("Nothing to save", "Add at least one step first.", "OK", closeDialog); return; }
 
   if(editing.planId){
@@ -2686,22 +2725,68 @@ function cancelEdit(){
   if(planId) openPlan(planId); else goHomeish();
 }
 
-/* The one place a program is removed, whether the ask came from the editor or
-   from holding its card. Nothing else deletes one. */
-function confirmDeleteProgram(id, after){
-  const p = programs.find(x => x.id === id);
-  if(!p) return;
-  dialog("Delete program?", '"' + p.name + '" will be removed from this phone. ' +
-    "Your history is kept.", "Delete", () => {
-    programs = programs.filter(x => x.id !== id);
+/* =====================================================================
+   DELETING, AND TAKING IT BACK
+
+   Asking "are you sure" before every delete costs a tap every time to
+   save the one time in fifty it was a mistake. Deleting happens at once
+   instead, and what went is held aside long enough to put it back – its
+   place in the list and, for a plan, the days ticked off in it. Only one
+   thing is held: the next delete replaces it, which is what "undo the
+   last one" means.
+   ===================================================================== */
+
+const UNDO_MS = 9000;
+let undone = null;      // { what, put, name }
+let undoTimer = null;
+
+function offerUndo(name, put){
+  undone = { name: name, put: put };
+  if(undoTimer) clearTimeout(undoTimer);
+  document.getElementById("undo-text").textContent = "Deleted " + name;
+  document.getElementById("undo").classList.add("show");
+  undoTimer = setTimeout(hideUndo, UNDO_MS);
+}
+
+function hideUndo(){
+  if(undoTimer){ clearTimeout(undoTimer); undoTimer = null; }
+  undone = null;
+  document.getElementById("undo").classList.remove("show");
+}
+
+function undoDelete(){
+  if(!undone) return;
+  undone.put();
+  const back = undone;
+  hideUndo();
+  if(currentScreen() === "category") renderCategory();
+  dialogFree(back.name + " is back");
+}
+
+/* A word that fades, for something that worked. Nothing to dismiss. */
+function dialogFree(text){
+  document.getElementById("undo-text").textContent = text;
+  document.getElementById("undo").classList.add("show", "quiet");
+  undoTimer = setTimeout(() => {
+    document.getElementById("undo").classList.remove("show", "quiet");
+  }, 2200);
+}
+
+function dropProgram(id, after){
+  const at = programs.findIndex(x => x.id === id);
+  if(at < 0) return;
+  const gone = programs[at];
+  programs.splice(at, 1);
+  save(KEY_PROGRAMS, programs);
+  after();
+  offerUndo('"' + gone.name + '"', () => {
+    programs.splice(Math.min(at, programs.length), 0, gone);
     save(KEY_PROGRAMS, programs);
-    closeDialog();
-    after();
   });
 }
 
 function deleteProgram(){
-  confirmDeleteProgram(editing.id, () => { editing = null; goHomeish(); });
+  dropProgram(editing.id, () => { editing = null; goHomeish(); });
 }
 
 /* =====================================================================

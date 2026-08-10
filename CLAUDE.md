@@ -86,6 +86,10 @@ same shape, so the calendar, the sheet and the clock never need to know which
 kind they are looking at. A copy keeps its own id, and progress keys are built
 from that id, so ticking days off in a copy never touches the original.
 
+The UI calls a user-made program a **session**, which is what it is; the code
+still says `programs`, because `session` is taken by the one the clock is
+running, and `tb.programs` is what is on people's phones.
+
 The editor works at session level. A user-made program is simply a plan with
 one session; copying a single day out of a plan produces exactly that, an
 ordinary program with no link back. Editing a session *inside* a copied plan
@@ -117,9 +121,11 @@ Android can kill the app at any moment; elapsed time is reconstructed from
 `startedAt` and `pausedTotal` when the session resumes.
 
 **A running session is written to localStorage on every event** plus every
-three seconds while running and when the app goes to the background. Programs
-and completed sessions are NEVER removed automatically – only by an explicit
-delete with confirmation.
+three seconds while running and when the app goes to the background. Nothing
+is ever removed automatically – only by an explicit delete. A delete does not
+stop to ask: it happens, and `offerUndo()` holds what went, its place in the
+list and any progress that belonged to it, long enough to put it back. Only
+one thing is held at a time.
 
 **Speech needs a user gesture before it works.** `unlockAudio()` runs on the
 Start tap and speaks one silent utterance; without it the browser stays quiet
