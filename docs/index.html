@@ -138,9 +138,12 @@
      One row per finished session, newest first. The date is the point of
      it, so it gets its own column and never wraps. */
   .hist{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
-  .hist div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  /* Direct children only: the row is a div and so is the block of text inside
+     it, and the padding and the rule belong to the row alone. */
+  .hist > div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;
     padding:12px 14px;border-bottom:1px solid var(--line)}
-  .hist div:last-child{border-bottom:none}
+  .hist > div:last-child{border-bottom:none}
+  .hist > div > div{min-width:0}
   .hist b{font-size:16px;font-weight:600;display:block}
   .hist small{font-size:13.5px;color:var(--dim)}
   .hist span{font-size:14px;color:var(--dim);white-space:nowrap;text-align:right;
@@ -441,6 +444,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.10.2",
+    "date": "2026-08-10",
+    "changes": [
+      "Hold an entry in the history to delete just that one, or use the Delete link on the row",
+      "History rows no longer draw a stray line through themselves"
+    ]
+  },
+  {
     "version": "0.10.1",
     "date": "2026-08-10",
     "changes": [
@@ -560,7 +571,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.10.1";
+const APP_VERSION = "0.10.2";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1308,6 +1319,21 @@ document.getElementById("cat-body").addEventListener("click", e => {
   else resetProgram(link.dataset.id);
 });
 
+/* The history is a log, so a row has nothing to open – but an entry that
+   should not be there can be held to drop it, and every row carries the same
+   thing as a plain link so the gesture is never the only way. */
+bindTapAndHold(document.getElementById("history-body"), {
+  select: "[data-hist]",
+  ignore: "[data-act]",
+  tap: () => {},
+  hold: el => { confirmDeleteHistory(el.dataset.hist); return true; }
+});
+
+document.getElementById("history-body").addEventListener("click", e => {
+  const link = e.target.closest('[data-act="drop"]');
+  if(link) confirmDeleteHistory(link.dataset.at);
+});
+
 /* Clears the green mark and the date, but never the history: what was done
    was done, and the log is the record of it. */
 function resetProgram(id){
@@ -1338,13 +1364,32 @@ function openHistory(){
 function renderHistory(){
   document.getElementById("history-body").innerHTML = history.length
     ? '<div class="hist">' + history.map(h =>
-        "<div><div><b>" + esc(h.name) + "</b><small>" +
-          (h.planName ? esc(h.planName) + " – " : "") + fmtLong(h.sec) + "</small></div>" +
+        '<div data-hist="' + h.at + '"><div><b>' + esc(h.name) + "</b><small>" +
+          (h.planName ? esc(h.planName) + " – " : "") + fmtLong(h.sec) +
+          ' &nbsp;<span class="link mute" data-act="drop" data-at="' + h.at +
+            '">Delete</span></small></div>' +
         "<span>" + dayName(h.at) + "<i>" + clockTime(h.at) + "</i></span></div>").join("") +
       "</div>" +
       '<button class="btn ghost" style="margin-top:16px" onclick="clearHistory()">Clear history</button>'
     : '<div class="empty">No finished sessions yet.<br>' +
       "Every workout you run to the end shows up here with its date.</div>";
+}
+
+/* One entry out of the log. Entries are stamped to the millisecond, so the
+   time it was finished is what tells two of them apart. */
+function confirmDeleteHistory(at){
+  const i = history.findIndex(h => h.at === at);
+  if(i < 0) return;
+  const h = history[i];
+  dialog("Delete this entry?",
+    '"' + h.name + '" (' + dayName(h.at) + ") will be removed from your history. " +
+    "The program itself is not touched.",
+    "Delete", () => {
+      history.splice(i, 1);
+      save(KEY_HISTORY, history);
+      closeDialog();
+      renderHistory();
+    });
 }
 
 function clearHistory(){
