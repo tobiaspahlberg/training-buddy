@@ -62,8 +62,8 @@
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
     padding:14px 16px;margin-bottom:10px;cursor:pointer}
   .card.flat{cursor:default}
-  .card h3{font-size:16px;font-weight:650;margin-bottom:3px}
-  .card p{font-size:13px;color:var(--dim);line-height:1.45}
+  .card h3{font-size:18px;font-weight:650;margin-bottom:4px}
+  .card p{font-size:15px;color:var(--dim);line-height:1.45}
   /* Done today. The mark is the day's, not the program's, so it clears
      itself overnight and the date below it carries the longer memory. */
   .card.done{border-color:var(--run);background:rgba(74,222,128,.07)}
@@ -83,9 +83,9 @@
     cursor:pointer}
   .catcard i{width:6px;align-self:stretch;border-radius:3px;flex-shrink:0}
   .catcard div{flex:1;min-width:0}
-  .catcard h3{font-size:17px;font-weight:650;margin-bottom:2px}
-  .catcard p{font-size:13px;color:var(--dim)}
-  .catcard span{color:var(--dim);font-size:20px}
+  .catcard h3{font-size:19px;font-weight:650;margin-bottom:3px}
+  .catcard p{font-size:15px;color:var(--dim)}
+  .catcard span{color:var(--dim);font-size:22px}
 
   /* ---- Plan calendar ----
      Weeks are rows and days are columns, so the plan reads like a wall
@@ -132,11 +132,11 @@
   .hist div{display:flex;justify-content:space-between;gap:12px;align-items:baseline;
     padding:12px 14px;border-bottom:1px solid var(--line)}
   .hist div:last-child{border-bottom:none}
-  .hist b{font-size:14px;font-weight:600;display:block}
-  .hist small{font-size:12px;color:var(--dim)}
-  .hist span{font-size:12.5px;color:var(--dim);white-space:nowrap;text-align:right;
+  .hist b{font-size:16px;font-weight:600;display:block}
+  .hist small{font-size:13.5px;color:var(--dim)}
+  .hist span{font-size:14px;color:var(--dim);white-space:nowrap;text-align:right;
     font-variant-numeric:tabular-nums}
-  .hist span i{display:block;font-style:normal;font-size:11.5px;opacity:.8}
+  .hist span i{display:block;font-style:normal;font-size:13px;opacity:.8}
 
   /* ---- Bottom sheet ---- */
   .sheet-wrap{position:fixed;inset:0;background:rgba(6,12,9,.7);z-index:60;
@@ -145,27 +145,29 @@
   .sheet{background:var(--surface);border-top:1px solid var(--line);width:100%;
     border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
     max-height:82vh;overflow-y:auto}
-  .sheet h2{font-size:19px;margin-bottom:2px}
-  .sheet .when{font-size:13px;color:var(--dim);margin-bottom:16px}
+  .sheet h2{font-size:23px;margin-bottom:3px}
+  .sheet .when{font-size:16px;color:var(--dim);margin-bottom:16px}
+  /* The step list is the other thing read at a distance: it is what you look
+     at to see what is coming while the phone lies on the floor. */
   .steplist{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
-  .steplist div{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;
-    font-size:14px;border-bottom:1px solid var(--line)}
+  .steplist div{display:flex;justify-content:space-between;gap:12px;padding:13px 15px;
+    font-size:18px;border-bottom:1px solid var(--line)}
   .steplist div:last-child{border-bottom:none}
   .steplist div span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
-  .steplist div.sub{padding:8px 14px 8px 26px;font-size:13px;color:var(--dim)}
+  .steplist div.sub{padding:9px 15px 9px 28px;font-size:16.5px;color:var(--dim)}
 
   /* ---- Work list ----
      Some workouts are a single block of time with a list of movements in it.
      The list has no timing of its own, so it is only ever shown, never run. */
-  .worklist{font-size:13.5px;line-height:1.75;color:var(--dim);text-align:left}
+  .worklist{font-size:18px;line-height:1.6;color:var(--dim);text-align:left}
   .worklist div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .worklist.ro{background:var(--bg);border:1px solid var(--line);border-radius:11px;
     padding:10px 12px}
 
   /* ---- Buttons ---- */
   .btn{
-    display:block;width:100%;padding:15px;border-radius:13px;border:none;
-    font-size:16px;font-weight:650;cursor:pointer;color:#08120C;background:var(--run);
+    display:block;width:100%;padding:16px;border-radius:13px;border:none;
+    font-size:17.5px;font-weight:650;cursor:pointer;color:#08120C;background:var(--run);
     font-family:inherit;
   }
   .btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
@@ -177,18 +179,24 @@
   /* ---- Run screen ---- */
   #run{background:var(--bg)}
   .runtop{display:flex;align-items:center;gap:12px;padding:12px 16px;flex-shrink:0}
-  .runtop .title{flex:1;min-width:0;font-size:13px;color:var(--dim);
+  .runtop .title{flex:1;min-width:0;font-size:15px;color:var(--dim);
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
     padding:12px 16px;min-height:0;overflow:hidden}
-  /* A step that carries a work list needs the room, so the clock gives some up. */
+  /* A step that carries a work list needs the room, so everything else gives
+     some up: the clock shrinks, the step name stops shouting, and "next up"
+     goes away entirely – with a list on screen, the list is the point. */
   .stage.haslist .bigtime{font-size:12vh;letter-spacing:-2px;margin:8px 0 2px}
+  .stage.haslist .steplabel{font-size:30px}
+  .stage.haslist .nextup{display:none}
   .stage.haslist #work-list{margin-top:10px;max-width:340px;overflow-y:auto;min-height:0}
-  .steplabel{font-size:34px;font-weight:800;letter-spacing:-.5px;text-align:center;line-height:1.1}
-  .stepmeta{font-size:14px;color:var(--dim);margin-top:8px}
+  /* The run screen is read from the floor, an arm's length away or more, so
+     everything on it is sized to be legible at about two metres. */
+  .steplabel{font-size:44px;font-weight:800;letter-spacing:-.5px;text-align:center;line-height:1.05}
+  .stepmeta{font-size:19px;color:var(--dim);margin-top:8px}
   .bigtime{font-size:19vh;font-weight:800;line-height:1;letter-spacing:-4px;
     font-variant-numeric:tabular-nums;margin:14px 0 4px}
-  .nextup{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
+  .nextup{font-size:19px;color:var(--dim);margin-top:10px;text-align:center}
   .nextup b{color:var(--text);font-weight:600}
   .runfoot{flex-shrink:0;padding:0 16px 16px}
   /* The timeline shows the whole session as coloured blocks, so you can see
@@ -199,7 +207,7 @@
   .tl-segs i{height:100%;box-shadow:inset -1px 0 0 rgba(14,23,18,.55)}
   .tl-veil{position:absolute;left:0;top:0;height:100%;width:0;background:rgba(9,15,11,.62)}
   .tl-now{position:absolute;left:0;top:0;width:2px;height:100%;background:var(--text)}
-  .totals{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);
+  .totals{display:flex;justify-content:space-between;font-size:15px;color:var(--dim);
     margin-bottom:14px;font-variant-numeric:tabular-nums}
   .paused .bigtime,.paused .steplabel{opacity:.4}
 
@@ -231,7 +239,9 @@
     padding:22px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto}
   .dialog h2{font-size:18px;margin-bottom:8px}
   .dialog p{font-size:14px;color:var(--dim);line-height:1.5;margin-bottom:18px}
-  .empty{text-align:center;color:var(--dim);font-size:14px;padding:34px 20px;line-height:1.6}
+  .empty{text-align:center;color:var(--dim);font-size:15.5px;padding:34px 20px;line-height:1.6}
+  /* A one-line note under a list, telling you about a gesture you cannot see. */
+  .hint{color:var(--dim);font-size:13.5px;line-height:1.5;padding:10px 2px 0}
   .ver{text-align:center;font-size:12px;color:var(--dim);padding:22px 0 6px}
   .log{font-size:13px;color:var(--dim);line-height:1.55}
   .log h4{color:var(--text);font-size:14px;margin:14px 0 4px}
@@ -420,6 +430,15 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.6.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Hold one of your own programs to delete it, without opening the editor first",
+      "Bigger text on the run screen and in the session details, so the phone can lie on the floor and still be read",
+      "The calendar is left as it was, since it has to fit seven days across"
+    ]
+  },
+  {
     "version": "0.5.0",
     "date": "2026-08-10",
     "changes": [
@@ -480,7 +499,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.5.0";
+const APP_VERSION = "0.6.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -774,24 +793,24 @@ function renderCategory(){
 
   const plans = plansIn(c).map(p => {
     const total = countSessions(p), done = countDone(p);
-    return '<div class="card" onclick="openPlan(\'' + p.id + '\')">' +
+    return '<div class="card" data-open="plan:' + p.id + '">' +
       "<h3>" + esc(p.name) + (p.custom ? '<span class="tag">Copy</span>' : "") + "</h3>" +
       "<p>" + esc(p.note || "") + "<br>" + done + " of " + total + " sessions done</p>" +
     "</div>";
   }).join("");
 
+  const mine = programsIn(c).filter(p => programs.indexOf(p) >= 0).length;
   const single = programsIn(c).map(p => {
-    const mine = programs.indexOf(p) >= 0;
+    const own = programs.indexOf(p) >= 0;
     const when = progress[p.id];
-    return '<div class="card' + (doneToday(p.id) ? " done" : "") + '" onclick="' +
-        (mine ? "startSession('" + p.id + "')" : "openProgram('" + p.id + "')") + '">' +
-      "<h3>" + esc(p.name) + (mine ? "" : '<span class="tag">Built in</span>') + "</h3>" +
+    return '<div class="card' + (doneToday(p.id) ? " done" : "") + '" data-open="' +
+        (own ? "prog:" : "wod:") + p.id + '">' +
+      "<h3>" + esc(p.name) + (own ? "" : '<span class="tag">Built in</span>') + "</h3>" +
       "<p>" + fmtLong(totalSec(p.blocks)) + " – " + count(flatten(p.blocks).length, "step") +
       (when ? "<br>Last done " + dayName(when).toLowerCase() : "") +
-      (mine ? ' &nbsp;<span class="link" onclick="event.stopPropagation();editProgram(\'' +
-        p.id + '\')">Edit</span>' : "") +
-      (when ? ' &nbsp;<span class="link mute" onclick="event.stopPropagation();resetProgram(\'' +
-        p.id + '\')">Reset</span>' : "") + "</p>" +
+      (own ? ' &nbsp;<span class="link" data-act="edit" data-id="' + p.id + '">Edit</span>' : "") +
+      (when ? ' &nbsp;<span class="link mute" data-act="reset" data-id="' + p.id +
+        '">Reset</span>' : "") + "</p>" +
     "</div>";
   }).join("");
 
@@ -799,9 +818,41 @@ function renderCategory(){
     (plans ? '<div class="section-title">Plans</div>' + plans : "") +
     '<div class="section-title">Programs</div>' +
     (single || '<div class="empty">No programs in ' + esc(c) + " yet.</div>") +
+    (mine ? '<div class="hint">Hold a program of your own to delete it.</div>' : "") +
     '<button class="btn ghost" style="margin-top:12px" onclick="newProgram(\'' + c +
       '\')">+ New program</button>';
 }
+
+/* Tap opens, hold deletes – but only what is yours. A built-in workout cannot
+   be removed, and a plan is deleted from inside itself, where the number of
+   sessions that go with it is in plain sight. */
+bindTapAndHold(document.getElementById("cat-body"), {
+  select: "[data-open]",
+  ignore: "[data-act]",
+  tap: el => {
+    const [kind, id] = splitOnce(el.dataset.open);
+    if(kind === "plan") openPlan(id);
+    else if(kind === "prog") startSession(id);
+    else openProgram(id);
+  },
+  hold: el => {
+    const [kind, id] = splitOnce(el.dataset.open);
+    if(kind === "prog") confirmDeleteProgram(id, renderCategory);
+  }
+});
+
+/* Ids can hold a colon of their own, so only the first one separates. */
+function splitOnce(s){
+  const at = s.indexOf(":");
+  return [s.slice(0, at), s.slice(at + 1)];
+}
+
+document.getElementById("cat-body").addEventListener("click", e => {
+  const link = e.target.closest("[data-act]");
+  if(!link) return;
+  if(link.dataset.act === "edit") editProgram(link.dataset.id);
+  else resetProgram(link.dataset.id);
+});
 
 /* Clears the green mark and the date, but never the history: what was done
    was done, and the log is the record of it. */
@@ -1108,65 +1159,76 @@ function markSelected(done){
   exitSelectMode();
 }
 
-/* ---- Tapping and holding a day ----
-   The calendar is rebuilt on every change, so both gestures are handled once
-   on the container that survives. A long press is the shortcut into select
-   mode: hold a day and it is already picked, hold a week and the row is. */
+/* ---- Tapping and holding ----
+   Lists here are rebuilt from scratch on every change, so their rows cannot
+   own their handlers. Both gestures are bound once to the container that
+   survives, and rows are found by the data attribute they carry.
+
+   A long press is a shortcut, never the only way to do something: what it
+   does is always reachable some other way as well. */
 
 const LONG_PRESS_MS = 450;
-const weeksHost = document.getElementById("plan-weeks");
-let holdTimer = null, holdAt = null, heldDown = false;
+const HOLD_SLOP = 10;   /* a press that travels this far is a scroll */
 
-function targetOf(e){
-  const el = e.target.closest ? e.target.closest("[data-sel],[data-week]") : null;
-  return el && weeksHost.contains(el) ? el : null;
+function bindTapAndHold(host, opts){
+  let timer = null, at = null, held = false;
+
+  const rowOf = e => {
+    if(!e.target.closest) return null;
+    /* Controls inside a row answer for themselves. */
+    if(opts.ignore && e.target.closest(opts.ignore)) return null;
+    const el = e.target.closest(opts.select);
+    return el && host.contains(el) ? el : null;
+  };
+  const cancel = () => { if(timer){ clearTimeout(timer); timer = null; } };
+
+  host.addEventListener("pointerdown", e => {
+    held = false;              /* a press with no click after it heals here */
+    const el = rowOf(e);
+    if(!el) return;
+    at = { x: e.clientX, y: e.clientY };
+    cancel();
+    timer = setTimeout(() => {
+      timer = null;
+      held = true;             /* swallow the click that follows the press */
+      if(navigator.vibrate) navigator.vibrate(18);
+      opts.hold(el);
+    }, LONG_PRESS_MS);
+  });
+
+  host.addEventListener("pointermove", e => {
+    if(timer && at && (Math.abs(e.clientX - at.x) > HOLD_SLOP ||
+                       Math.abs(e.clientY - at.y) > HOLD_SLOP)) cancel();
+  });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t =>
+    host.addEventListener(t, cancel));
+  host.addEventListener("contextmenu", e => { if(rowOf(e)) e.preventDefault(); });
+
+  host.addEventListener("click", e => {
+    if(held){ held = false; return; }
+    const el = rowOf(e);
+    if(el) opts.tap(el);
+  });
 }
 
-function cancelHold(){
-  if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
-}
-
-weeksHost.addEventListener("pointerdown", e => {
-  heldDown = false;
-  const el = targetOf(e);
-  if(!el) return;
-  holdAt = { x: e.clientX, y: e.clientY };
-  cancelHold();
-  holdTimer = setTimeout(() => {
-    holdTimer = null;
-    heldDown = true;              /* swallow the click that follows the press */
-    longPress(el);
-  }, LONG_PRESS_MS);
-});
-
-/* A scroll must not count as a press, so any real movement gives up on it. */
-weeksHost.addEventListener("pointermove", e => {
-  if(holdTimer && holdAt &&
-     (Math.abs(e.clientX - holdAt.x) > 10 || Math.abs(e.clientY - holdAt.y) > 10)) cancelHold();
-});
-["pointerup", "pointercancel", "pointerleave"].forEach(t =>
-  weeksHost.addEventListener(t, cancelHold));
-weeksHost.addEventListener("contextmenu", e => { if(targetOf(e)) e.preventDefault(); });
-
-weeksHost.addEventListener("click", e => {
-  if(heldDown){ heldDown = false; return; }
-  const el = targetOf(e);
-  if(!el) return;
-  if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
-  else if(el.dataset.d !== undefined) openDay(parseInt(el.dataset.w, 10), parseInt(el.dataset.d, 10));
-  else openOther(parseInt(el.dataset.w, 10), el.dataset.day);
-});
-
-function longPress(el){
-  if(navigator.vibrate) navigator.vibrate(18);
-  if(!selectMode){
-    selectMode = true;
-    selected = {};
-    armBack();
+/* The calendar: hold a day to start picking, with that day already picked. */
+bindTapAndHold(document.getElementById("plan-weeks"), {
+  select: "[data-sel],[data-week]",
+  tap: el => {
+    if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
+    else if(el.dataset.d !== undefined) openDay(parseInt(el.dataset.w, 10), parseInt(el.dataset.d, 10));
+    else openOther(parseInt(el.dataset.w, 10), el.dataset.day);
+  },
+  hold: el => {
+    if(!selectMode){
+      selectMode = true;
+      selected = {};
+      armBack();
+    }
+    if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
+    else toggleSelect(el.dataset.sel);
   }
-  if(el.dataset.week) toggleWeek(parseInt(el.dataset.week, 10));
-  else toggleSelect(el.dataset.sel);
-}
+});
 
 /* =====================================================================
    DAY SHEET
@@ -1876,15 +1938,22 @@ function cancelEdit(){
   if(planId) openPlan(planId); else goHomeish();
 }
 
-function deleteProgram(){
-  const id = editing.id, name = editing.name;
-  dialog("Delete program?", '"' + name + '" will be removed from this phone.', "Delete", () => {
-    programs = programs.filter(p => p.id !== id);
+/* The one place a program is removed, whether the ask came from the editor or
+   from holding its card. Nothing else deletes one. */
+function confirmDeleteProgram(id, after){
+  const p = programs.find(x => x.id === id);
+  if(!p) return;
+  dialog("Delete program?", '"' + p.name + '" will be removed from this phone. ' +
+    "Your history is kept.", "Delete", () => {
+    programs = programs.filter(x => x.id !== id);
     save(KEY_PROGRAMS, programs);
-    editing = null;
     closeDialog();
-    goHomeish();
+    after();
   });
+}
+
+function deleteProgram(){
+  confirmDeleteProgram(editing.id, () => { editing = null; goHomeish(); });
 }
 
 /* =====================================================================

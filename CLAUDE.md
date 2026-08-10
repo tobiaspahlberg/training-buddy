@@ -44,6 +44,10 @@ that stays on a branch never becomes an APK. Finished work belongs on `main`.
 ## Conventions
 
 - English in all UI text, comments and changelog. Spoken cues are English too.
+- **The run screen and the session details are read at about two metres**,
+  with the phone on the floor. Their type is sized for that, not for reading
+  in the hand – do not shrink it back. The calendar is the exception: seven
+  days have to fit across, so it keeps its small type.
 - Colours are CSS variables at the top: `--run` green, `--walk` blue,
   `--warm` amber (warm-up and cool-down), `--rest` purple, `--stop` red
 
@@ -117,11 +121,18 @@ its hardware button to the same function through the `App` plugin instead of
 through history. Anything new that covers the screen has to be closed there
 too, or the button will skip past it.
 
-**The calendar is rebuilt on every change**, so its cells cannot own their
-handlers. Days carry `data-sel`, `data-w` and `data-d`/`data-day`, and the tap
-and the long press are handled once on the `#plan-weeks` container, which
-survives the rebuild. A long press sets a flag that swallows the click the
-browser sends afterwards; the flag is cleared on the next `pointerdown`.
+**Lists are rebuilt on every change**, so their rows cannot own their
+handlers. `bindTapAndHold(host, opts)` binds both gestures once to the
+container that survives, and finds rows by the data attribute they carry:
+`data-sel`/`data-week` in the calendar, `data-open` on a category card. It
+takes an `ignore` selector for controls inside a row that answer for
+themselves. A long press sets a flag that swallows the click the browser
+sends afterwards; the flag is cleared on the next `pointerdown`.
+
+**A long press is never the only way to do something.** Holding a day is a
+shortcut into select mode, which the header button also opens; holding a
+program deletes it, which the editor also does. Nothing is reachable by
+gesture alone.
 
 **Android channels cannot be changed after the fact.** If a channel's sound or
 vibration changes, the channel id has to change too, otherwise the phone keeps
