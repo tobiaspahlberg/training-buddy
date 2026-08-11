@@ -225,6 +225,9 @@
     font-family:inherit;
   }
   .btn.ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--line)}
+  /* The one button that leaves the app is a link, so the phone can hand it
+     to the browser or to YouTube itself rather than loading it in here. */
+  a.btn{text-align:center;text-decoration:none;box-sizing:border-box}
   .btn.danger{background:var(--stop);color:#fff}
   .btn+.btn{margin-top:9px}
   .row{display:flex;gap:9px}
@@ -485,6 +488,7 @@
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
     <button class="btn ghost" id="sheet-edit" onclick="editPlanSession()">Edit this session</button>
     <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
+    <a class="btn ghost" id="sheet-video" target="_blank" rel="noopener">Watch the exercises</a>
     <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my sessions</button>
     <button class="btn ghost" onclick="closeSheet()">Close</button>
   </div>
@@ -509,6 +513,13 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.14.1",
+    "date": "2026-08-10",
+    "changes": [
+      "The two sessions from Spark Healthy Runner link to the video they came from, so you can see how an exercise is done"
+    ]
+  },
   {
     "version": "0.14.0",
     "date": "2026-08-10",
@@ -724,7 +735,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.14.0";
+const APP_VERSION = "0.14.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1081,6 +1092,7 @@ const STRENGTH_FOR_RUNNERS = {
   name: "Strength for Runners",
   category: "Rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 25 minute strength for runners",
+  video: "https://youtu.be/1uniMWm9fTA",
   note: "Seven exercises, timed roughly as the video is chaptered and rounded to " +
         "the half minute. Each block covers both sides and the coaching in " +
         "between, so it is a follow-along length, not a prescribed set time.",
@@ -1108,6 +1120,7 @@ const MINIBAND_FOR_RUNNING = {
   name: "5 Miniband Exercises for Running",
   category: "Rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 5 Simple Miniband Exercises for Running",
+  video: "https://youtu.be/pe9v9uiUujQ",
   note: "Bring a miniband. Five exercises to work through at your own pace, for " +
         "the reps the video gives. The ten minutes on the clock is a working " +
         "length, not a prescription – the video holds no times of its own.",
@@ -2143,7 +2156,7 @@ function openProgram(id){
   document.getElementById("sheet-when").textContent =
     p.note || fmtLong(totalSec(p.blocks)) + " in total";
   document.getElementById("sheet-steps").innerHTML = blockRows(p.blocks);
-  showSheet({ start:true, mark:true, copy:true });
+  showSheet({ start:true, mark:true, copy:true, video:p.video });
 }
 
 function showSheet(show){
@@ -2152,6 +2165,8 @@ function showSheet(show){
   on("sheet-edit", show.edit);
   on("sheet-mark", show.mark);
   on("sheet-copy", show.copy);
+  on("sheet-video", !!show.video);
+  if(show.video) document.getElementById("sheet-video").href = show.video;
   document.getElementById("sheet-mark").textContent =
     progress[sheetTarget.id] ? "Mark as not done" : "Mark as done";
   document.getElementById("sheet").classList.add("show");
