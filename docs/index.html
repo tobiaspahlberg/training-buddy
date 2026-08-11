@@ -509,6 +509,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.13.4",
+    "date": "2026-08-10",
+    "changes": [
+      "Strength for Runners is rounded to the half minute, since its times were read off a video rather than set by anyone"
+    ]
+  },
+  {
     "version": "0.13.3",
     "date": "2026-08-10",
     "changes": [
@@ -708,7 +715,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.13.3";
+const APP_VERSION = "0.13.4";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1048,11 +1055,16 @@ const TEAM_CHIPPER = {
    From the same physical therapist as the Return to Run plan, so it sits
    with it under Rehab: it is what the strength days of that plan are for.
 
-   The lengths are the chapter marks of the video, which is a follow-along.
-   That means each one covers the coaching as well as the work, and both
-   sides of the ones done a leg at a time. They are not prescribed set
-   times, and the only honest thing to do with them is to say so rather
-   than to tidy them into round numbers.
+   The lengths come from the chapter marks of the video, which is a
+   follow-along: each one covers the coaching as well as the work, and both
+   sides of the ones done a leg at a time.
+
+   They are rounded to the nearest half minute. Where a number is measured
+   rather than prescribed, carrying it to the second is false precision –
+   1:42 and 7:03 look like someone decided them, and nobody did. The marks
+   were 1:42, 3:22, 3:34, 3:02, 4:00, 1:03 and 7:03; each line below says
+   what it was. Times a coach actually wrote down are left alone, which is
+   why the 40/20 intervals elsewhere are still 40 and 20.
    ===================================================================== */
 
 const STRENGTH_FOR_RUNNERS = {
@@ -1060,17 +1072,17 @@ const STRENGTH_FOR_RUNNERS = {
   name: "Strength for Runners",
   category: "Rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 25 minute strength for runners",
-  note: "Seven exercises, timed the way the video is chaptered. Each block covers " +
-        "both sides and the coaching in between, so it is a follow-along length, " +
-        "not a prescribed set time.",
+  note: "Seven exercises, timed roughly as the video is chaptered and rounded to " +
+        "the half minute. Each block covers both sides and the coaching in " +
+        "between, so it is a follow-along length, not a prescribed set time.",
   blocks: [
-    { type:"step", text:"Fire hydrants",              kind:"run", sec:102 },
-    { type:"step", text:"Clamshells",                 kind:"run", sec:202 },
-    { type:"step", text:"Wall hip abduction",         kind:"run", sec:214 },
-    { type:"step", text:"Elevated single-leg bridge", kind:"run", sec:182 },
-    { type:"step", text:"Short foot",                 kind:"run", sec:240 },
-    { type:"step", text:"Calf raise with ball squeeze", kind:"run", sec:63 },
-    { type:"step", text:"Front step-ups",             kind:"run", sec:423 }
+    { type:"step", text:"Fire hydrants",                kind:"run", sec: 90 },  /* 1:42 */
+    { type:"step", text:"Clamshells",                   kind:"run", sec:210 },  /* 3:22 */
+    { type:"step", text:"Wall hip abduction",           kind:"run", sec:210 },  /* 3:34 */
+    { type:"step", text:"Elevated single-leg bridge",   kind:"run", sec:180 },  /* 3:02 */
+    { type:"step", text:"Short foot",                   kind:"run", sec:240 },  /* 4:00 */
+    { type:"step", text:"Calf raise with ball squeeze", kind:"run", sec: 60 },  /* 1:03 */
+    { type:"step", text:"Front step-ups",               kind:"run", sec:420 }   /* 7:03 */
   ]
 };
 
