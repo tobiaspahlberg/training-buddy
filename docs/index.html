@@ -68,6 +68,20 @@
     color:var(--dim);margin:22px 0 10px}
   .section-title:first-child{margin-top:0}
 
+  /* ---- Search ----
+     Results come from every category at once, so each row wears the colour
+     of where it lives and says which kind of thing it is. */
+  header input{flex:1;min-width:0;font-size:17px;padding:11px 13px}
+  .hit{display:flex;align-items:center;gap:12px;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:13px;
+    padding:13px 15px;margin-bottom:9px}
+  .hit i{width:5px;align-self:stretch;border-radius:3px;flex-shrink:0;margin:-3px 0}
+  .hit div{flex:1;min-width:0}
+  .hit b{display:block;font-size:16.5px;font-weight:650;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit small{font-size:13.5px;color:var(--dim)}
+  .hit mark{background:none;color:var(--run);font-weight:700}
+
   /* ---- Cards ---- */
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;
     padding:14px 16px;margin-bottom:10px;cursor:pointer}
@@ -347,6 +361,7 @@
 <div class="screen active" id="home">
   <header class="big">
     <h1>Training Buddy</h1>
+    <button class="iconbtn" id="search-btn" onclick="openSearch()" title="Search"></button>
     <button class="iconbtn" id="about-btn" onclick="showScreen('about')" title="About"></button>
   </header>
   <div class="scroll">
@@ -366,6 +381,15 @@
     <h1>History</h1>
   </header>
   <div class="scroll" id="history-body"></div>
+</div>
+
+<!-- ============================ SEARCH ============================ -->
+<div class="screen" id="search">
+  <header>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
+    <input id="search-input" placeholder="Find a plan or a session" autocomplete="off">
+  </header>
+  <div class="scroll" id="search-body"></div>
 </div>
 
 <!-- ============================ CATEGORY ============================ -->
@@ -532,6 +556,15 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.17.0",
+    "date": "2026-08-11",
+    "changes": [
+      "Search: a magnifier on the home screen finds any plan or session by name, wherever it is filed",
+      "A running session now sits in the status bar and says which step you are on - tap it to come back to the app",
+      "Fixed: the last walk of an interval no longer runs straight into the cool-down walk, which made two steps out of one walk"
+    ]
+  },
   {
     "version": "0.16.1",
     "date": "2026-08-11",
@@ -792,7 +825,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.16.1";
+const APP_VERSION = "0.17.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1261,7 +1294,10 @@ function planSession(plan, week, dayIndex){
   if(spec.reps){
     blocks.push({ type:"repeat", reps:spec.reps,
                   a:{ text:"Run",  kind:"run",  sec:spec.runSec },
-                  b:{ text:"Walk", kind:"walk", sec:spec.walkSec } });
+                  b:{ text:"Walk", kind:"walk", sec:spec.walkSec },
+                  /* A cool-down walk is already the recovery the last walk of
+                     the last repeat would have been. */
+                  dropLast: !!(plan.cooldownSec && spec.walkSec) });
   }else if(spec.walkSec && !spec.optional){
     blocks.push({ type:"step", text:"Walk", kind:"walk", sec:spec.walkSec });
   }
@@ -1297,6 +1333,11 @@ function flatten(blocks){
       for(let i = 1; i <= b.reps; i++){
         for(const side of [b.a, b.b]){
           if(!side || side.sec <= 0) continue;
+          /* The recovery of the last repeat is dropped when something is
+             coming that recovers anyway: walking a minute and then walking
+             ten more is one walk, and announcing it twice makes a step out
+             of nothing happening. */
+          if(side === b.b && b.dropLast && i === b.reps) continue;
           steps.push({ text:side.text, kind:side.kind, sec:side.sec,
                        rep:i, reps:b.reps });
         }
@@ -1418,7 +1459,9 @@ const ICON = {
   /* The dot is a line going nowhere: with a round cap that draws a full stop,
      and it keeps the whole set to one stroke width and no fills. */
   info:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/>' +
-          '<path d="M12 16.4v-4.6"/><path d="M12 7.9h.01"/></svg>'
+          '<path d="M12 16.4v-4.6"/><path d="M12 7.9h.01"/></svg>',
+  search: '<svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7"/>' +
+          '<path d="M15.8 15.8L21 21"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -1706,6 +1749,74 @@ function resetProgram(id){
   delete progress[id];
   save(KEY_PROGRESS, progress);
   renderCategory();
+}
+
+/* =====================================================================
+   SEARCH
+
+   Everything the app holds, across every category, found by name. It is
+   the one place plans and sessions are listed side by side, so each row
+   says which it is and wears the colour of the category it belongs to.
+   ===================================================================== */
+
+function openSearch(){
+  showScreen("search");
+  const box = document.getElementById("search-input");
+  box.value = "";
+  renderSearch();
+  /* The keyboard is the point of the screen, so it opens with it up. */
+  setTimeout(() => box.focus(), 60);
+}
+
+function searchable(){
+  const out = [];
+  PLANS.concat(myPlans).forEach(p => out.push({
+    kind:"plan", id:p.id, name:p.name, cat:categoryOf(p),
+    what:"Plan · " + count(p.weeks.length, "week") + " · " + fmtSpan(planTotalSec(p))
+  }));
+  BUILTIN_PROGRAMS.concat(programs).forEach(p => out.push({
+    kind: programs.indexOf(p) >= 0 ? "prog" : "wod", id:p.id, name:p.name, cat:categoryOf(p),
+    what:"Session · " + fmtSpan(totalSec(p.blocks))
+  }));
+  return out;
+}
+
+/* The letters you typed, shown where they were found. */
+function markHit(name, q){
+  const at = name.toLowerCase().indexOf(q);
+  if(at < 0) return esc(name);
+  return esc(name.slice(0, at)) + "<mark>" + esc(name.slice(at, at + q.length)) +
+    "</mark>" + esc(name.slice(at + q.length));
+}
+
+function renderSearch(){
+  const q = document.getElementById("search-input").value.trim().toLowerCase();
+  const body = document.getElementById("search-body");
+  if(!q){
+    body.innerHTML = '<div class="empty">Type a few letters to find a plan or a ' +
+      "session, wherever it is filed.</div>";
+    return;
+  }
+  const hits = searchable().filter(x => x.name.toLowerCase().indexOf(q) >= 0);
+  body.innerHTML = hits.length
+    ? hits.map(x => '<div class="hit" data-hit="' + x.kind + ":" + x.id + '">' +
+        '<i style="background:' + CAT_COLOR[x.cat] + '"></i>' +
+        "<div><b>" + markHit(x.name, q) + "</b><small>" + esc(x.what + " · " + x.cat) +
+        "</small></div></div>").join("")
+    : '<div class="empty">Nothing called that.</div>';
+}
+
+/* Opening something from here puts you in the category it lives in, so
+   going back afterwards lands where the thing actually is. */
+function openHit(el){
+  const [kind, id] = splitOnce(el.dataset.hit);
+  const item = kind === "plan" ? findPlan(id)
+             : BUILTIN_PROGRAMS.concat(programs).find(p => p.id === id);
+  if(!item) return;
+  currentCategory = categoryOf(item);
+  if(kind === "plan") openPlan(id);
+  else if(kind === "prog") startSession(id);
+  else openProgram(id);
 }
 
 /* Back out of a plan or the editor to wherever the user came in from. */
@@ -2412,6 +2523,13 @@ function stopTicker(){
   keepAliveOff();
 }
 
+/* Paused is still a session in progress, so the notification stays; it is
+   only cleared when there is nothing to go back to. */
+function endSession(){
+  stopTicker();
+  clearNote();
+}
+
 let lastPersist = 0;
 
 function tick(){
@@ -2425,6 +2543,8 @@ function tick(){
     const s = session.steps[idx];
     beep(isWork(s.kind) ? 880 : 590);
     speak(cueFor(idx));
+    showNote(session.name, s.text + " · " + fmt(s.sec) +
+      (s.reps ? "  ·  " + s.rep + " of " + s.reps : ""));
     persist();
   }
 
@@ -2535,7 +2655,7 @@ function skipStep(){
 }
 
 function finish(){
-  stopTicker();
+  endSession();
   const done = session;
   const ran = duration();
   progress[done.id] = today();
@@ -2565,9 +2685,9 @@ function leaveRun(){
 }
 
 function confirmQuit(){
-  if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); leaveRun(); return; }
+  if(!session || !session.startedAt){ clearNote(); session = null; save(KEY_CURRENT, null); leaveRun(); return; }
   dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
-    stopTicker();
+    endSession();
     stopSpeech();
     session = null;
     save(KEY_CURRENT, null);
@@ -2838,6 +2958,72 @@ function keepAliveOff(){
   if(!keepAlive) return;
   try{ keepAlive.osc.stop(); }catch(e){}
   keepAlive = null;
+}
+
+/* =====================================================================
+   THE NOTIFICATION WHILE A SESSION RUNS
+
+   A workout carries on when the app is not in front of you – the clock
+   is rebuilt from timestamps and the cues keep coming – but there was
+   no way back to it except finding the icon again. An ongoing
+   notification sits in the status bar for as long as the clock runs,
+   says what step you are on, and opens the app when tapped.
+
+   It is scheduled rather than served by a foreground service, which is
+   the smaller change: the plugin is already in the project, and no new
+   Java or manifest entry is needed. It cannot be swiped away while the
+   session lasts, and it goes when the session does.
+
+   The channel's id can never change once a phone has seen it, so it
+   carries a version: a new one is needed if the sound or importance
+   ever changes.
+   ===================================================================== */
+
+const NOTES = NATIVE && window.Capacitor.Plugins
+  ? window.Capacitor.Plugins.LocalNotifications : null;
+const NOTE_ID = 1;
+const NOTE_CHANNEL = "tb-session-v1";
+let noteReady = false;
+let noteShowing = "";
+
+function readyNotes(){
+  if(!NOTES || noteReady) return Promise.resolve(noteReady);
+  return NOTES.requestPermissions()
+    .then(r => {
+      if(!r || r.display !== "granted") return false;
+      /* Importance 3 would chime on every step change. This one is seen,
+         never heard. */
+      return NOTES.createChannel({
+        id: NOTE_CHANNEL, name: "Running session", importance: 2,
+        visibility: 1, sound: "", vibration: false
+      }).catch(() => {}).then(() => true);
+    })
+    .then(okay => { noteReady = !!okay; return noteReady; })
+    .catch(() => false);
+}
+
+function showNote(title, body){
+  if(!NOTES) return;
+  const key = title + "|" + body;
+  if(key === noteShowing) return;      /* the same words are already up */
+  noteShowing = key;
+  readyNotes().then(okay => {
+    if(!okay) return;
+    /* No smallIcon is named on purpose: naming a drawable the app does not
+       have resolves to nothing, and the plugin's own default is the app's
+       icon, which is the right picture anyway. */
+    NOTES.schedule({ notifications: [{
+      id: NOTE_ID, channelId: NOTE_CHANNEL,
+      title: title, body: body,
+      ongoing: true, autoCancel: false
+    }] }).catch(() => {});
+  });
+}
+
+function clearNote(){
+  noteShowing = "";
+  if(!NOTES) return;
+  NOTES.cancel({ notifications: [{ id: NOTE_ID }] }).catch(() => {});
 }
 
 /* =====================================================================
@@ -3234,6 +3420,13 @@ document.getElementById("run-quit").innerHTML = ICON.close;
 document.getElementById("run-skip").innerHTML = ICON.skip;
 document.getElementById("edit-save").innerHTML = ICON.check;
 document.getElementById("about-btn").innerHTML = ICON.info;
+document.getElementById("search-btn").innerHTML = ICON.search;
+
+document.getElementById("search-input").addEventListener("input", renderSearch);
+document.getElementById("search-body").addEventListener("click", e => {
+  const row = e.target.closest("[data-hit]");
+  if(row) openHit(row);
+});
 
 renderChangelog();
 renderHome();

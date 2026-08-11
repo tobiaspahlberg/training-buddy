@@ -65,7 +65,9 @@ Two levels, and the distinction matters:
   kind the app no longer knows, so a session saved by an older version still
   draws.
 - `flatten(blocks)` expands blocks into the flat step list the clock uses.
-  Everything downstream works on that flat list only.
+  Everything downstream works on that flat list only. A `repeat` block with
+  `dropLast` leaves off the recovery side of its final repeat, which is what
+  keeps a plan's last walk from running straight into its cool-down walk.
 
 Built-in plans are written the way their source PDF is laid out, one row per
 week, so they can be checked against the original at a glance. **Never adjust
@@ -187,6 +189,14 @@ the flag gets 1.
 
 **Native code only runs in the app.** Anything touching Capacitor sits behind
 a native check so the web version keeps working unchanged.
+
+**A running session posts an ongoing notification** through
+`@capacitor/local-notifications`, so there is a way back to the clock from
+wherever the phone has wandered. It is scheduled, not served by a foreground
+service: the plugin was already in the project and needs no manifest entry of
+its own. It follows the step, never stacks (one id, replaced), survives a
+pause and goes when the session does. Naming a `smallIcon` the app does not
+have would leave it blank, so none is named.
 
 ## Common commands
 
