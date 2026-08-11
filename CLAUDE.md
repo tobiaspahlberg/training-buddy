@@ -49,7 +49,8 @@ that stays on a branch never becomes an APK. Finished work belongs on `main`.
   in the hand – do not shrink it back. The calendar is the exception: seven
   days have to fit across, so it keeps its small type.
 - Colours are CSS variables at the top: `--run` green, `--walk` blue,
-  `--warm` amber (warm-up and cool-down), `--rest` purple, `--stop` red
+  `--warm` amber (warm-up and cool-down), `--rest` purple, `--lift` pink
+  (strength), `--hold` teal (planks and the like), `--stop` red
 
 ## Data model
 
@@ -59,6 +60,10 @@ Two levels, and the distinction matters:
   no timing logic, only which sessions exist and in what order.
 - A **session** is what the clock runs. It is a list of **blocks**: either a
   plain `step` or a `repeat` block holding two steps (run/walk) and a count.
+  A step's `kind` is only a colour and a tone – `KINDS` lists them, `isWork()`
+  says which ones get the go tone, and `colorOf()` falls back to green for a
+  kind the app no longer knows, so a session saved by an older version still
+  draws.
 - `flatten(blocks)` expands blocks into the flat step list the clock uses.
   Everything downstream works on that flat list only.
 

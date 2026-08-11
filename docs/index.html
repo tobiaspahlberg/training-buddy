@@ -25,6 +25,8 @@
     --walk:#38BDF8;     /* walking */
     --warm:#FBBF24;     /* warm-up and cool-down */
     --rest:#A78BFA;     /* rest / other */
+    --lift:#F472B6;     /* strength work */
+    --hold:#2DD4BF;     /* holds and planks */
     --stop:#F43F5E;     /* stop and alarms */
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -531,6 +533,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.16.0",
+    "date": "2026-08-11",
+    "changes": [
+      "Two more kinds of step: Strength for a set of work, and Hold for a plank or anything else held still",
+      "Both get a colour of their own in the timeline, and the go tone rather than the ease-off one"
+    ]
+  },
+  {
     "version": "0.15.1",
     "date": "2026-08-11",
     "changes": [
@@ -774,7 +784,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.15.1";
+const APP_VERSION = "0.16.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -2402,7 +2412,7 @@ function tick(){
   if(idx !== lastStepIdx){
     lastStepIdx = idx;
     const s = session.steps[idx];
-    beep(s.kind === "run" ? 880 : 590);
+    beep(isWork(s.kind) ? 880 : 590);
     speak(cueFor(idx));
     persist();
   }
@@ -2444,8 +2454,16 @@ function spokenDuration(sec){
   return mins + " " + secs;
 }
 
-const KIND_COLOR = { run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)", rest:"var(--rest)" };
+const KIND_COLOR = {
+  run:"var(--run)", walk:"var(--walk)", warm:"var(--warm)",
+  rest:"var(--rest)", lift:"var(--lift)", hold:"var(--hold)"
+};
 function colorOf(kind){ return KIND_COLOR[kind] || "var(--run)"; }
+
+/* Whether a step is asking anything of you, which decides the tone that
+   announces it: the higher one means go, the lower one means ease off. */
+const WORK = { run:1, lift:1, hold:1 };
+function isWork(kind){ return !!WORK[kind]; }
 
 /* One block per step, sized by its share of the session. */
 function buildTimeline(){
@@ -2864,7 +2882,17 @@ function openEditor(title){
   showScreen("editor");
 }
 
-const KINDS = [["run","Run"], ["walk","Walk"], ["warm","Warm-up / cool-down"], ["rest","Rest"]];
+/* What a step is, which is only ever a colour and a tone – the clock counts
+   them all the same way. Running has its own because the plans are built on
+   it; the rest cover a session that is not a run. */
+const KINDS = [
+  ["run",  "Run"],
+  ["walk", "Walk"],
+  ["lift", "Strength"],
+  ["hold", "Hold"],
+  ["warm", "Warm-up / cool-down"],
+  ["rest", "Rest"]
+];
 
 function kindSelect(path){
   return '<select onchange="setField(\'' + path + '\',this.value)">' +
