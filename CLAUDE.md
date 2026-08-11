@@ -58,16 +58,20 @@ Two levels, and the distinction matters:
 
 - A **plan** is a schedule, e.g. six weeks with three run days each. It holds
   no timing logic, only which sessions exist and in what order.
-- A **session** is what the clock runs. It is a list of **blocks**: either a
-  plain `step` or a `repeat` block holding two steps (run/walk) and a count.
-  A step's `kind` is only a colour and a tone – `KINDS` lists them, `isWork()`
-  says which ones get the go tone, and `colorOf()` falls back to green for a
-  kind the app no longer knows, so a session saved by an older version still
-  draws.
+- A **session** is what the clock runs. It is a list of **blocks**, of which
+  there are three: a plain `step`, a `repeat` holding two steps (run/walk) and
+  a count, and a `circuit` – `names` of stations, `workSec`, `restSec` and
+  `rounds` – for the kind of thing that has more than two sides to it. A step's
+  `kind` is only a colour and a tone – `KINDS` lists them, `isWork()` says
+  which ones get the go tone, and `colorOf()` falls back to green for a kind
+  the app no longer knows, so a session saved by an older version still draws.
 - `flatten(blocks)` expands blocks into the flat step list the clock uses.
   Everything downstream works on that flat list only. A `repeat` block with
   `dropLast` leaves off the recovery side of its final repeat, which is what
-  keeps a plan's last walk from running straight into its cool-down walk.
+  keeps a plan's last walk from running straight into its cool-down walk; a
+  `circuit` leaves off the rest after its last station, for the same reason.
+  `stations()` is one line on top of a circuit block, so a built-in workout
+  and one made in the editor are the same thing to everything downstream.
 
 Built-in plans are written the way their source PDF is laid out, one row per
 week, so they can be checked against the original at a glance. **Never adjust
@@ -99,14 +103,16 @@ running, and `tb.programs` is what is on people's phones.
 
 The editor works at session level. A user-made program is simply a plan with
 one session; copying a single day out of a plan produces exactly that, an
-ordinary program with no link back. Editing a session *inside* a copied plan
+ordinary program with no link back. Blocks are added, removed and moved up or
+down; a step's `list` is typed one line to a line and disappears when it is
+emptied, which turns the step back into a plain one. Editing a session *inside* a copied plan
 uses the same editor, but `editing.planId` sends the result back into the plan
 instead of into the program list.
 
 `BUILTIN_PROGRAMS` are single sessions with no schedule around them. A step
 may carry a `list` of strings – movements to work through, as on a gym
-whiteboard. The list has no timing, so it is only ever displayed: in the
-sheet, on the run screen and read-only in the editor.
+whiteboard. The list has no timing, so it is never timed – only shown, in the
+sheet and on the run screen, and typed as lines in the editor.
 
 **Done** means two different things, deliberately. `progress` holds the day a
 session was last finished. For a day of a plan that is final: it is done and
@@ -167,6 +173,11 @@ container that survives, and finds rows by the data attribute they carry:
 takes an `ignore` selector for controls inside a row that answer for
 themselves. A long press sets a flag that swallows the click the browser
 sends afterwards; the flag is cleared on the next `pointerdown`.
+
+**A session opens before it runs.** Tapping anything with a clock in it –
+a day of a plan, a built-in workout, one of your own – opens the sheet, and
+Start is a second, deliberate tap. Your own sessions used to start under the
+thumb, which meant there was no way to look at one without editing it.
 
 **A long press is never the only way to do something.** Holding a day is a
 shortcut into select mode, which the header button also opens; holding a

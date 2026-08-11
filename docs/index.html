@@ -324,6 +324,12 @@
   .grid.three{grid-template-columns:1fr 1fr 1fr}
   .del{background:none;border:none;color:var(--stop);font-size:13px;font-weight:600;
     cursor:pointer;font-family:inherit;padding:4px}
+  /* Up and down, big enough for a thumb, quiet enough to stay out of the way. */
+  .mv{background:none;border:1px solid var(--line);border-radius:9px;padding:5px;
+    cursor:pointer;color:var(--dim);display:flex}
+  .mv svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+  .mv[disabled]{opacity:.25}
 
   /* ---- Undo ----
      Sits above the thumb, says what went, and takes itself away. */
@@ -495,6 +501,7 @@
     <div class="row">
       <button class="btn ghost" onclick="addBlock('step')">+ Step</button>
       <button class="btn ghost" onclick="addBlock('repeat')">+ Interval</button>
+      <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit</button>
     </div>
     <div class="ver" id="edit-total"></div>
     <button class="btn danger" id="edit-delete" onclick="deleteProgram()"
@@ -592,7 +599,7 @@
     <div class="steplist" id="sheet-steps"></div>
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
     <div class="sheet-acts">
-      <button class="sact" id="sheet-edit" onclick="editPlanSession()"></button>
+      <button class="sact" id="sheet-edit" onclick="editFromSheet()"></button>
       <button class="sact" id="sheet-mark" onclick="toggleDone()"></button>
       <button class="sact" id="sheet-copy" onclick="copyToMine()"></button>
       <button class="sact" id="sheet-close" onclick="closeSheet()"></button>
@@ -619,6 +626,17 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.20.0",
+    "date": "2026-08-11",
+    "changes": [
+      "Blocks can be moved up and down in the editor, so a session can be put in order without being written again",
+      "A work list is now typed in the editor, one movement per line, and can be added to any step or taken off it",
+      "New block: a circuit of stations - name them, set the work, the rest and the number of rounds, and the app lays out every step",
+      "Your own sessions open their details on a tap, the way the built-in ones do, with Start, Edit, Copy and the tick in the sheet",
+      "Fixed: on the web the back button left the app instead of closing what was open"
+    ]
+  },
   {
     "version": "0.19.0",
     "date": "2026-08-11",
@@ -914,7 +932,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.19.0";
+const APP_VERSION = "0.20.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1018,17 +1036,11 @@ const TEAM_AMRAP_25 = {
 };
 
 /* Work for a while, rest a little, move to the next station, go round again.
-   Each station is a step of its own so it is announced by name. */
+   One block, not thirty steps: flatten() lays it out, so the rounds can still
+   be changed afterwards in a copy without rewriting the whole thing. */
 function stations(names, workSec, restSec, rounds){
-  const blocks = [];
-  for(let r = 0; r < rounds; r++){
-    names.forEach(name => {
-      blocks.push({ type:"step", text:name, kind:"run", sec:workSec });
-      blocks.push({ type:"step", text:"Rest", kind:"rest", sec:restSec });
-    });
-  }
-  blocks.pop();   /* a workout should end on the work, not on a rest */
-  return blocks;
+  return [{ type:"circuit", rounds:rounds, names:names,
+            workSec:workSec, restSec:restSec, kind:"run" }];
 }
 
 const TOTAL_TRAINING_25 = {
@@ -1431,6 +1443,20 @@ function flatten(blocks){
                        rep:i, reps:b.reps });
         }
       }
+    }else if(b.type === "circuit"){
+      /* Stations in a row, round and round: each one is a step of its own so
+         it is announced by name, with a rest between them and none at the
+         end – a workout should finish on the work. */
+      const names = (b.names || []).filter(n => String(n).trim());
+      for(let r = 1; r <= b.rounds; r++){
+        names.forEach((name, at) => {
+          if(b.workSec > 0)
+            steps.push({ text:name, kind:b.kind || "lift", sec:b.workSec, rep:r, reps:b.rounds });
+          const last = r === b.rounds && at === names.length - 1;
+          if(b.restSec > 0 && !last)
+            steps.push({ text:"Rest", kind:"rest", sec:b.restSec, rep:r, reps:b.rounds });
+        });
+      }
     }else if(b.sec > 0){
       steps.push({ text:b.text, kind:b.kind, sec:b.sec, list:b.list });
     }
@@ -1710,7 +1736,9 @@ const ICON = {
   info:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/>' +
           '<path d="M12 16.4v-4.6"/><path d="M12 7.9h.01"/></svg>',
   search: '<svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7"/>' +
-          '<path d="M15.8 15.8L21 21"/></svg>'
+          '<path d="M15.8 15.8L21 21"/></svg>',
+  up:     '<svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
+  down:   '<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -1960,7 +1988,7 @@ bindTapAndHold(document.getElementById("cat-body"), {
   tap: el => {
     const [kind, id] = splitOnce(el.dataset.open);
     if(kind === "plan") openPlan(id);
-    else if(kind === "prog") startSession(id);
+    else if(kind === "prog") openOwn(id);
     else openProgram(id);
   },
   hold: el => {
@@ -2085,7 +2113,7 @@ function openHit(el){
   if(!item) return;
   currentCategory = categoryOf(item);
   if(kind === "plan") openPlan(id);
-  else if(kind === "prog") startSession(id);
+  else if(kind === "prog") openOwn(id);
   else openProgram(id);
 }
 
@@ -2550,13 +2578,21 @@ let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayI
 /* The block list as it is shown in the sheet. A work list has no timing of
    its own, so its lines hang under the step they belong to. */
 function blockRows(blocks){
-  return blocks.map(b =>
-    b.type === "repeat"
-      ? "<div><span>" + esc(b.reps + " × " + b.a.text + " : " + b.b.text) + "</span><span>" +
-        fmt(b.a.sec) + " : " + fmt(b.b.sec) + "</span></div>"
-      : "<div><span>" + esc(b.text) + "</span><span>" + fmt(b.sec) + "</span></div>" +
-        (b.list ? b.list.map(x => '<div class="sub"><span>' + esc(x) + "</span></div>").join("") : "")
-  ).join("");
+  return blocks.map(b => {
+    if(b.type === "repeat")
+      return "<div><span>" + esc(b.reps + " × " + b.a.text + " : " + b.b.text) + "</span><span>" +
+        fmt(b.a.sec) + " : " + fmt(b.b.sec) + "</span></div>";
+    if(b.type === "circuit"){
+      const names = (b.names || []).filter(n => String(n).trim());
+      /* The stations are the point of a circuit, so they are listed under it
+         the way a work list is – the header only says how it is run. */
+      return "<div><span>" + esc(b.rounds + " × " + count(names.length, "station")) +
+        "</span><span>" + fmt(b.workSec) + " : " + fmt(b.restSec) + "</span></div>" +
+        names.map(n => '<div class="sub"><span>' + esc(n) + "</span></div>").join("");
+    }
+    return "<div><span>" + esc(b.text) + "</span><span>" + fmt(b.sec) + "</span></div>" +
+      (b.list ? b.list.map(x => '<div class="sub"><span>' + esc(x) + "</span></div>").join("") : "");
+  }).join("");
 }
 
 function openDay(weekN, dayIndex){
@@ -2589,6 +2625,20 @@ function openOther(weekN, day){
   document.getElementById("sheet-steps").innerHTML =
     "<div><span>" + esc(other.label) + "</span><span>not timed</span></div>";
   showSheet({ mark:true });
+}
+
+/* A session of your own. It opens the same way a built-in one does rather
+   than starting under your thumb: what is in it can be read first, and Start
+   is a second, deliberate tap. */
+function openOwn(id){
+  const p = programs.find(x => x.id === id);
+  if(!p) return;
+  sheetTarget = { kind:"own", programId:p.id, id:p.id };
+  document.getElementById("sheet-title").textContent = p.name;
+  sheetWhen(fmtLong(totalSec(p.blocks)) + " in total" +
+    (progress[p.id] ? " · last done " + dayName(progress[p.id]).toLowerCase() : ""));
+  document.getElementById("sheet-steps").innerHTML = blockRows(p.blocks);
+  showSheet({ start:true, edit:true, mark:true, copy:true });
 }
 
 /* A built-in workout: one session, no schedule around it. */
@@ -2651,6 +2701,7 @@ function toggleDone(){
 function startFromSheet(){
   const t = sheetTarget;
   closeSheet();
+  if(t.kind === "own"){ startSession(t.programId); return; }
   if(t.kind === "program"){
     begin(BUILTIN_PROGRAMS.find(p => p.id === t.programId));
     return;
@@ -2667,8 +2718,8 @@ function copyToMine(){
   const t = sheetTarget;
   if(!t) return;
   closeSheet();
-  if(t.kind === "program"){
-    const p = BUILTIN_PROGRAMS.find(x => x.id === t.programId);
+  if(t.kind === "program" || t.kind === "own"){
+    const p = (t.kind === "own" ? programs : BUILTIN_PROGRAMS).find(x => x.id === t.programId);
     editing = {
       id: "p" + Date.now(), name: p.name + " (copy)",
       category: categoryOf(p), blocks: clone(p.blocks), isNew: true
@@ -2687,6 +2738,15 @@ function copyToMine(){
     isNew: true
   };
   openEditor("Copy of session");
+}
+
+/* The pencil in the sheet leads to the same editor from either side: a
+   session of your own, or one inside a plan you copied. */
+function editFromSheet(){
+  const t = sheetTarget;
+  if(!t) return;
+  if(t.kind === "own"){ closeSheet(); editProgram(t.programId); return; }
+  editPlanSession();
 }
 
 /* A session inside a copied plan is edited in place: the same editor, but
@@ -3467,13 +3527,33 @@ function kindSelect(path){
     "</select>";
 }
 
+/* The head of a block: what it is, and the three things that can be done to
+   the block as a whole. The arrows are how a session is put in order – there
+   is no dragging, which on a phone fights with the scroll. */
+function blockHead(label, i, last){
+  return '<div class="block-head"><b>' + label + "</b>" +
+    '<button class="mv" onclick="moveBlock(' + i + ',-1)" title="Move up"' +
+      (i === 0 ? " disabled" : "") + ">" + ICON.up + "</button>" +
+    '<button class="mv" onclick="moveBlock(' + i + ',1)" title="Move down"' +
+      (last ? " disabled" : "") + ">" + ICON.down + "</button>" +
+    '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>';
+}
+
+/* Minutes and seconds for one named number on a block. */
+function secFields(i, key){
+  const sec = editing.blocks[i][key];
+  return '<div class="field"><label>Min</label><input type="number" min="0" value="' +
+      Math.floor(sec / 60) + '" onchange="setSec(' + i + ',\'' + key + '\',\'m\',this.value)"></div>' +
+    '<div class="field"><label>Sec</label><input type="number" min="0" max="59" value="' +
+      (sec % 60) + '" onchange="setSec(' + i + ',\'' + key + '\',\'s\',this.value)"></div>';
+}
+
 function renderBlocks(){
   const host = document.getElementById("edit-blocks");
+  const end = editing.blocks.length - 1;
   host.innerHTML = editing.blocks.map((b, i) => {
     if(b.type === "repeat"){
-      return '<div class="block">' +
-        '<div class="block-head"><b>Interval</b>' +
-          '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>' +
+      return '<div class="block">' + blockHead("Interval", i, i === end) +
         '<div class="field"><label>Repeats</label>' +
           '<input type="number" min="1" max="99" value="' + b.reps +
             '" onchange="setField(\'' + i + '.reps\',this.value)"></div>' +
@@ -3481,20 +3561,35 @@ function renderBlocks(){
         sideEditor(i, "b", b.b, "Then") +
       "</div>";
     }
-    return '<div class="block">' +
-      '<div class="block-head"><b>Step</b>' +
-        '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>' +
+    if(b.type === "circuit"){
+      const names = b.names || [];
+      return '<div class="block">' + blockHead("Circuit", i, i === end) +
+        '<div class="field"><label>Rounds</label>' +
+          '<input type="number" min="1" max="99" value="' + b.rounds +
+            '" onchange="setField(\'' + i + '.rounds\',this.value)"></div>' +
+        '<div class="field"><label>Stations, one per line</label>' +
+          '<textarea rows="' + Math.max(3, names.length) + '" onchange="setNames(' + i +
+            ',this.value)">' + esc(names.join("\n")) + "</textarea></div>" +
+        '<div class="grid three">' + secFields(i, "workSec") +
+          '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
+        "</div>" +
+        '<div class="grid">' + secFields(i, "restSec") + "</div>" +
+        '<div class="hint" style="padding:0">Rest between stations, and none after ' +
+          "the last one.</div>" +
+      "</div>";
+    }
+    return '<div class="block">' + blockHead("Step", i, i === end) +
       '<div class="field"><label>Name</label>' +
         '<input value="' + esc(b.text) + '" onchange="setField(\'' + i + '.text\',this.value)"></div>' +
-      /* A work list is carried along and shown, but there is nothing to time
-         in it, so the editor only displays it. */
-      (b.list ? '<div class="field"><label>Work list</label><div class="worklist ro">' +
-        b.list.map(x => "<div>" + esc(x) + "</div>").join("") + "</div></div>" : "") +
-      '<div class="grid three">' +
-        '<div class="field"><label>Min</label><input type="number" min="0" value="' +
-          Math.floor(b.sec / 60) + '" onchange="setDur(' + i + ',null,\'m\',this.value)"></div>' +
-        '<div class="field"><label>Sec</label><input type="number" min="0" max="59" value="' +
-          (b.sec % 60) + '" onchange="setDur(' + i + ',null,\'s\',this.value)"></div>' +
+      /* A work list has no timing of its own – it is the movements to get
+         through while the step runs – but it is yours to change. */
+      (b.list
+        ? '<div class="field"><label>Work list, one line each</label>' +
+          '<textarea rows="' + Math.max(3, b.list.length) + '" onchange="setList(' + i +
+            ',this.value)">' + esc(b.list.join("\n")) + "</textarea></div>"
+        : '<button class="act" style="margin-bottom:14px" onclick="setList(' + i +
+          ',\'\',true)">+ Work list</button>') +
+      '<div class="grid three">' + secFields(i, "sec") +
         '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
       "</div>" +
     "</div>";
@@ -3504,7 +3599,7 @@ function renderBlocks(){
   editing.blocks.forEach((b, i) => {
     const sels = host.children[i].querySelectorAll("select");
     if(b.type === "repeat"){ sels[0].value = b.a.kind; sels[1].value = b.b.kind; }
-    else sels[0].value = b.kind;
+    else sels[0].value = b.kind || "lift";
   });
 
   document.getElementById("edit-total").textContent =
@@ -3528,7 +3623,49 @@ function setField(path, value){
   let node = editing.blocks;
   for(let i = 0; i < parts.length - 1; i++) node = node[parts[i]];
   const last = parts[parts.length - 1];
-  node[last] = last === "reps" ? Math.max(1, parseInt(value, 10) || 1) : value;
+  node[last] = last === "reps" || last === "rounds"
+    ? Math.max(1, parseInt(value, 10) || 1) : value;
+  renderBlocks();
+}
+
+/* One duration on a block, by the name it is stored under: a step's sec, a
+   circuit's workSec or restSec. */
+function setSec(i, key, unit, value){
+  const b = editing.blocks[i];
+  const n = Math.max(0, parseInt(value, 10) || 0);
+  const m = unit === "m" ? n : Math.floor(b[key] / 60);
+  const s = unit === "s" ? Math.min(59, n) : b[key] % 60;
+  b[key] = m * 60 + s;
+  renderBlocks();
+}
+
+/* A list typed as lines. Blank lines are what a keyboard leaves behind, not
+   something to do, so they go. */
+function lines(text){
+  return String(text).split("\n").map(x => x.trim()).filter(Boolean);
+}
+
+function setNames(i, text){
+  editing.blocks[i].names = lines(text);
+  renderBlocks();
+}
+
+/* A work list that has been emptied is no work list, and the step goes back
+   to being a plain one. */
+function setList(i, text, open){
+  const list = lines(text);
+  if(list.length) editing.blocks[i].list = list;
+  else if(open) editing.blocks[i].list = [];
+  else delete editing.blocks[i].list;
+  renderBlocks();
+}
+
+function moveBlock(i, dir){
+  const to = i + dir;
+  if(to < 0 || to >= editing.blocks.length) return;
+  const b = editing.blocks[i];
+  editing.blocks[i] = editing.blocks[to];
+  editing.blocks[to] = b;
   renderBlocks();
 }
 
@@ -3542,10 +3679,14 @@ function setDur(i, side, unit, value){
 }
 
 function addBlock(type){
-  editing.blocks.push(type === "repeat"
-    ? { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
-                               b:{ text:"Walk", kind:"walk", sec:30 } }
-    : { type:"step", text:"Walk", kind:"warm", sec:300 });
+  const fresh = {
+    repeat:  { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
+                                      b:{ text:"Walk", kind:"walk", sec:30 } },
+    circuit: { type:"circuit", rounds:3, workSec:40, restSec:20, kind:"lift",
+               names:["Station 1", "Station 2", "Station 3"] },
+    step:    { type:"step", text:"Walk", kind:"warm", sec:300 }
+  };
+  editing.blocks.push(clone(fresh[type] || fresh.step));
   renderBlocks();
 }
 
@@ -3797,7 +3938,9 @@ let backArmed = false;
 
 function armBack(){
   if(backArmed) return;
-  try{ history.pushState({ tb:1 }, ""); backArmed = true; }catch(e){}
+  /* window.history, not the app's own history array, which shadows it by
+     name at the top of this script and quietly swallowed every arming. */
+  try{ window.history.pushState({ tb:1 }, ""); backArmed = true; }catch(e){}
 }
 
 function currentScreen(){
