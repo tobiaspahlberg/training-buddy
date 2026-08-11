@@ -72,10 +72,13 @@
   .card.flat{cursor:default}
   .card h3{font-size:18px;font-weight:650;margin-bottom:4px}
   .card p{font-size:15px;color:var(--dim);line-height:1.45}
-  /* Done today. The mark is the day's, not the program's, so it clears
-     itself overnight and the date below it carries the longer memory. */
-  .card.done{border-color:var(--run);background:rgba(74,222,128,.07)}
-  .card.done h3::before{content:"\2713\00a0";color:var(--run)}
+  /* Done today. The mark is the day's, not the session's, so it clears itself
+     overnight and the date below it carries the longer memory. It is drawn in
+     the category's own colour: a green ring around a blue card would be the
+     only green thing on the screen, and would read as a different kind of
+     thing rather than as "this one is done". */
+  .card.done{border-color:var(--accent);background:var(--tint)}
+  .card.done h3::before{content:"\2713\00a0";color:var(--accent)}
   /* What a card can do, as buttons rather than as words in a sentence.
      Grey text beside grey text says nothing about being tappable, however
      it is coloured, so these carry a border, an icon and a label. */
@@ -90,7 +93,7 @@
      titled and a paragraph is not: it says "there is a whole thing in here"
      before you have read the weeks or the hours underneath. */
   .card.plan h3{font-size:20.5px;line-height:1.25;padding-bottom:10px;margin-bottom:10px;
-    border-bottom:2px solid var(--rule,var(--line))}
+    border-bottom:2px solid var(--accent,var(--line))}
   /* The bin sits beside the text, but the bar below spans the whole card:
      measured inside the text column it would come out shorter on everything
      that has a bin, and two equal lengths would not look equal. */
@@ -506,6 +509,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.13.3",
+    "date": "2026-08-10",
+    "changes": [
+      "Skipping ahead cuts off the cue being spoken, instead of queueing up steps you are already past",
+      "A session finished today is ringed in its category's colour, so a green mark no longer lands on a blue card"
+    ]
+  },
+  {
     "version": "0.13.2",
     "date": "2026-08-10",
     "changes": [
@@ -697,7 +708,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.13.2";
+const APP_VERSION = "0.13.3";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1378,10 +1389,13 @@ function miniTimeline(blocks, pct){
 function cardStyle(item, own, isPlan){
   const c = categoryOf(item);
   const edge = own ? CAT_COLOR[c] : CAT_FADE[c];
-  return isPlan
-    ? "--rule:" + CAT_COLOR[c] + ";border-left:9px solid " + edge +
-      ";padding-left:12px;background:" + CAT_TINT[c]
-    : "border-left:5px solid " + edge;
+  /* Every card carries its category's colour and wash, so the rule under a
+     plan's name and the ring around something finished today are drawn in
+     the colour of the place they are in rather than always in green. */
+  const vars = "--accent:" + CAT_COLOR[c] + ";--tint:" + CAT_TINT[c] + ";";
+  return vars + (isPlan
+    ? "border-left:9px solid " + edge + ";padding-left:12px;background:" + CAT_TINT[c]
+    : "border-left:5px solid " + edge);
 }
 
 /* The pill beside a name. What you made yourself wears the category's colour;
@@ -2429,8 +2443,7 @@ function confirmQuit(){
   if(!session || !session.startedAt){ session = null; save(KEY_CURRENT, null); leaveRun(); return; }
   dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
     stopTicker();
-    if(TTS) TTS.stop().catch(() => {});
-    else if(window.speechSynthesis) speechSynthesis.cancel();
+    stopSpeech();
     session = null;
     save(KEY_CURRENT, null);
     closeDialog();
@@ -2512,9 +2525,24 @@ function pickVoice(){
 }
 if(window.speechSynthesis) speechSynthesis.onvoiceschanged = pickVoice;
 
+/* Both engines queue what they are given, so without this a handful of skips
+   in a row leaves the phone reading out steps you are already past, minutes
+   after you have moved on. Only the newest cue is worth hearing. */
+function stopSpeech(){
+  if(TTS) return TTS.stop().catch(() => {});
+  if(window.speechSynthesis){ try{ speechSynthesis.cancel(); }catch(e){} }
+  return Promise.resolve();
+}
+
 function speak(text){
-  if(TTS){ TTS.speak({ text: text }).catch(() => {}); return; }
+  if(TTS){
+    /* The native engine wants the stop to have landed before the next
+       utterance, or it swallows one of the two. */
+    stopSpeech().then(() => TTS.speak({ text: text }).catch(() => {}));
+    return;
+  }
   if(!window.speechSynthesis) return;
+  stopSpeech();
   try{
     const u = new SpeechSynthesisUtterance(text);
     u.lang = voice ? voice.lang : "en-GB";
