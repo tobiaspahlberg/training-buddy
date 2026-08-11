@@ -397,6 +397,8 @@
   <header>
     <button class="iconbtn back" onclick="goBack()" title="Back"></button>
     <h1 id="cat-title"></h1>
+    <button class="iconbtn" id="cat-search" onclick="openSearch(currentCategory)"
+      title="Search this category"></button>
   </header>
   <div class="scroll" id="cat-body"></div>
 </div>
@@ -556,6 +558,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.17.1",
+    "date": "2026-08-11",
+    "changes": [
+      "The status bar shows the app's own stopwatch while a session runs, instead of a blank information mark",
+      "Search from inside a category looks only in that category, and goes back to it when you are done"
+    ]
+  },
   {
     "version": "0.17.0",
     "date": "2026-08-11",
@@ -825,7 +835,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.17.0";
+const APP_VERSION = "0.17.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1759,10 +1769,16 @@ function resetProgram(id){
    says which it is and wears the colour of the category it belongs to.
    ===================================================================== */
 
-function openSearch(){
+/* Set when search was opened from inside a category, which narrows it to
+   that category and sends you back there afterwards. */
+let searchScope = null;
+
+function openSearch(cat){
+  searchScope = cat || null;
   showScreen("search");
   const box = document.getElementById("search-input");
   box.value = "";
+  box.placeholder = searchScope ? "Find in " + searchScope : "Find a plan or a session";
   renderSearch();
   /* The keyboard is the point of the screen, so it opens with it up. */
   setTimeout(() => box.focus(), 60);
@@ -1778,7 +1794,7 @@ function searchable(){
     kind: programs.indexOf(p) >= 0 ? "prog" : "wod", id:p.id, name:p.name, cat:categoryOf(p),
     what:"Session · " + fmtSpan(totalSec(p.blocks))
   }));
-  return out;
+  return searchScope ? out.filter(x => x.cat === searchScope) : out;
 }
 
 /* The letters you typed, shown where they were found. */
@@ -1793,8 +1809,10 @@ function renderSearch(){
   const q = document.getElementById("search-input").value.trim().toLowerCase();
   const body = document.getElementById("search-body");
   if(!q){
-    body.innerHTML = '<div class="empty">Type a few letters to find a plan or a ' +
-      "session, wherever it is filed.</div>";
+    body.innerHTML = '<div class="empty">' + (searchScope
+      ? "Type a few letters to find something in " + esc(searchScope) + "."
+      : "Type a few letters to find a plan or a session, wherever it is filed.") +
+      "</div>";
     return;
   }
   const hits = searchable().filter(x => x.name.toLowerCase().indexOf(q) >= 0);
@@ -3009,12 +3027,15 @@ function showNote(title, body){
   noteShowing = key;
   readyNotes().then(okay => {
     if(!okay) return;
-    /* No smallIcon is named on purpose: naming a drawable the app does not
-       have resolves to nothing, and the plugin's own default is the app's
-       icon, which is the right picture anyway. */
+    /* Named, and it has to exist: android/app/src/main/res/drawable/
+       ic_stat_tb.xml. Without one the plugin falls back to a generic mark
+       that says nothing about which app is asking. Android keeps only the
+       alpha of a small icon, so the drawable is a white silhouette; the
+       colour below tints the badge around it, not the icon itself. */
     NOTES.schedule({ notifications: [{
       id: NOTE_ID, channelId: NOTE_CHANNEL,
       title: title, body: body,
+      smallIcon: "ic_stat_tb", iconColor: "#4ADE80",
       ongoing: true, autoCancel: false
     }] }).catch(() => {});
   });
@@ -3374,6 +3395,7 @@ function goBack(){
     case "done":     leaveRun();    return;
     case "editor":   cancelEdit();  return;
     case "plan":     openPlanId = null; goHomeish(); return;
+    case "search":   if(searchScope) openCategory(searchScope); else showScreen("home"); return;
     case "category": currentCategory = null; showScreen("home"); return;
     case "home":     if(APP) APP.exitApp(); return;
     default:         showScreen("home");
@@ -3421,6 +3443,7 @@ document.getElementById("run-skip").innerHTML = ICON.skip;
 document.getElementById("edit-save").innerHTML = ICON.check;
 document.getElementById("about-btn").innerHTML = ICON.info;
 document.getElementById("search-btn").innerHTML = ICON.search;
+document.getElementById("cat-search").innerHTML = ICON.search;
 
 document.getElementById("search-input").addEventListener("input", renderSearch);
 document.getElementById("search-body").addEventListener("click", e => {

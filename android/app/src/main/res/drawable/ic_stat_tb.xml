@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The icon in the status bar while a session runs.
+
+  Android draws a notification's small icon as a silhouette: it throws away
+  every colour and keeps only the alpha, so this is white on nothing and has
+  no detail finer than a couple of units at 24dp. It is the app's stopwatch,
+  simplified to a ring, a crown and two hands.
+
+  The ring is two subpaths wound in opposite directions, which cuts the hole
+  without relying on fillType - one less thing to depend on.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- the case -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M4,13.6 a8,8 0 1,1 16,0 a8,8 0 1,1 -16,0 Z
+                          M6.1,13.6 a5.9,5.9 0 1,0 11.8,0 a5.9,5.9 0 1,0 -11.8,0 Z" />
+
+    <!-- the crown on top -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M9.6,1.7 h4.8 v3.1 h-4.8 Z" />
+
+    <!-- the hands, standing at ten past twelve -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11.2,8.4 h1.6 v5.9 h-1.6 Z
+                          M12,12.8 h4.2 v1.6 h-4.2 Z" />
+</vector>
