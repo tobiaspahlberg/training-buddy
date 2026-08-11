@@ -170,6 +170,14 @@ which is right.
 vibration changes, the channel id has to change too, otherwise the phone keeps
 the old settings until the app is reinstalled.
 
+**The app asks GitHub whether a newer release exists**, at most once every
+six hours, and silently: no network, a private repository and a rate limit
+all mean the same thing, which is that nothing is shown. It cannot install
+anything – Android will not let it without permissions this app has no
+business holding – so the button opens the APK and the phone takes over.
+Only the Android app asks; the web version has no service worker, so a
+reload is already the update.
+
 **A phone only accepts an update signed with the same key.** The cloud build
 signs with a keystore kept in the repository secrets
 (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,

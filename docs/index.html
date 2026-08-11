@@ -105,6 +105,7 @@
     font-size:14px;font-weight:600}
   .act svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;
     stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  a.act{text-decoration:none}
   /* A plan's name is a heading with a rule under it, the way a chapter is
      titled and a paragraph is not: it says "there is a whole thing in here"
      before you have read the weeks or the hours underneath. */
@@ -365,6 +366,7 @@
     <button class="iconbtn" id="about-btn" onclick="showScreen('about')" title="About"></button>
   </header>
   <div class="scroll">
+    <div id="update-slot"></div>
     <div id="resume-slot"></div>
     <div class="section-title">Categories</div>
     <div id="cat-list"></div>
@@ -506,6 +508,8 @@
     <div class="card flat">
       <h3>Training Buddy</h3>
       <p id="about-version"></p>
+      <p id="update-line" style="margin-top:8px"></p>
+      <div class="acts"><button class="act" onclick="checkNow()">Check for updates</button></div>
       <p style="margin-top:10px">An interval timer for training and rehab programs.
          Times are announced out loud so you can keep the phone in your pocket.</p>
     </div>
@@ -558,6 +562,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.18.0",
+    "date": "2026-08-11",
+    "changes": [
+      "The app checks whether a newer version has been released and says so on the home screen, with a button to download it",
+      "About says where you stand and can check again on the spot"
+    ]
+  },
   {
     "version": "0.17.1",
     "date": "2026-08-11",
@@ -835,7 +847,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.17.1";
+const APP_VERSION = "0.18.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1577,10 +1589,22 @@ function showScreen(id){
   if(id === "home") renderHome();
   /* The only screen that shows the voices is the only one that needs to ask
      for them, and by the time it opens the engine has long since come up. */
-  if(id === "about") loadVoices();
+  if(id === "about"){ loadVoices(); renderUpdateLine(); }
 }
 
 function renderHome(){
+  const waiting = updateWaiting();
+  document.getElementById("update-slot").innerHTML = waiting
+    ? '<div class="card flat" style="border-color:var(--run)">' +
+        '<h3 style="color:var(--run)">Version ' + esc(waiting) + " is out</h3>" +
+        "<p>You have " + APP_VERSION + ". The download opens in the browser; " +
+        "install it over this one.</p>" +
+        '<div class="acts"><a class="act" href="' + DOWNLOAD_URL +
+          '" target="_blank" rel="noopener">Download</a>' +
+        '<button class="act" onclick="hideUpdate()">Not now</button></div>' +
+      "</div>"
+    : "";
+
   const slot = document.getElementById("resume-slot");
   const saved = load(KEY_CURRENT, null);
   if(saved && !saved.finished){
@@ -3342,6 +3366,108 @@ function deleteProgram(){
 }
 
 /* =====================================================================
+   IS THERE A NEWER ONE?
+
+   The app is otherwise entirely offline, and stays that way: this is one
+   request, at most once every six hours, and every failure is silent.
+   Losing the network, the repository going private, GitHub rate limiting
+   an address – all of them mean the same thing here, which is that
+   nothing is shown.
+
+   Only the Android app asks. The web version has no service worker, so a
+   reload already brings the newest one; telling it there is an update
+   would be telling it about itself.
+
+   It cannot install anything. Android will not let an app put a package
+   on the phone without permissions this one has no business holding, so
+   the button opens the download and the phone takes it from there.
+   ===================================================================== */
+
+const KEY_UPDATE = "tb.update";
+const RELEASE_API =
+  "https://api.github.com/repos/tobiaspahlberg/training-buddy/releases/latest";
+const DOWNLOAD_URL =
+  "https://github.com/tobiaspahlberg/training-buddy/releases/latest/download/TrainingBuddy.apk";
+const CHECK_EVERY = 6 * 60 * 60 * 1000;
+
+/* Compares as numbers, so 0.10.0 is newer than 0.9.1 rather than earlier,
+   which is what comparing the two as text would say. */
+function newerThan(a, b){
+  const parts = v => String(v).replace(/^v/, "").split(".").map(n => parseInt(n, 10) || 0);
+  const x = parts(a), y = parts(b);
+  for(let i = 0; i < 3; i++){
+    if((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) > (y[i] || 0);
+  }
+  return false;
+}
+
+/* The version worth telling you about: newer than this one, and not one you
+   have already waved away. */
+function updateWaiting(){
+  const seen = load(KEY_UPDATE, {});
+  if(!seen.version || !newerThan(seen.version, APP_VERSION)) return "";
+  return seen.version === seen.hidden ? "" : seen.version;
+}
+
+function checkUpdate(force){
+  const seen = load(KEY_UPDATE, {});
+  if(!NATIVE) return Promise.resolve(seen);
+  /* A WebView old enough to lack fetch would throw here rather than reject,
+     and take the rest of startup with it. */
+  if(typeof fetch !== "function") return Promise.resolve(seen);
+  if(!force && seen.at && Date.now() - seen.at < CHECK_EVERY) return Promise.resolve(seen);
+
+  return Promise.resolve()
+    .then(() => fetch(RELEASE_API, { headers: { Accept: "application/vnd.github+json" } }))
+    .then(r => r.ok ? r.json() : null)
+    .then(j => {
+      const tag = j && j.tag_name ? String(j.tag_name).replace(/^v/, "") : "";
+      /* A failed check still counts as a check, or a phone with no signal
+         would ask again on every single start. What was known is kept. */
+      const next = { at: Date.now(), version: tag || seen.version || "", hidden: seen.hidden || "" };
+      save(KEY_UPDATE, next);
+      if(currentScreen() === "home") renderHome();
+      if(currentScreen() === "about") renderUpdateLine();
+      return next;
+    })
+    .catch(() => {
+      const next = { at: Date.now(), version: seen.version || "", hidden: seen.hidden || "" };
+      save(KEY_UPDATE, next);
+      if(currentScreen() === "about") renderUpdateLine();
+      return next;
+    });
+}
+
+function hideUpdate(){
+  const seen = load(KEY_UPDATE, {});
+  seen.hidden = seen.version || "";
+  save(KEY_UPDATE, seen);
+  renderHome();
+}
+
+/* What About says about where this version stands. */
+function renderUpdateLine(){
+  const line = document.getElementById("update-line");
+  if(!line) return;
+  const seen = load(KEY_UPDATE, {});
+  const waiting = seen.version && newerThan(seen.version, APP_VERSION) ? seen.version : "";
+  line.innerHTML = !NATIVE
+    ? "The web version updates itself: reloading the page is all it takes."
+    : waiting
+      ? "Version " + esc(waiting) + " is out. <a class=\"deep\" href=\"" + DOWNLOAD_URL +
+        "\" target=\"_blank\" rel=\"noopener\">Download it</a>"
+      : seen.at
+        ? "Up to date, as of " + dayName(new Date(seen.at).toISOString()).toLowerCase() + "."
+        : "Not checked yet.";
+}
+
+function checkNow(){
+  const line = document.getElementById("update-line");
+  if(line) line.textContent = "Looking…";
+  checkUpdate(true).then(renderUpdateLine);
+}
+
+/* =====================================================================
    DIALOG
    ===================================================================== */
 
@@ -3454,6 +3580,9 @@ document.getElementById("search-body").addEventListener("click", e => {
 renderChangelog();
 renderHome();
 loadVoices();
+/* Asked once a start, answered whenever it likes; the screen redraws if the
+   answer turns out to be interesting. */
+checkUpdate();
 </script>
 </body>
 </html>
