@@ -567,9 +567,8 @@
     </div>
     <button class="btn" onclick="saveBackup()">Save a backup file</button>
     <button class="btn ghost" onclick="copyBackup()">Copy the backup as text</button>
-    <p class="hint">The file is named for today's date. If no file arrives &ndash;
-       some phones will not let an app write one &ndash; copy the text instead and
-       paste it into a note, a mail to yourself or a cloud drive.</p>
+    <p class="hint" id="backup-saved" style="display:none;color:var(--run)"></p>
+    <p class="hint" id="backup-hint"></p>
     <div class="field" id="backup-out-field" style="display:none;margin-top:14px">
       <label>Copy this, all of it</label>
       <textarea id="backup-out" class="code" rows="6" readonly></textarea>
@@ -626,6 +625,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.20.1",
+    "date": "2026-08-11",
+    "changes": [
+      "Fixed: in the Android app, Save a backup file did nothing at all - a WebView will not take a download - and still said it had saved one",
+      "The app now writes the backup itself, into your Downloads folder, and says on the screen exactly where it went"
+    ]
+  },
   {
     "version": "0.20.0",
     "date": "2026-08-11",
@@ -932,7 +939,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.20.0";
+const APP_VERSION = "0.20.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1553,11 +1560,39 @@ function renderBackup(){
      days + (days === 1 ? " day ticked off" : " days ticked off"),
      count(history.length, "session") + " finished"].join(" · ");
   document.getElementById("backup-out-field").style.display = "none";
+  document.getElementById("backup-saved").style.display = "none";
   document.getElementById("restore-text").value = "";
+
+  /* Where the file will land depends on who writes it, so the screen says
+     which of the two this is rather than hedging about both. */
+  document.getElementById("backup-hint").innerHTML = backupPlugin()
+    ? "The file goes to your <b>Downloads</b> folder, named for today's date, " +
+      "where a file manager or a cloud drive can pick it up. If it cannot be " +
+      "written, copy the text instead and paste it into a note or a mail to yourself."
+    : "The file is named for today's date and goes wherever this browser keeps " +
+      "its downloads &ndash; usually a Downloads folder. Copying it as text works " +
+      "on any phone, and pastes into a note, a mail to yourself or a cloud drive.";
+}
+
+/* The app writes the file itself; a browser hands it to the download it
+   already knows how to do. Nothing in a WebView listens for a download and
+   a blob: URL is not something Android can fetch, so inside the app the
+   anchor below would click and nothing whatever would happen. */
+function backupPlugin(){
+  return NATIVE && window.Capacitor.Plugins ? window.Capacitor.Plugins.Backup : null;
 }
 
 function saveBackup(){
   const name = backupName();
+  const plugin = backupPlugin();
+
+  if(plugin && plugin.save){
+    plugin.save({ name: name, text: backupText() }).then(
+      r => { if(r && r.ok) savedTo(r.where); else copyBackup(); },
+      () => copyBackup());
+    return;
+  }
+
   try{
     const url = URL.createObjectURL(new Blob([backupText()], { type:"application/json" }));
     const a = document.createElement("a");
@@ -1567,11 +1602,20 @@ function saveBackup(){
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    flash("Saved " + name);
+    savedTo(name + ", wherever this browser keeps its downloads");
   }catch(e){
     /* No blobs, no downloads: fall back to the text, which always works. */
     copyBackup();
   }
+}
+
+/* Where it went, said twice: once in passing, and once on the screen, since
+   a message that fades is no use to somebody about to go looking for a file. */
+function savedTo(where){
+  const line = document.getElementById("backup-saved");
+  line.textContent = "Saved to " + where;
+  line.style.display = "block";
+  flash("Saved to " + where);
 }
 
 function copyBackup(){

@@ -144,9 +144,17 @@ and only past that is a step actually running.
 sessions and plan copies are replaced by id, a day ticked off in either copy
 stays ticked off (the later date wins), and the two histories are pooled and
 de-duplicated on id plus timestamp. Restoring the same file twice must leave
-the phone exactly as it was. The way out is a file when the phone allows one
-and the clipboard when it does not, because a WebView cannot count on being
-able to write one.
+the phone exactly as it was.
+
+**A WebView will not download anything.** Nothing in Capacitor listens for a
+download and a `blob:` URL is not something Android can fetch, so the anchor
+that saves a file in a browser clicks and does nothing at all inside the app –
+silently, which is how it once claimed to have saved a backup that was never
+written. `BackupPlugin` writes it instead, through MediaStore into the shared
+Downloads folder (no permission needed from Android 10; older phones get the
+app's own external folder rather than a permission prompt). Wherever it lands,
+the real path comes back and is put on the screen, not only in a message that
+fades. The clipboard is the fallback when the write is refused.
 
 **A running session is written to localStorage on every event** plus every
 three seconds while running and when the app goes to the background. Nothing
