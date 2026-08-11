@@ -218,6 +218,22 @@
   .worklist.ro{background:var(--bg);border:1px solid var(--line);border-radius:11px;
     padding:10px 12px}
 
+  /* ---- The sheet's smaller actions ----
+     Everything but Start, side by side: five stacked buttons was a wall to
+     read past, and only one of them is what you came for. Each keeps a word
+     under its icon, since a tick on its own could mean anything. */
+  .sheet-acts{display:flex;gap:9px;margin-top:10px}
+  .sact{flex:1;min-width:0;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+    border-radius:13px;padding:12px 4px;font-size:12.5px;font-weight:600}
+  .sact.on{background:var(--run);border-color:var(--run);color:#08120C}
+  .sact svg{width:23px;height:23px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .sact span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* A link inside the sheet's own prose, where the description already is. */
+  .deep{color:var(--run);text-decoration:underline;white-space:nowrap}
+
   /* ---- Buttons ---- */
   .btn{
     display:block;width:100%;padding:16px;border-radius:13px;border:none;
@@ -486,11 +502,12 @@
     <div class="when" id="sheet-when"></div>
     <div class="steplist" id="sheet-steps"></div>
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
-    <button class="btn ghost" id="sheet-edit" onclick="editPlanSession()">Edit this session</button>
-    <button class="btn ghost" id="sheet-mark" onclick="toggleDone()"></button>
-    <a class="btn ghost" id="sheet-video" target="_blank" rel="noopener">Watch the exercises</a>
-    <button class="btn ghost" id="sheet-copy" onclick="copyToMine()">Copy to my sessions</button>
-    <button class="btn ghost" onclick="closeSheet()">Close</button>
+    <div class="sheet-acts">
+      <button class="sact" id="sheet-edit" onclick="editPlanSession()"></button>
+      <button class="sact" id="sheet-mark" onclick="toggleDone()"></button>
+      <button class="sact" id="sheet-copy" onclick="copyToMine()"></button>
+      <button class="sact" id="sheet-close" onclick="closeSheet()"></button>
+    </div>
   </div>
 </div>
 
@@ -513,6 +530,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.15.0",
+    "date": "2026-08-11",
+    "changes": [
+      "The session sheet keeps one button for Start and puts the rest in a row of icons, instead of five buttons stacked up",
+      "The video sits in the description as a link, where the rest of the words are"
+    ]
+  },
   {
     "version": "0.14.2",
     "date": "2026-08-10",
@@ -742,7 +767,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.14.2";
+const APP_VERSION = "0.15.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -2133,8 +2158,7 @@ function openDay(weekN, dayIndex){
   const label = plan.custom ? "Nothing planned" : dayLabel(daySpec(week, dayIndex));
 
   document.getElementById("sheet-title").textContent = s.name;
-  document.getElementById("sheet-when").textContent = plan.name + " – " +
-    (timed ? fmtLong(totalSec(s.blocks)) + " in total" : label);
+  sheetWhen(plan.name + " – " + (timed ? fmtLong(totalSec(s.blocks)) + " in total" : label));
   document.getElementById("sheet-steps").innerHTML = timed
     ? blockRows(s.blocks)
     : "<div><span>" + esc(label) + "</span><span>not timed</span></div>";
@@ -2148,7 +2172,7 @@ function openOther(weekN, day){
   sheetTarget = { kind:"other", planId:plan.id, weekN, day, id:otherKey(plan.id, weekN, day) };
 
   document.getElementById("sheet-title").textContent = "Week " + weekN + " – " + day;
-  document.getElementById("sheet-when").textContent = plan.name + " – " + other.label;
+  sheetWhen(plan.name + " – " + other.label);
   document.getElementById("sheet-steps").innerHTML =
     "<div><span>" + esc(other.label) + "</span><span>not timed</span></div>";
   showSheet({ mark:true });
@@ -2160,24 +2184,42 @@ function openProgram(id){
   if(!p) return;
   sheetTarget = { kind:"program", programId:p.id, id:p.id };
   document.getElementById("sheet-title").textContent = p.name;
-  document.getElementById("sheet-when").textContent =
-    p.note || fmtLong(totalSec(p.blocks)) + " in total";
+  sheetWhen(p.note || fmtLong(totalSec(p.blocks)) + " in total", p.video);
   document.getElementById("sheet-steps").innerHTML = blockRows(p.blocks);
-  showSheet({ start:true, mark:true, copy:true, video:p.video });
+  showSheet({ start:true, mark:true, copy:true });
+}
+
+/* Each small action is an icon over a word. The tick is the one that carries
+   a state: filled in means it is done, and pressing it again takes that back,
+   which is shorter than swapping the label between two sentences. */
+function sheetAct(id, icon, label){
+  document.getElementById(id).innerHTML = icon + "<span>" + label + "</span>";
 }
 
 function showSheet(show){
-  const on = (el, yes) => { document.getElementById(el).style.display = yes ? "block" : "none"; };
+  /* An empty string hands the decision back to the stylesheet, which knows
+     that a button is a block and an action is a column. */
+  const on = (el, yes) => { document.getElementById(el).style.display = yes ? "" : "none"; };
   on("sheet-start", show.start);
   on("sheet-edit", show.edit);
   on("sheet-mark", show.mark);
   on("sheet-copy", show.copy);
-  on("sheet-video", !!show.video);
-  if(show.video) document.getElementById("sheet-video").href = show.video;
-  document.getElementById("sheet-mark").textContent =
-    progress[sheetTarget.id] ? "Mark as not done" : "Mark as done";
+
+  sheetAct("sheet-edit", ICON.pencil, "Edit");
+  sheetAct("sheet-mark", ICON.check, "Done");
+  sheetAct("sheet-copy", ICON.copy, "Copy");
+  sheetAct("sheet-close", ICON.close, "Close");
+  document.getElementById("sheet-mark").classList.toggle("on", !!progress[sheetTarget.id]);
+
   document.getElementById("sheet").classList.add("show");
   armBack();
+}
+
+/* The line under the title, and the way out to the video when there is one. */
+function sheetWhen(text, video){
+  document.getElementById("sheet-when").innerHTML = esc(text) +
+    (video ? ' <a class="deep" href="' + esc(video) +
+      '" target="_blank" rel="noopener">Link to instruction</a>' : "");
 }
 
 function closeSheet(){ document.getElementById("sheet").classList.remove("show"); }
