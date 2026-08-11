@@ -305,12 +305,16 @@
   .field{margin-bottom:14px}
   .field label{display:block;font-size:12px;font-weight:650;color:var(--dim);
     text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
-  input,select{
+  input,select,textarea{
     width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);
     background:var(--surface);color:var(--text);font-size:16px;font-family:inherit;
     user-select:text;-webkit-user-select:text;
   }
-  input:focus,select:focus{outline:none;border-color:var(--run)}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--run)}
+  /* A backup is a wall of text nobody reads, so it is small and does not
+     stretch the page; a work list is read while editing, so it is not. */
+  textarea{resize:vertical;line-height:1.45}
+  textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--dim)}
   .block{background:var(--surface);border:1px solid var(--line);border-radius:14px;
     padding:14px;margin-bottom:10px}
   .block-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -522,8 +526,61 @@
          screen turns off &mdash; the Android app uses the phone's own speech engine.</p>
     </div>
     <button class="btn ghost" onclick="testVoice()">Test the voice</button>
+    <div class="section-title">Before the first step</div>
+    <div class="card flat">
+      <div class="field" style="margin-bottom:0">
+        <label>Countdown</label>
+        <select id="lead-pick" onchange="setLead(this.value)"></select>
+      </div>
+      <p style="margin-top:10px">Time to put the phone down and get to the start
+         after you tap Start. The clock waits, counts you in out loud, and only
+         then begins the first step.</p>
+    </div>
+    <div class="section-title">Your data</div>
+    <div class="card flat">
+      <p>Everything you have made lives on this phone and nowhere else. A backup
+         is one file you can put somewhere safe and read back into a new phone.</p>
+      <div class="acts"><button class="act" onclick="showScreen('backup')">Backup and restore</button></div>
+    </div>
     <div class="section-title">Changelog</div>
     <div class="card flat"><div class="log" id="changelog-view"></div></div>
+  </div>
+</div>
+
+<!-- ============================ BACKUP ============================ -->
+<div class="screen" id="backup">
+  <header>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
+    <h1>Backup</h1>
+  </header>
+  <div class="scroll">
+    <div class="card flat">
+      <h3>On this phone</h3>
+      <p id="backup-what"></p>
+    </div>
+    <button class="btn" onclick="saveBackup()">Save a backup file</button>
+    <button class="btn ghost" onclick="copyBackup()">Copy the backup as text</button>
+    <p class="hint">The file is named for today's date. If no file arrives &ndash;
+       some phones will not let an app write one &ndash; copy the text instead and
+       paste it into a note, a mail to yourself or a cloud drive.</p>
+    <div class="field" id="backup-out-field" style="display:none;margin-top:14px">
+      <label>Copy this, all of it</label>
+      <textarea id="backup-out" class="code" rows="6" readonly></textarea>
+    </div>
+
+    <div class="section-title">Restore</div>
+    <input type="file" id="restore-file" accept="application/json,.json"
+      style="display:none" onchange="restoreFromFile(this)">
+    <button class="btn ghost" onclick="document.getElementById('restore-file').click()">Open a backup file</button>
+    <div class="field" style="margin-top:14px">
+      <label>Or paste a backup here</label>
+      <textarea id="restore-text" class="code" rows="4" placeholder='{"app":"training-buddy", ...}'></textarea>
+    </div>
+    <button class="btn ghost" onclick="restoreFromText()">Restore from the text</button>
+    <p class="hint">Restoring puts back what is missing and replaces what carries
+       the same name inside the app. Nothing already on the phone is lost: a day
+       ticked off in either copy stays ticked off, and finished sessions from both
+       are kept.</p>
   </div>
 </div>
 
@@ -562,6 +619,16 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.19.0",
+    "date": "2026-08-11",
+    "changes": [
+      "Backup and restore: everything you have made can be saved as one file, or copied as text, and read back into another phone",
+      "Restoring keeps what is already there - sessions and plans are replaced by name, days ticked off in either copy stay ticked off, and the two histories are pooled",
+      "Start now counts you in: five seconds to put the phone down, spoken 3, 2, 1, before the first step begins",
+      "The count-in can be set to 3, 5 or 10 seconds, or turned off, in About; skip jumps straight past it"
+    ]
+  },
   {
     "version": "0.18.0",
     "date": "2026-08-11",
@@ -847,7 +914,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.18.0";
+const APP_VERSION = "0.19.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1424,6 +1491,166 @@ let progress = load(KEY_PROGRESS, {});   // sessionId -> ISO date last completed
 let history  = load(KEY_HISTORY, []);    // finished sessions, newest first
 
 /* =====================================================================
+   BACKUP
+
+   All of the above is on one phone and nowhere else, so there has to be a
+   way out and a way back in. The way out is a file when the phone allows
+   one and the same text on the clipboard when it does not: an app in a
+   WebView cannot count on being able to write to storage, and a backup you
+   cannot take is not a backup.
+
+   Coming back in is a merge, never a wipe. Two phones, or a phone and an
+   old file, each know something the other does not, and the answer that is
+   right in every case is to keep both: a session or a plan is replaced by
+   its namesake from the file, a day ticked off in either copy stays ticked
+   off, and finished sessions are pooled and de-duplicated. Nothing that
+   was on the phone before a restore is gone after it.
+   ===================================================================== */
+
+const BACKUP_TAG = "training-buddy";
+
+function backupData(){
+  return { app:BACKUP_TAG, version:APP_VERSION, at:new Date().toISOString(),
+           programs:programs, myplans:myPlans, progress:progress, history:history };
+}
+
+function backupText(){ return JSON.stringify(backupData()); }
+
+function backupName(){ return "training-buddy-" + today() + ".json"; }
+
+/* What the file will hold, said in the same words the app uses elsewhere. */
+function renderBackup(){
+  const days = Object.keys(progress).length;
+  document.getElementById("backup-what").textContent =
+    [count(programs.length, "session") + " of your own",
+     count(myPlans.length, "plan") + " copied",
+     days + (days === 1 ? " day ticked off" : " days ticked off"),
+     count(history.length, "session") + " finished"].join(" · ");
+  document.getElementById("backup-out-field").style.display = "none";
+  document.getElementById("restore-text").value = "";
+}
+
+function saveBackup(){
+  const name = backupName();
+  try{
+    const url = URL.createObjectURL(new Blob([backupText()], { type:"application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    flash("Saved " + name);
+  }catch(e){
+    /* No blobs, no downloads: fall back to the text, which always works. */
+    copyBackup();
+  }
+}
+
+function copyBackup(){
+  const text = backupText();
+  const done = () => flash("Backup copied – paste it somewhere safe");
+  const failed = () => showBackupText(text);
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    try{ navigator.clipboard.writeText(text).then(done, failed); return; }catch(e){}
+  }
+  /* An older WebView only copies what is selected on the page. */
+  try{
+    const box = document.getElementById("backup-out");
+    showBackupText(text);
+    box.readOnly = false;
+    box.select();
+    const ok = document.execCommand && document.execCommand("copy");
+    box.readOnly = true;
+    if(ok){ done(); return; }
+  }catch(e){}
+  failed();
+}
+
+/* The last resort: put it on the screen and let it be copied by hand. */
+function showBackupText(text){
+  document.getElementById("backup-out").value = text;
+  document.getElementById("backup-out-field").style.display = "block";
+}
+
+function restoreFromText(){
+  const raw = document.getElementById("restore-text").value.trim();
+  if(!raw) return dialog("Nothing to restore", "Paste a backup into the box first.", "OK", closeDialog);
+  restore(raw);
+}
+
+function restoreFromFile(input){
+  const file = input.files && input.files[0];
+  input.value = "";      /* so the same file can be opened twice */
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => restore(String(reader.result));
+  reader.onerror = () => dialog("Could not read it", "The file could not be opened.", "OK", closeDialog);
+  reader.readAsText(file);
+}
+
+function restore(raw){
+  let data = null;
+  try{ data = JSON.parse(raw); }catch(e){}
+  if(!data || data.app !== BACKUP_TAG){
+    dialog("Not a backup", "That is not a Training Buddy backup file.", "OK", closeDialog);
+    return;
+  }
+  const n = mergeBackup(data);
+  renderBackup();
+  const said = [];
+  if(n.programs) said.push(count(n.programs, "session"));
+  if(n.plans) said.push(count(n.plans, "plan"));
+  if(n.days) said.push(n.days + (n.days === 1 ? " day" : " days"));
+  if(n.history) said.push(count(n.history, "finished session"));
+  flash(said.length ? "Restored " + said.join(", ") : "Nothing new in that backup");
+}
+
+function mergeBackup(data){
+  const n = { programs:0, plans:0, days:0, history:0 };
+
+  const put = (list, item) => {
+    if(!item || !item.id) return false;
+    const at = list.findIndex(x => x.id === item.id);
+    if(at >= 0) list[at] = item; else list.push(item);
+    return true;
+  };
+  (data.programs || []).forEach(p => { if(put(programs, p)) n.programs++; });
+  (data.myplans  || []).forEach(p => { if(put(myPlans, p))  n.plans++; });
+
+  /* A day done is done; where two copies disagree the later date is the one
+     that happened, and neither can un-tick the other. */
+  const days = data.progress || {};
+  Object.keys(days).forEach(k => {
+    const when = days[k];
+    if(typeof when !== "string") return;
+    if(!progress[k] || progress[k] < when){ progress[k] = when; n.days++; }
+  });
+
+  /* One entry per session and moment, so restoring the same file twice
+     leaves the history as it was. */
+  const seen = {};
+  history.forEach(h => { seen[h.id + "|" + h.at] = true; });
+  (data.history || []).forEach(h => {
+    if(!h || !h.at) return;
+    const key = h.id + "|" + h.at;
+    if(seen[key]) return;
+    seen[key] = true;
+    history.push(h);
+    n.history++;
+  });
+  history.sort((a, b) => (a.at < b.at ? 1 : a.at > b.at ? -1 : 0));
+  if(history.length > HISTORY_MAX) history.length = HISTORY_MAX;
+
+  save(KEY_PROGRAMS, programs);
+  save(KEY_MYPLANS, myPlans);
+  save(KEY_PROGRESS, progress);
+  save(KEY_HISTORY, history);
+  return n;
+}
+
+/* =====================================================================
    DONE, AND WHEN
 
    progress holds the day a session was last finished. For a day of a plan
@@ -1589,7 +1816,8 @@ function showScreen(id){
   if(id === "home") renderHome();
   /* The only screen that shows the voices is the only one that needs to ask
      for them, and by the time it opens the engine has long since come up. */
-  if(id === "about"){ loadVoices(); renderUpdateLine(); }
+  if(id === "about"){ loadVoices(); renderLeadPick(); renderUpdateLine(); }
+  if(id === "backup") renderBackup();
 }
 
 function renderHome(){
@@ -2495,6 +2723,41 @@ let ticker = null;
 let lastStepIdx = -1;
 let spokenCountdown = {};
 
+/* =====================================================================
+   THE LEAD-IN
+
+   Start used to mean now, with the phone still in your hand. It means "in
+   a few seconds" instead: startedAt is set into the future, the clock says
+   Get ready and counts you in out loud, and the first step begins when the
+   moment arrives. Nothing counts down in a variable – the wait is the
+   distance to a timestamp, exactly like the session it precedes, so it
+   survives the app being killed and it can be paused.
+   ===================================================================== */
+
+const KEY_LEAD = "tb.lead";
+const LEAD_CHOICES = [0, 3, 5, 10];
+let leadSec = load(KEY_LEAD, 5);
+
+function setLead(value){
+  leadSec = Math.max(0, parseInt(value, 10) || 0);
+  save(KEY_LEAD, leadSec);
+}
+
+function renderLeadPick(){
+  const sel = document.getElementById("lead-pick");
+  sel.innerHTML = LEAD_CHOICES.map(n =>
+    '<option value="' + n + '">' + (n ? n + " seconds" : "Off – start at once") + "</option>").join("");
+  sel.value = String(LEAD_CHOICES.indexOf(leadSec) >= 0 ? leadSec : 5);
+}
+
+/* Seconds still to wait before the first step. Paused time is taken off the
+   same way it is for elapsed(), so a pause during the count-in holds it. */
+function leadLeft(s){
+  if(!s || !s.startedAt) return 0;
+  const until = s.pausedAt || Date.now();
+  return Math.max(0, (s.startedAt + s.pausedTotal - until) / 1000);
+}
+
 function begin(sessionDef){
   session = {
     id: sessionDef.id,
@@ -2534,9 +2797,12 @@ function mainButton(){
   if(!session) return;
   unlockAudio();
   if(!session.startedAt){
-    session.startedAt = Date.now();
-    /* The first cue is not spoken here: the tick that follows sees the step
-       change and announces it, and saying it twice sounds broken. */
+    /* The clock starts in a moment, not now: the lead-in is simply a start
+       time in the future. The first cue is not spoken here either way – the
+       tick that reaches it sees the step change and announces it, and saying
+       it twice sounds broken. */
+    session.startedAt = Date.now() + leadSec * 1000;
+    if(leadSec){ speak("Get ready"); showNote(session.name, "Get ready"); }
     startTicker();
   }else if(session.pausedAt){
     session.pausedTotal += Date.now() - session.pausedAt;
@@ -2575,6 +2841,20 @@ function endSession(){
 let lastPersist = 0;
 
 function tick(){
+  /* Still counting in: nothing has started, so no step, no tone, no notice. */
+  const lead = leadLeft(session);
+  if(lead > 0){
+    for(const n of [3, 2, 1]){
+      const key = "lead:" + n;
+      if(lead <= n && lead > n - 1 && !spokenCountdown[key]){
+        spokenCountdown[key] = true;
+        speak(String(n));
+      }
+    }
+    render();
+    return;
+  }
+
   const t = elapsed();
   const idx = stepAt(t);
 
@@ -2654,23 +2934,30 @@ function render(){
   const left = Math.max(0, s.end - t);
   const color = colorOf(s.kind);
 
-  document.getElementById("step-label").textContent = session.startedAt ? s.text : "Ready";
-  document.getElementById("step-label").style.color = session.startedAt ? color : "var(--text)";
-  document.getElementById("step-time").textContent = fmt(session.startedAt ? left : duration());
-  document.getElementById("step-time").style.color = session.startedAt ? color : "var(--text)";
+  /* Three states, not two: waiting to be started, counting in, and running.
+     The middle one shows what is coming rather than what is on. */
+  const lead = leadLeft(session);
+  const going = !!session.startedAt && lead <= 0;
+
+  document.getElementById("step-label").textContent =
+    going ? s.text : (lead > 0 ? "Get ready" : "Ready");
+  document.getElementById("step-label").style.color = going ? color : "var(--text)";
+  document.getElementById("step-time").textContent =
+    going ? fmt(left) : (lead > 0 ? String(Math.ceil(lead)) : fmt(duration()));
+  document.getElementById("step-time").style.color = going ? color : "var(--text)";
   document.getElementById("step-meta").textContent =
-    s.reps ? "Interval " + s.rep + " of " + s.reps
-           : (session.startedAt ? "" : session.steps.length + " steps");
+    going && s.reps ? "Interval " + s.rep + " of " + s.reps
+                    : (going ? "" : session.steps.length + " steps");
 
   const next = session.steps[idx + 1];
-  document.getElementById("next-up").innerHTML = session.startedAt
+  document.getElementById("next-up").innerHTML = going
     ? (next ? "Next: <b>" + esc(next.text) + "</b> " + fmt(next.sec) : "Last step")
-    : "";
+    : (lead > 0 ? "First: <b>" + esc(s.text) + "</b> " + fmt(s.sec) : "");
 
   /* The work list stays on screen for as long as its step runs. */
   document.getElementById("work-list").innerHTML =
-    s.list ? s.list.map(x => "<div>" + esc(x) + "</div>").join("") : "";
-  document.getElementById("run-stage").classList.toggle("haslist", !!s.list);
+    going && s.list ? s.list.map(x => "<div>" + esc(x) + "</div>").join("") : "";
+  document.getElementById("run-stage").classList.toggle("haslist", !!(going && s.list));
 
   const pct = Math.min(100, t / duration() * 100);
   document.getElementById("tl-veil").style.width = pct + "%";
@@ -2687,6 +2974,13 @@ function render(){
 
 function skipStep(){
   if(!session || !session.startedAt) return;
+  /* Skipping while it counts you in means you are ready now. */
+  if(leadLeft(session) > 0){
+    session.startedAt = Date.now() - session.pausedTotal;
+    persist();
+    tick();
+    return;
+  }
   const idx = stepAt(elapsed());
   if(idx >= session.steps.length) return;
   /* Move the start time back so the clock lands exactly on the next step. */
@@ -2727,7 +3021,11 @@ function leaveRun(){
 }
 
 function confirmQuit(){
-  if(!session || !session.startedAt){ clearNote(); session = null; save(KEY_CURRENT, null); leaveRun(); return; }
+  /* Nothing has been run yet while it counts you in, so there is nothing to
+     lose and nothing to ask about. */
+  if(!session || !session.startedAt || leadLeft(session) > 0){
+    endSession(); stopSpeech(); session = null; save(KEY_CURRENT, null); leaveRun(); return;
+  }
   dialog("Stop workout?", "Progress for this session will not be saved.", "Stop", () => {
     endSession();
     stopSpeech();
@@ -3522,6 +3820,7 @@ function goBack(){
     case "editor":   cancelEdit();  return;
     case "plan":     openPlanId = null; goHomeish(); return;
     case "search":   if(searchScope) openCategory(searchScope); else showScreen("home"); return;
+    case "backup":   showScreen("about"); return;
     case "category": currentCategory = null; showScreen("home"); return;
     case "home":     if(APP) APP.exitApp(); return;
     default:         showScreen("home");

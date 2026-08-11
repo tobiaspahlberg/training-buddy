@@ -127,6 +127,21 @@ back to the default, so `categoryOf()` is the only place that reads the field.
 Android can kill the app at any moment; elapsed time is reconstructed from
 `startedAt` and `pausedTotal` when the session resumes.
 
+**Start means "in a moment".** `startedAt` is set *into the future* by the
+count-in (`leadSec`, default 5 s, chosen in About), so `leadLeft()` is the same
+subtraction as `elapsed()` with the sign turned round – it pauses, it survives
+the app being killed, and `skipStep()` ends it. The run screen therefore has
+three states, not two: `!startedAt` is "Ready", `leadLeft() > 0` is "Get ready",
+and only past that is a step actually running.
+
+**A backup is a merge, never a wipe.** `mergeBackup()` is the whole contract:
+sessions and plan copies are replaced by id, a day ticked off in either copy
+stays ticked off (the later date wins), and the two histories are pooled and
+de-duplicated on id plus timestamp. Restoring the same file twice must leave
+the phone exactly as it was. The way out is a file when the phone allows one
+and the clipboard when it does not, because a WebView cannot count on being
+able to write one.
+
 **A running session is written to localStorage on every event** plus every
 three seconds while running and when the app goes to the background. Nothing
 is ever removed automatically – only by an explicit delete. A delete does not
