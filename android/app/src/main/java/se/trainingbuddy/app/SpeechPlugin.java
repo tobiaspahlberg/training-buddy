@@ -8,13 +8,19 @@ import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
+import android.speech.tts.Voice;
+
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -66,6 +72,75 @@ public class SpeechPlugin extends Plugin {
     public void available(PluginCall call) {
         JSObject res = new JSObject();
         res.put("available", ready);
+        call.resolve(res);
+    }
+
+    /**
+     * The English voices the engine has to offer, without the ones that need
+     * a network: a cue has to arrive on a trail with no signal.
+     *
+     * Only the name and the locale are reported. What a voice sounds like is
+     * hidden in its name - Google writes them "en-us-x-iom#male_1-local" -
+     * and reading that is the web layer's business, since it is the part that
+     * has to put words on the screen anyway.
+     */
+    @PluginMethod
+    public void voices(PluginCall call) {
+        JSArray list = new JSArray();
+        if (ready) {
+            try {
+                List<Voice> all = new ArrayList<>(tts.getVoices());
+                List<String> seen = new ArrayList<>();
+                Collections.sort(all, (a, b) -> a.getName().compareTo(b.getName()));
+                for (Voice v : all) {
+                    if (v.getLocale() == null) continue;
+                    if (!"eng".equals(v.getLocale().getISO3Language())) continue;
+                    if (v.isNetworkConnectionRequired()) continue;
+                    if (v.getFeatures() != null &&
+                        v.getFeatures().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) continue;
+                    if (seen.contains(v.getName())) continue;
+                    seen.add(v.getName());
+
+                    JSObject o = new JSObject();
+                    o.put("name", v.getName());
+                    o.put("lang", v.getLocale().toLanguageTag());
+                    o.put("quality", v.getQuality());
+                    list.put(o);
+                }
+            } catch (Exception e) {
+                // Some engines refuse getVoices() outright; an empty list is
+                // the right answer, and the app keeps its default voice.
+            }
+        }
+        JSObject res = new JSObject();
+        res.put("voices", list);
+        call.resolve(res);
+    }
+
+    /** Picks one of them by name. An empty name goes back to the default. */
+    @PluginMethod
+    public void setVoice(PluginCall call) {
+        String want = call.getString("name", "");
+        boolean done = false;
+        if (ready) {
+            if (want == null || want.isEmpty()) {
+                tts.setLanguage(Locale.UK);
+                done = true;
+            } else {
+                try {
+                    for (Voice v : tts.getVoices()) {
+                        if (v.getName().equals(want)) {
+                            done = tts.setVoice(v) == TextToSpeech.SUCCESS;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    done = false;
+                }
+            }
+        }
+        JSObject res = new JSObject();
+        res.put("ok", done);
         call.resolve(res);
     }
 

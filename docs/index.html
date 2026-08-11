@@ -464,6 +464,7 @@
     </div>
     <div class="section-title">Voice</div>
     <div class="card flat">
+      <div id="voice-pick"></div>
       <p id="voice-source"></p>
       <p style="margin-top:10px"><b style="color:var(--text)">Use headphones</b> for the
          most reliable audio. On the web version the phone may mute speech once the
@@ -508,6 +509,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.14.0",
+    "date": "2026-08-10",
+    "changes": [
+      "Pick the voice that reads the cues, from the ones your phone already has - American, British and whatever else is installed",
+      "AMRAP is said as a word instead of spelled out, and KB and DB are read as kettlebell and dumbbell"
+    ]
+  },
   {
     "version": "0.13.4",
     "date": "2026-08-10",
@@ -715,7 +724,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.13.4";
+const APP_VERSION = "0.14.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -2497,7 +2506,26 @@ function resumeSaved(){
 
 let audioCtx = null;
 let keepAlive = null;
-let voice = null;
+let voice = null;                          // the web engine's chosen voice
+let voiceList = [];                        // what this phone has to offer
+const KEY_VOICE = "tb.voice";
+let voiceName = load(KEY_VOICE, "");       // remembered by name, not by index
+
+/* Said, not spelled. A speech engine reads a word in capitals as a run of
+   letters, so AMRAP comes out A-M-R-A-P. Only the spoken copy is changed;
+   the screen keeps the capitals, which are how the workout is written. */
+const SAY_AS = [
+  [/\bAMRAP\b/g, "Amrap"],
+  [/\bEMOM\b/g, "Emom"],
+  [/\bKB\b/g, "kettlebell"],
+  [/\bDB\b/g, "dumbbell"]
+];
+
+function saidAs(text){
+  let out = String(text);
+  SAY_AS.forEach(pair => { out = out.replace(pair[0], pair[1]); });
+  return out;
+}
 
 /* Android WebView does not implement the Web Speech API, so inside the app
    speechSynthesis is missing entirely even though it works in a browser.
@@ -2528,14 +2556,94 @@ function unlockAudio(){
   }
 }
 
+/* =====================================================================
+   CHOOSING A VOICE
+
+   The voices are the phone's own, whichever engine is speaking, so
+   offering them costs the app nothing to carry – but it can only offer
+   what is installed. A phone with one English voice gets a list of one.
+
+   What a voice sounds like is not something either engine will tell you.
+   Android hides it in the name ("en-us-x-iom#male_1-local"), the browser
+   does not say at all, so the label is read out of the name where it can
+   be and the raw name is shown underneath either way.
+   ===================================================================== */
+
+const ACCENTS = {
+  "en-US":"American", "en-GB":"British", "en-AU":"Australian",
+  "en-IE":"Irish", "en-IN":"Indian", "en-NZ":"New Zealand",
+  "en-ZA":"South African", "en-CA":"Canadian"
+};
+
+function voiceLabel(v){
+  const accent = ACCENTS[v.lang] || ACCENTS[String(v.lang).replace("_", "-")] || v.lang;
+  const n = String(v.name).toLowerCase();
+  /* "#female" holds "male" inside it, so the hash is what keeps them apart. */
+  const sex = n.indexOf("#female") >= 0 || /\bfemale\b/.test(n) ? " woman"
+            : n.indexOf("#male") >= 0 || /\bmale\b/.test(n) ? " man" : "";
+  return accent + sex;
+}
+
+/* Two voices from the same engine can describe themselves the same way, so
+   the ones that collide are numbered in the order the engine gave them. */
+function labelVoices(list){
+  const seen = {};
+  return list.map(v => {
+    const base = voiceLabel(v);
+    seen[base] = (seen[base] || 0) + 1;
+    return { name:v.name, lang:v.lang, label:base + (seen[base] > 1 ? " " + seen[base] : "") };
+  });
+}
+
+function loadVoices(){
+  if(TTS && TTS.voices){
+    TTS.voices().then(r => {
+      voiceList = labelVoices(r.voices || []);
+      if(voiceName) TTS.setVoice({ name: voiceName }).catch(() => {});
+      renderVoicePicker();
+    }).catch(() => { voiceList = []; renderVoicePicker(); });
+    return;
+  }
+  if(!window.speechSynthesis) return renderVoicePicker();
+  voiceList = labelVoices(speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)));
+  pickVoice();
+  renderVoicePicker();
+}
+
 function pickVoice(){
   if(!window.speechSynthesis) return;
   const list = speechSynthesis.getVoices();
-  voice = list.find(v => /^en[-_]GB/i.test(v.lang)) ||
+  voice = (voiceName && list.find(v => v.name === voiceName)) ||
+          list.find(v => /^en[-_]GB/i.test(v.lang)) ||
           list.find(v => /^en[-_]US/i.test(v.lang)) ||
           list.find(v => /^en/i.test(v.lang)) || null;
 }
-if(window.speechSynthesis) speechSynthesis.onvoiceschanged = pickVoice;
+
+function setVoice(name){
+  voiceName = name;
+  save(KEY_VOICE, name);
+  if(TTS && TTS.setVoice) TTS.setVoice({ name: name }).catch(() => {});
+  else pickVoice();
+  testVoice();
+}
+
+function renderVoicePicker(){
+  const box = document.getElementById("voice-pick");
+  if(!box) return;
+  if(voiceList.length < 2){
+    box.innerHTML = "";
+    return;
+  }
+  box.innerHTML = '<div class="field"><label>Voice</label><select id="voice-select">' +
+    '<option value="">Whatever the phone picks</option>' +
+    voiceList.map(v => '<option value="' + esc(v.name) + '">' + esc(v.label) + "</option>").join("") +
+    "</select></div>";
+  const sel = document.getElementById("voice-select");
+  sel.value = voiceList.some(v => v.name === voiceName) ? voiceName : "";
+  sel.onchange = () => setVoice(sel.value);
+}
+
+if(window.speechSynthesis) speechSynthesis.onvoiceschanged = loadVoices;
 
 /* Both engines queue what they are given, so without this a handful of skips
    in a row leaves the phone reading out steps you are already past, minutes
@@ -2546,7 +2654,8 @@ function stopSpeech(){
   return Promise.resolve();
 }
 
-function speak(text){
+function speak(said){
+  const text = saidAs(said);
   if(TTS){
     /* The native engine wants the stop to have landed before the next
        utterance, or it swallows one of the two. */
@@ -2986,7 +3095,7 @@ document.getElementById("edit-save").innerHTML = ICON.check;
 
 renderChangelog();
 renderHome();
-pickVoice();
+loadVoices();
 </script>
 </body>
 </html>
