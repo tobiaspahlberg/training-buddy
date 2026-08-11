@@ -204,9 +204,13 @@ which is right.
 vibration changes, the channel id has to change too, otherwise the phone keeps
 the old settings until the app is reinstalled.
 
-**The app asks GitHub whether a newer release exists**, at most once every
-six hours, and silently: no network, a private repository and a rate limit
-all mean the same thing, which is that nothing is shown. It cannot install
+**The app asks GitHub whether a newer release exists** on every start – the
+moment somebody wonders is the moment they close it and open it again – and
+again whenever it is brought back to the front, having not asked for six
+hours. A cold start keeps a five minute floor, so an app restarting in a loop
+cannot knock sixty times an hour. Every failure is silent: no network, a
+private repository and a rate limit all mean the same thing, which is that
+nothing is shown. It cannot install
 anything – Android will not let it without permissions this app has no
 business holding – so the button opens the APK and the phone takes over.
 Only the Android app asks; the web version has no service worker, so a

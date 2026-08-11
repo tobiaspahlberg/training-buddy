@@ -626,6 +626,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.20.2",
+    "date": "2026-08-11",
+    "changes": [
+      "Closing the app and opening it again now checks for a new version, instead of holding off for up to six hours",
+      "Coming back to the app after leaving it in the background asks as well, since Android may keep it alive for days without a restart"
+    ]
+  },
+  {
     "version": "0.20.1",
     "date": "2026-08-11",
     "changes": [
@@ -939,7 +947,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.20.1";
+const APP_VERSION = "0.20.2";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3499,6 +3507,9 @@ document.addEventListener("visibilitychange", () => {
     if(isRunning()) requestWakeLock();
     if(audioCtx && audioCtx.state === "suspended") audioCtx.resume();
     if(session) render();
+    /* Android keeps the app alive for days at a time, so startup is not on
+       its own enough: coming back to it is the other moment worth asking. */
+    checkUpdate();
   }
 });
 
@@ -3851,8 +3862,9 @@ function deleteProgram(){
 /* =====================================================================
    IS THERE A NEWER ONE?
 
-   The app is otherwise entirely offline, and stays that way: this is one
-   request, at most once every six hours, and every failure is silent.
+   The app is otherwise entirely offline, and stays that way: one request on
+   starting up, one when it is brought back to the front after six hours of
+   not asking, and every failure is silent.
    Losing the network, the repository going private, GitHub rate limiting
    an address – all of them mean the same thing here, which is that
    nothing is shown.
@@ -3871,7 +3883,15 @@ const RELEASE_API =
   "https://api.github.com/repos/tobiaspahlberg/training-buddy/releases/latest";
 const DOWNLOAD_URL =
   "https://github.com/tobiaspahlberg/training-buddy/releases/latest/download/TrainingBuddy.apk";
+/* Two floors, because the two moments are not the same question. Coming back
+   to an app that has been sitting in the background for a minute is not a
+   reason to ask again, so that one waits six hours. Starting the app from
+   cold is a deliberate act, and the moment somebody wonders whether there is
+   a new version – so it asks then, near enough every time. The five minutes
+   left on it are only there so a phone that restarts the app in a loop cannot
+   knock on GitHub's door sixty times an hour. */
 const CHECK_EVERY = 6 * 60 * 60 * 1000;
+const CHECK_START = 5 * 60 * 1000;
 
 /* Compares as numbers, so 0.10.0 is newer than 0.9.1 rather than earlier,
    which is what comparing the two as text would say. */
@@ -3892,13 +3912,14 @@ function updateWaiting(){
   return seen.version === seen.hidden ? "" : seen.version;
 }
 
-function checkUpdate(force){
+function checkUpdate(force, floor){
   const seen = load(KEY_UPDATE, {});
   if(!NATIVE) return Promise.resolve(seen);
   /* A WebView old enough to lack fetch would throw here rather than reject,
      and take the rest of startup with it. */
   if(typeof fetch !== "function") return Promise.resolve(seen);
-  if(!force && seen.at && Date.now() - seen.at < CHECK_EVERY) return Promise.resolve(seen);
+  const wait = floor || CHECK_EVERY;
+  if(!force && seen.at && Date.now() - seen.at < wait) return Promise.resolve(seen);
 
   return Promise.resolve()
     .then(() => fetch(RELEASE_API, { headers: { Accept: "application/vnd.github+json" } }))
@@ -4066,9 +4087,9 @@ document.getElementById("search-body").addEventListener("click", e => {
 renderChangelog();
 renderHome();
 loadVoices();
-/* Asked once a start, answered whenever it likes; the screen redraws if the
+/* Asked on every start, answered whenever it likes; the screen redraws if the
    answer turns out to be interesting. */
-checkUpdate();
+checkUpdate(false, CHECK_START);
 </script>
 </body>
 </html>
