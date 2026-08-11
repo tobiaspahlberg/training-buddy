@@ -345,7 +345,7 @@
 <div class="screen active" id="home">
   <header class="big">
     <h1>Training Buddy</h1>
-    <button class="iconbtn" onclick="showScreen('about')">i</button>
+    <button class="iconbtn" id="about-btn" onclick="showScreen('about')" title="About"></button>
   </header>
   <div class="scroll">
     <div id="resume-slot"></div>
@@ -530,6 +530,13 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.15.1",
+    "date": "2026-08-11",
+    "changes": [
+      "The About button is a drawn i in a circle rather than a letter typed into a box"
+    ]
+  },
   {
     "version": "0.15.0",
     "date": "2026-08-11",
@@ -767,7 +774,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.15.0";
+const APP_VERSION = "0.15.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1389,7 +1396,11 @@ const ICON = {
   skip:   '<svg viewBox="0 0 24 24"><path d="M5 5l10 7-10 7V5Z"/><path d="M19 5v14"/></svg>',
   check:  '<svg viewBox="0 0 24 24"><path d="M4 12.5l6 6L20 6"/></svg>',
   rotate: '<svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.8-6.3"/>' +
-          '<path d="M3 4.5V10h5.5"/></svg>'
+          '<path d="M3 4.5V10h5.5"/></svg>',
+  /* The dot is a line going nowhere: with a round cap that draws a full stop,
+     and it keeps the whole set to one stroke width and no fills. */
+  info:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/>' +
+          '<path d="M12 16.4v-4.6"/><path d="M12 7.9h.01"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -3156,6 +3167,7 @@ document.querySelectorAll(".iconbtn.back").forEach(b => { b.innerHTML = ICON.bac
 document.getElementById("run-quit").innerHTML = ICON.close;
 document.getElementById("run-skip").innerHTML = ICON.skip;
 document.getElementById("edit-save").innerHTML = ICON.check;
+document.getElementById("about-btn").innerHTML = ICON.info;
 
 renderChangelog();
 renderHome();
