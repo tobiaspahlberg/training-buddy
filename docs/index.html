@@ -533,6 +533,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.16.1",
+    "date": "2026-08-11",
+    "changes": [
+      "Fixed: the voice picker never appeared, because the app asked the phone for its voices before the speech engine had started",
+      "If there really is nothing to choose from, About now says so instead of showing an empty space"
+    ]
+  },
+  {
     "version": "0.16.0",
     "date": "2026-08-11",
     "changes": [
@@ -784,7 +792,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.16.0";
+const APP_VERSION = "0.16.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1514,6 +1522,9 @@ function showScreen(id){
   hideUndo();
   armBack();
   if(id === "home") renderHome();
+  /* The only screen that shows the voices is the only one that needs to ask
+     for them, and by the time it opens the engine has long since come up. */
+  if(id === "about") loadVoices();
 }
 
 function renderHome(){
@@ -2688,17 +2699,38 @@ function labelVoices(list){
   });
 }
 
-function loadVoices(){
+/* The Android engine binds a moment after the app starts and answers with an
+   empty list until it has, so asking once at startup asks too early. Ask
+   again a few times, and again whenever the About screen is opened, which is
+   the only place the answer is shown. The browser has the same habit and
+   fires onvoiceschanged instead, which lands in here too. */
+const VOICE_TRIES = 6;
+
+function loadVoices(tries){
+  const n = tries || 0;
   if(TTS && TTS.voices){
     TTS.voices().then(r => {
-      voiceList = labelVoices(r.voices || []);
+      const list = labelVoices(r.voices || []);
+      if(!list.length && n < VOICE_TRIES){
+        setTimeout(() => loadVoices(n + 1), 400);
+        return;
+      }
+      voiceList = list;
       if(voiceName) TTS.setVoice({ name: voiceName }).catch(() => {});
       renderVoicePicker();
-    }).catch(() => { voiceList = []; renderVoicePicker(); });
+    }).catch(() => {
+      if(n < VOICE_TRIES) setTimeout(() => loadVoices(n + 1), 400);
+      else { voiceList = []; renderVoicePicker(); }
+    });
     return;
   }
   if(!window.speechSynthesis) return renderVoicePicker();
-  voiceList = labelVoices(speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)));
+  const list = labelVoices(speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)));
+  if(!list.length && n < VOICE_TRIES){
+    setTimeout(() => loadVoices(n + 1), 400);
+    return;
+  }
+  voiceList = list;
   pickVoice();
   renderVoicePicker();
 }
@@ -2723,8 +2755,14 @@ function setVoice(name){
 function renderVoicePicker(){
   const box = document.getElementById("voice-pick");
   if(!box) return;
-  if(voiceList.length < 2){
-    box.innerHTML = "";
+  /* An empty box said nothing at all, which reads as a feature that has gone
+     rather than a phone with nothing to offer. One voice is still worth
+     naming, so you can see which one is talking. */
+  if(!voiceList.length){
+    box.innerHTML = TTS || window.speechSynthesis
+      ? '<p style="margin-bottom:12px">No English voice to choose from yet. They come from ' +
+        "the phone's own text to speech settings, and any you install there turn up here.</p>"
+      : "";
     return;
   }
   box.innerHTML = '<div class="field"><label>Voice</label><select id="voice-select">' +
