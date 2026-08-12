@@ -381,7 +381,7 @@
     <div class="section-title">Categories</div>
     <div id="cat-list"></div>
     <div id="history-slot"></div>
-    <button class="btn ghost" onclick="newProgram()">+ New program</button>
+    <div id="backup-slot"></div>
     <div class="ver" id="ver-line"></div>
   </div>
 </div>
@@ -547,7 +547,7 @@
     <div class="card flat">
       <p>Everything you have made lives on this phone and nowhere else. A backup
          is one file you can put somewhere safe and read back into a new phone.</p>
-      <div class="acts"><button class="act" onclick="showScreen('backup')">Backup and restore</button></div>
+      <div class="acts"><button class="act" onclick="goBackup('about')">Backup and restore</button></div>
     </div>
     <div class="section-title">Changelog</div>
     <div class="card flat"><div class="log" id="changelog-view"></div></div>
@@ -564,6 +564,7 @@
     <div class="card flat">
       <h3>On this phone</h3>
       <p id="backup-what"></p>
+      <p id="backup-when" style="margin-top:6px"></p>
     </div>
     <button class="btn" onclick="saveBackup()">Save a backup file</button>
     <button class="btn ghost" onclick="copyBackup()">Copy the backup as text</button>
@@ -625,6 +626,15 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.21.0",
+    "date": "2026-08-12",
+    "changes": [
+      "The home screen tells you when nothing has been backed up, or when the last backup is over a month old - and takes the hint for a week if you wave it away",
+      "New program has gone from the home screen: every category has New session in it, which is where a new one belongs anyway",
+      "The backup screen says when you last backed up, and copying it as text counts as having done it"
+    ]
+  },
   {
     "version": "0.20.2",
     "date": "2026-08-11",
@@ -947,7 +957,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.20.2";
+const APP_VERSION = "0.21.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1549,6 +1559,16 @@ let history  = load(KEY_HISTORY, []);    // finished sessions, newest first
    ===================================================================== */
 
 const BACKUP_TAG = "training-buddy";
+const KEY_BACKUP = "tb.backup";              // { at, snoozed }
+
+/* The app cannot back itself up on its own: it has nowhere to put a file that
+   is not this same phone, and a copy beside the original is no copy at all
+   against the thing that actually happens, which is losing the phone. What it
+   can do is notice. A month without a backup, with something on the phone
+   worth keeping, and the home screen says so once – and takes the hint for a
+   week if it is waved away. */
+const BACKUP_STALE = 30 * 24 * 60 * 60 * 1000;
+const BACKUP_SNOOZE = 7 * 24 * 60 * 60 * 1000;
 
 function backupData(){
   return { app:BACKUP_TAG, version:APP_VERSION, at:new Date().toISOString(),
@@ -1559,17 +1579,87 @@ function backupText(){ return JSON.stringify(backupData()); }
 
 function backupName(){ return "training-buddy-" + today() + ".json"; }
 
+/* How much there is to lose. An empty phone is never nagged. */
+function worthKeeping(){
+  return programs.length + myPlans.length + history.length + Object.keys(progress).length;
+}
+
+/* Saved or copied, both count: either way there is a copy off the phone. */
+function backupTaken(){
+  const seen = load(KEY_BACKUP, {});
+  seen.at = Date.now();
+  save(KEY_BACKUP, seen);
+}
+
+function backupSnooze(){
+  const seen = load(KEY_BACKUP, {});
+  seen.snoozed = Date.now();
+  save(KEY_BACKUP, seen);
+  renderHome();
+}
+
+/* "" for nothing to say, otherwise which of the two things it has to say. */
+function backupNudge(){
+  if(!worthKeeping()) return "";
+  const seen = load(KEY_BACKUP, {});
+  if(seen.snoozed && Date.now() - seen.snoozed < BACKUP_SNOOZE) return "";
+  if(!seen.at) return "never";
+  return Date.now() - seen.at > BACKUP_STALE ? "stale" : "";
+}
+
+/* It stands where "New program" used to, at the foot of the home screen: a
+   thing worth doing now and then, rather than every time the app is opened,
+   and out of the way of the categories, which are what home is for. */
+function renderBackupSlot(){
+  const why = backupNudge();
+  const seen = load(KEY_BACKUP, {});
+  document.getElementById("backup-slot").innerHTML = !why ? "" :
+    '<div class="card flat" style="border-color:var(--walk)">' +
+      '<h3 style="color:var(--walk)">' +
+        (why === "never" ? "Nothing is backed up yet"
+                         : "Last backup: " + dayName(new Date(seen.at).toISOString())) +
+      "</h3><p>" +
+        (why === "never"
+          ? "Your sessions, your plans and everything you have finished are on " +
+            "this phone and nowhere else. A backup is one file to keep somewhere safe."
+          : "You have made and finished things since then. A fresh backup is one tap.") +
+      "</p>" +
+      '<div class="acts">' +
+        '<button class="act" onclick="goBackup(\'home\')">Back up now</button>' +
+        '<button class="act" onclick="backupSnooze()">Not now</button></div>' +
+    "</div>";
+}
+
+/* There are two ways in – About, and the reminder on home – so the way out
+   is whichever one was used. */
+let backupFrom = "about";
+
+function goBackup(from){
+  backupFrom = from;
+  showScreen("backup");
+}
+
+/* Opening the screen: a clean slate, whatever the last visit left behind. */
+function openBackup(){
+  document.getElementById("backup-out-field").style.display = "none";
+  document.getElementById("backup-saved").style.display = "none";
+  document.getElementById("restore-text").value = "";
+  renderBackup();
+}
+
 /* What the file will hold, said in the same words the app uses elsewhere. */
 function renderBackup(){
   const days = Object.keys(progress).length;
+  const seen = load(KEY_BACKUP, {});
+  document.getElementById("backup-when").textContent = seen.at
+    ? "Last backed up " + dayName(new Date(seen.at).toISOString()).toLowerCase() +
+      " at " + clockTime(new Date(seen.at).toISOString())
+    : "Never backed up.";
   document.getElementById("backup-what").textContent =
     [count(programs.length, "session") + " of your own",
      count(myPlans.length, "plan") + " copied",
      days + (days === 1 ? " day ticked off" : " days ticked off"),
      count(history.length, "session") + " finished"].join(" · ");
-  document.getElementById("backup-out-field").style.display = "none";
-  document.getElementById("backup-saved").style.display = "none";
-  document.getElementById("restore-text").value = "";
 
   /* Where the file will land depends on who writes it, so the screen says
      which of the two this is rather than hedging about both. */
@@ -1620,6 +1710,8 @@ function saveBackup(){
 /* Where it went, said twice: once in passing, and once on the screen, since
    a message that fades is no use to somebody about to go looking for a file. */
 function savedTo(where){
+  backupTaken();
+  renderBackup();
   const line = document.getElementById("backup-saved");
   line.textContent = "Saved to " + where;
   line.style.display = "block";
@@ -1628,7 +1720,11 @@ function savedTo(where){
 
 function copyBackup(){
   const text = backupText();
-  const done = () => flash("Backup copied – paste it somewhere safe");
+  const done = () => {
+    backupTaken();
+    renderBackup();
+    flash("Backup copied – paste it somewhere safe");
+  };
   const failed = () => showBackupText(text);
   if(navigator.clipboard && navigator.clipboard.writeText){
     try{ navigator.clipboard.writeText(text).then(done, failed); return; }catch(e){}
@@ -1897,7 +1993,7 @@ function showScreen(id){
   /* The only screen that shows the voices is the only one that needs to ask
      for them, and by the time it opens the engine has long since come up. */
   if(id === "about"){ loadVoices(); renderLeadPick(); renderUpdateLine(); }
-  if(id === "backup") renderBackup();
+  if(id === "backup") openBackup();
 }
 
 function renderHome(){
@@ -1948,6 +2044,7 @@ function renderHome(){
       "</p></div>"
     : "";
 
+  renderBackupSlot();
   document.getElementById("ver-line").textContent = "Version " + APP_VERSION;
 }
 
@@ -4028,7 +4125,7 @@ function goBack(){
     case "editor":   cancelEdit();  return;
     case "plan":     openPlanId = null; goHomeish(); return;
     case "search":   if(searchScope) openCategory(searchScope); else showScreen("home"); return;
-    case "backup":   showScreen("about"); return;
+    case "backup":   showScreen(backupFrom); return;
     case "category": currentCategory = null; showScreen("home"); return;
     case "home":     if(APP) APP.exitApp(); return;
     default:         showScreen("home");

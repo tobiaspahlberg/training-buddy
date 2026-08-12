@@ -124,7 +124,8 @@ program or a plan clears marks, never history.
 
 A **category** (`CATEGORIES` in the script) is what the home screen is made
 of: home lists the categories that hold something, and the plans and programs
-only appear once one is opened. Programs saved before categories existed fall
+only appear once one is opened. A new session is made from inside a category,
+which is how it gets the right one; home has no New button of its own. Programs saved before categories existed fall
 back to the default, so `categoryOf()` is the only place that reads the field.
 
 ## Pitfalls
@@ -145,6 +146,14 @@ sessions and plan copies are replaced by id, a day ticked off in either copy
 stays ticked off (the later date wins), and the two histories are pooled and
 de-duplicated on id plus timestamp. Restoring the same file twice must leave
 the phone exactly as it was.
+
+**The app cannot back itself up.** There is nowhere to put a file that is not
+this same phone, and a copy beside the original is no copy at all against the
+thing that actually happens, which is losing the phone. What it does instead is
+notice: `backupNudge()` puts a card at the foot of home when there is something
+worth keeping and either no backup has ever been made or the last one is over a
+month old, and "Not now" holds it for a week. Saving a file and copying the text
+both count as having backed up.
 
 **A WebView will not download anything.** Nothing in Capacitor listens for a
 download and a `blob:` URL is not something Android can fetch, so the anchor
