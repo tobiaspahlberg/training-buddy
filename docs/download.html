@@ -3,43 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Download Training Buddy</title>
+<title>Get Training Buddy</title>
 <link rel="icon" type="image/png" sizes="512x512" href="training-buddy-icon.png">
+<meta name="description" content="Interval timer for training and rehab programs, with spoken cues. Android app or web version.">
 <style>
+  /* The app's own colours, so the page and the thing it hands you look like
+     one another. */
+  :root{
+    --bg:#0E1712; --surface:#17241D; --surface-2:#1F3129; --line:#2C4438;
+    --text:#F2F7F4; --dim:#8CA79A; --run:#4ADE80; --walk:#38BDF8;
+  }
+  *{box-sizing:border-box}
   body{
-    margin:0;min-height:100vh;background:#0E1712;color:#F2F7F4;
+    margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex;align-items:center;justify-content:center;padding:24px;
+    line-height:1.6;padding:32px 20px 64px;
   }
-  .box{max-width:420px;width:100%;text-align:center}
-  img{width:104px;height:104px;border-radius:24px;margin-bottom:18px}
-  h1{font-size:24px;margin:0 0 8px}
-  p{color:#8CA79A;line-height:1.6;font-size:15px;margin:0 0 22px}
-  a.btn{
-    display:block;background:#4ADE80;color:#08120C;text-decoration:none;
-    padding:16px;border-radius:13px;font-weight:700;font-size:16px;
-  }
-  a.web{display:block;margin-top:10px;color:#8CA79A;font-size:14px;padding:12px}
-  ol{text-align:left;color:#8CA79A;font-size:14px;line-height:1.7;margin-top:26px;padding-left:22px}
+  .page{max-width:760px;margin:0 auto}
+  header{text-align:center;margin-bottom:34px}
+  header img{width:96px;height:96px;border-radius:22px;margin-bottom:16px}
+  h1{font-size:30px;margin:0 0 10px;letter-spacing:-.4px}
+  .lede{color:var(--dim);font-size:17px;margin:0 auto;max-width:34em}
+
+  /* The two ways of having it, side by side and the same size: neither is a
+     footnote to the other. They stack on a phone, which is where most people
+     read this, and the app comes first there because it is the better one. */
+  .ways{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:34px}
+  @media (max-width:640px){ .ways{grid-template-columns:1fr} }
+
+  .way{background:var(--surface);border:1px solid var(--line);border-radius:18px;
+    padding:22px;display:flex;flex-direction:column}
+  .way.app{border-left:9px solid var(--run);padding-left:18px}
+  .way.web{border-left:9px solid var(--walk);padding-left:18px}
+  .way h2{font-size:20px;margin:0 0 2px}
+  .tag{font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--dim);margin-bottom:12px}
+  .way p{color:var(--dim);font-size:15px;margin:0 0 18px}
+  .way ul{color:var(--dim);font-size:14.5px;margin:0 0 20px;padding-left:20px}
+  .way li{margin-bottom:5px}
+  .way .spacer{flex:1}
+
+  a.btn{display:block;text-align:center;text-decoration:none;padding:15px;
+    border-radius:13px;font-weight:700;font-size:16.5px}
+  a.btn.green{background:var(--run);color:#08120C}
+  a.btn.blue{background:var(--walk);color:#08151C}
+  .under{font-size:13px;color:var(--dim);text-align:center;margin:10px 0 0}
+
+  h3{font-size:15px;margin:30px 0 10px;letter-spacing:.4px}
+  ol{color:var(--dim);font-size:15px;padding-left:22px;margin:0}
+  ol li{margin-bottom:9px}
+  .note{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;color:var(--dim);font-size:14.5px;margin-top:18px}
+  .note b{color:var(--text)}
+  section{border-top:1px solid var(--line);padding-top:26px;margin-top:30px}
+  section h2{font-size:19px;margin:0 0 6px}
+  footer{color:var(--dim);font-size:13.5px;text-align:center;margin-top:38px}
+  a{color:var(--run)}
+  footer a{color:var(--dim)}
 </style>
 </head>
 <body>
-<div class="box">
-  <img src="training-buddy-icon.png" alt="">
-  <h1>Training Buddy</h1>
-  <p>Interval timer for training and rehab programs, with spoken cues.</p>
+<div class="page">
 
-  <a class="btn" href="https://github.com/tobiaspahlberg/training-buddy/releases/latest/download/TrainingBuddy.apk">
-    Download for Android
-  </a>
-  <a class="web" href="./">Or open the web version</a>
+  <header>
+    <img src="training-buddy-icon.png" alt="">
+    <h1>Training Buddy</h1>
+    <p class="lede">An interval timer for training and rehab programs. It says
+       every step out loud &ndash; run, walk, rest &ndash; so the phone can stay
+       in your pocket or on the floor while you get on with it.</p>
+  </header>
 
-  <ol>
-    <li>Download the APK.</li>
-    <li>Open the downloaded file on the phone.</li>
-    <li>Allow installation from this source when asked.</li>
-    <li>Open Training Buddy and pick a session.</li>
-  </ol>
+  <!-- Two ways of having it, given equal room. The web version used to be a
+       grey line under the button, and people missed it. -->
+  <div class="ways">
+    <div class="way app">
+      <div>
+        <h2>Android app</h2>
+        <div class="tag">Recommended</div>
+        <p>The full thing. Install it once and it works offline.</p>
+        <ul>
+          <li>Keeps talking with the screen off or locked</li>
+          <li>Sits in the status bar while a session runs</li>
+          <li>Tells you when a new version is out</li>
+        </ul>
+      </div>
+      <div class="spacer"></div>
+      <a class="btn green" href="https://github.com/tobiaspahlberg/training-buddy/releases/latest/download/TrainingBuddy.apk">
+        Download the app
+      </a>
+      <p class="under">An .apk file, about 4 MB. Steps below.</p>
+    </div>
+
+    <div class="way web">
+      <div>
+        <h2>Web version</h2>
+        <div class="tag">Nothing to install</div>
+        <p>The same app in the browser. Works on any phone, tablet or computer,
+           including iPhone.</p>
+        <ul>
+          <li>Opens straight away, nothing to allow</li>
+          <li>Can be added to the home screen like an app</li>
+          <li>The phone may mute the voice once the screen turns off</li>
+        </ul>
+      </div>
+      <div class="spacer"></div>
+      <a class="btn blue" href="./">Open the web version</a>
+      <p class="under">Or bookmark it &ndash; it needs no account.</p>
+    </div>
+  </div>
+
+  <section>
+    <h2>Installing the Android app</h2>
+    <ol>
+      <li><b>Tap Download the app</b> above. The file lands in your Downloads
+          folder, named TrainingBuddy.apk.</li>
+      <li><b>Open the downloaded file</b> &ndash; from the notification, or from
+          Downloads in your file manager.</li>
+      <li><b>Allow this source to install apps.</b> Android asks once, for the
+          app you are opening the file from &ndash; your browser or your file
+          manager. Tap Settings, turn the switch on, and come back.</li>
+      <li><b>Install anyway</b>, if Play Protect says the app is unknown. It says
+          that about every app that did not come from the Play Store; the warning
+          is about where it came from, not what it does.</li>
+      <li><b>Open Training Buddy</b>, pick a category, and start a session.</li>
+    </ol>
+    <p class="note"><b>Later versions install over the top.</b> Downloading a
+       newer APK and opening it keeps everything you have made &ndash; your own
+       sessions, plans and history. There is no need to uninstall first, and the
+       app itself tells you when there is a new one.</p>
+  </section>
+
+  <section>
+    <h2>Using the web version</h2>
+    <ol>
+      <li><b>Tap Open the web version</b> above. That is the whole of it &ndash;
+          it runs in the browser and remembers what you make on that device.</li>
+      <li><b>Add it to your home screen</b> to have it open full screen, without
+          the browser round it. On Android: the browser menu &rarr; Add to home
+          screen. On iPhone: Share &rarr; Add to Home Screen.</li>
+      <li><b>Tap Start once</b> before you put the phone down. Browsers stay
+          silent until you have touched the page, so the first tap is what lets
+          it speak at all.</li>
+    </ol>
+    <p class="note"><b>Keep the screen on, or use headphones.</b> A phone is
+       free to mute a browser tab once the screen turns off, and some do. If you
+       want the voice with the phone in your pocket, the Android app is the one
+       to have &ndash; that is the reason it exists.</p>
+  </section>
+
+  <section>
+    <h2>What it is for</h2>
+    <p style="color:var(--dim);font-size:15px;margin:0">
+      Built-in plans to work through week by week, single workouts to run as they
+      stand, and an editor for making your own &ndash; steps, intervals and
+      circuits, in whatever order you like. Everything you make stays on your own
+      device, and can be saved to a file and read back on another one. No account,
+      no adverts, nothing sent anywhere.</p>
+  </section>
+
+  <footer>
+    <a href="https://github.com/tobiaspahlberg/training-buddy">Source on GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/tobiaspahlberg/training-buddy/releases">All versions</a>
+  </footer>
+
 </div>
 </body>
 </html>
