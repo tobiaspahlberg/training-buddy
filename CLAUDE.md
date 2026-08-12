@@ -105,9 +105,9 @@ The editor works at session level. A user-made program is simply a plan with
 one session; copying a single day out of a plan produces exactly that, an
 ordinary program with no link back. Blocks are added, removed and moved up or
 down; a step's `list` is typed one line to a line and disappears when it is
-emptied, which turns the step back into a plain one. Editing a session *inside* a copied plan
-uses the same editor, but `editing.planId` sends the result back into the plan
-instead of into the program list.
+emptied, which turns the step back into a plain one. Editing a session *inside*
+a copied plan uses the same editor, but `editing.planId` sends the result back
+into the plan instead of into the program list.
 
 `BUILTIN_PROGRAMS` are single sessions with no schedule around them. A step
 may carry a `list` of strings – movements to work through, as on a gym
@@ -124,9 +124,10 @@ program or a plan clears marks, never history.
 
 A **category** (`CATEGORIES` in the script) is what the home screen is made
 of: home lists the categories that hold something, and the plans and programs
-only appear once one is opened. A new session is made from inside a category,
-which is how it gets the right one; home has no New button of its own. Programs saved before categories existed fall
+only appear once one is opened. Programs saved before categories existed fall
 back to the default, so `categoryOf()` is the only place that reads the field.
+A new session is made from inside a category, which is how it gets the right
+one; home has no New button of its own.
 
 ## Pitfalls
 
