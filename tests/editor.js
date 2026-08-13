@@ -77,6 +77,10 @@ ok(ev("totalSec([editing.blocks[3]])") === 12 * 100 + 11 * 15, "and the total fo
 ok($("edit-total").textContent.includes("steps"), "the running total is shown: " + $("edit-total").textContent);
 ok(blocks()[3].querySelector("textarea").value === "Row\nPress\nSquat",
    "the box holds what was typed");
+ok([...blocks()[3].querySelectorAll(".blocklabel")].map(l => l.textContent).join(" / ") ===
+   "Work at each station / Rest between stations",
+   "the two durations of a circuit say which is which: " +
+   [...blocks()[3].querySelectorAll(".blocklabel")].map(l => l.textContent).join(" / "));
 ok(blocks()[3].querySelectorAll("select")[0].value === "lift",
    "a circuit is strength unless told otherwise: " + blocks()[3].querySelectorAll("select")[0].value);
 
@@ -178,8 +182,8 @@ w.newProgram("Training");
 
 // ---- a template to start from ----
 const starts = () => [...$("edit-start").querySelectorAll(".chip")].map(b => b.textContent);
-ok(starts().join(" · ") === "Run / walk intervals · Warm-up, work, cool-down · Circuit",
-   "an empty session is offered three shapes: " + starts().join(" · "));
+ok(starts().join(" · ") === "Run / walk intervals · Warm-up, work, cool-down",
+   "an empty session is offered two shapes: " + starts().join(" · "));
 ok($("edit-preview").innerHTML === "", "and has nothing to draw yet");
 ok($("edit-save-foot").style.display === "none",
    "nor anything to save, so no Save button either");

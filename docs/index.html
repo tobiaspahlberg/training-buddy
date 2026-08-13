@@ -350,6 +350,11 @@
   .chip.on{background:var(--run);border-color:var(--run);color:#08120C}
   .chip.wide{padding:11px 14px;font-size:14.5px;color:var(--text)}
   #edit-start{margin-top:16px}
+  /* Names a group of fields inside a block, the way a field names its own
+     box: without it a circuit showed two pairs of Min and Sec and left you
+     to guess which pair was the rest. */
+  .blocklabel{font-size:12px;font-weight:650;color:var(--dim);text-transform:uppercase;
+    letter-spacing:.8px;margin:2px 0 6px}
   /* The session as it stands, drawn the way the cards draw one. */
   .preview{margin-top:14px;height:14px;border-radius:7px;overflow:hidden}
   .preview .mini{height:14px;margin:0}
@@ -652,6 +657,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.22.3",
+    "date": "2026-08-12",
+    "changes": [
+      "A circuit says which duration is which: Work at each station, and Rest between stations",
+      "Start from offers two shapes instead of three - the circuit one only did what the + Circuit button does"
+    ]
+  },
   {
     "version": "0.22.2",
     "date": "2026-08-12",
@@ -1019,7 +1032,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.22.2";
+const APP_VERSION = "0.22.3";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3837,13 +3850,15 @@ function renderBlocks(){
         '<div class="field"><label>Stations, one per line</label>' +
           '<textarea rows="' + Math.max(3, names.length) + '" onchange="setNames(' + i +
             ',this.value)">' + esc(names.join("\n")) + "</textarea></div>" +
+        '<div class="blocklabel">Work at each station</div>' +
         '<div class="grid three">' + secFields(i, "workSec") +
           '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
         "</div>" + chipRow(i, "workSec", b.workSec) +
+        '<div class="blocklabel">Rest between stations</div>' +
         '<div class="grid">' + secFields(i, "restSec") + "</div>" +
         chipRow(i, "restSec", b.restSec, true) +
-        '<div class="hint" style="padding:0">Rest between stations, and none after ' +
-          "the last one.</div>" +
+        '<div class="hint" style="padding:0">There is no rest after the last ' +
+          "station of the last round.</div>" +
       "</div>";
     }
     return '<div class="block tinted"' + edge + ">" + blockHead("Step", i, i === end) +
@@ -3905,11 +3920,6 @@ const START_FROM = [
     { type:"step", text:"Warm-up", kind:"warm", sec:300 },
     { type:"step", text:"Work", kind:"run", sec:1200 },
     { type:"step", text:"Cool-down", kind:"warm", sec:300 }
-  ] },
-  { name:"Circuit", blocks:[
-    { type:"step", text:"Warm-up", kind:"warm", sec:300 },
-    { type:"circuit", rounds:3, workSec:40, restSec:20, kind:"lift",
-      names:["Station 1", "Station 2", "Station 3"] }
   ] }
 ];
 
