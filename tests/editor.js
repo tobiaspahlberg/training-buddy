@@ -279,7 +279,7 @@ ok(adders.every(b => b.querySelector("small").textContent.length <= 16),
    adders.map(b => b.querySelector("small").textContent).join(" / "));
 
 w.newProgram("Rehab");
-ok($("edit-name").placeholder === "e.g. Achilles week 3",
+ok($("edit-name").placeholder === "e.g. Achilles exercises",
    "a rehab session suggests a rehab name: " + $("edit-name").placeholder);
 $("edit-category").value = "Strength";
 w.nameHint();

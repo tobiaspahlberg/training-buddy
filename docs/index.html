@@ -513,7 +513,7 @@
   <div class="scroll">
     <div class="field">
       <label>Name</label>
-      <input id="edit-name" placeholder="e.g. Achilles week 3">
+      <input id="edit-name" placeholder="e.g. Achilles exercises">
     </div>
     <div class="field" id="edit-cat-field">
       <label>Category</label>
@@ -652,6 +652,13 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.22.2",
+    "date": "2026-08-12",
+    "changes": [
+      "The rehab example name is \"Achilles exercises\" rather than \"Achilles week 3\", which read like a week of a plan rather than a session"
+    ]
+  },
   {
     "version": "0.22.1",
     "date": "2026-08-12",
@@ -1012,7 +1019,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.22.1";
+const APP_VERSION = "0.22.2";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3700,12 +3707,12 @@ function editProgram(id){
   openEditor("Edit session");
 }
 
-/* The example in the empty name field. "Achilles week 3" is a rehab session
-   and reads as nonsense while making a circuit, so each category suggests
-   something it might plausibly hold. */
+/* The example in the empty name field. One rehab example sat there whatever
+   was being made, so each category suggests something it might plausibly
+   hold - and a session, not a week of a plan, since that is what this is. */
 const NAME_HINT = {
   Training: "e.g. Tuesday intervals",
-  Rehab:    "e.g. Achilles week 3",
+  Rehab:    "e.g. Achilles exercises",
   Strength: "e.g. Legs and core",
   Mobility: "e.g. Morning stretch",
   Other:    "e.g. Saturday session"
