@@ -1,0 +1,11 @@
+{
+  "name": "training-buddy-tests",
+  "private": true,
+  "description": "Suites for docs/index.html. Kept apart from the app's own package.json so the Android build installs nothing it does not need.",
+  "scripts": {
+    "test": "sh run.sh"
+  },
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}

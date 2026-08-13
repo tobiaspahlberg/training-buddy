@@ -14,6 +14,7 @@ two ways from the same code:
 docs/index.html      The whole app – HTML, CSS and JS in ONE file. All app code lives here.
 docs/download.html   Download page linking to the latest APK
 docs/manifest.json   PWA manifest
+tests/               jsdom suites for the app – see tests/README.md
 assets/              Source images for the app icon (regenerated on every build)
 programs/            Source PDFs for the built-in plans. Local reference only, gitignored.
 android/             The Capacitor project, checked into git
@@ -274,6 +275,7 @@ have would leave it blank, so none is named.
 ## Common commands
 
 ```bash
+cd tests && npm test                      # the suites, before pushing anything
 npx cap sync android                      # before a local build in Android Studio
 npx @capacitor/assets generate --android  # after changing the icon
 cd android && ./gradlew assembleDebug     # build the APK locally
@@ -284,7 +286,22 @@ release tagged `v<APP_VERSION>`.
 
 ## Testing
 
-No automated test suite. Test manually with a short custom program (for
-example 3 × 20 s run : 10 s walk) – it runs through quickly and exercises
-every feature: step changes, spoken cues, countdown, pause, skip, the finish
-sound, and resuming after the app is killed.
+**Run the suites before pushing.** They live in `tests/`, load `docs/index.html`
+into jsdom and drive the app the way a thumb would; there is no framework and
+nothing to build.
+
+```bash
+cd tests && npm install   # once, jsdom only
+npm test                  # every suite; exits non-zero if anything failed
+```
+
+`tests/README.md` says what each suite holds onto and how to add one. Two rules
+worth repeating here: a new suite has to be named in `SUITES` at the top of
+`run.sh` or it is reported as never run, and anything touching the Android side
+must inject `window.Capacitor` through jsdom's `beforeParse`, because `NATIVE`,
+`TTS` and `NOTES` are read once as the script loads.
+
+The suites cannot hear, see or feel, so **also test by hand on the phone** with
+a short session (3 × 20 s run : 10 s walk): the count-in, the spoken cues, the
+tones, the ongoing notification, the vibration, and resuming after Android has
+killed the app.
