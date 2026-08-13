@@ -53,7 +53,7 @@ ok(hits().length === 0 && $("search-body").textContent.includes("Nothing called 
    "and it says so when there is nothing");
 
 // own sessions are searchable as soon as they exist
-w.newProgram("Mobility"); w.addBlock("step"); $("edit-name").value = "Hip openers"; w.saveProgram();
+w.newProgram("mobility"); w.addBlock("step"); $("edit-name").value = "Hip openers"; w.saveProgram();
 w.openSearch(); type("openers");
 ok(names().length === 1 && names()[0] === "Hip openers", "a session of mine is found: " + names());
 
@@ -66,7 +66,7 @@ ok(names().length === 2 && names().some(n => /Chipper/.test(n)),
 w.openSearch(); type("Return to Run");
 hits()[0].dispatchEvent(new w.MouseEvent("click", {bubbles:true}));
 ok(active() === "plan", "tapping a plan opens it");
-ok(ev("currentCategory") === "Rehab", "and back will land in its category: " + ev("currentCategory"));
+ok(ev("currentCategory") === "rehab", "and back will land in its category: " + ev("currentCategory"));
 w.goBack();
 ok(active() === "category" && $("cat-title").textContent === "Rehab", "which it does");
 
@@ -89,11 +89,11 @@ ok(active() === "home", "back from search is home");
 // --- searching inside one category ---
 setTimeout(() => {
   const ok2 = (c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
-  w.openCategory("Rehab");
+  w.openCategory("rehab");
   ok2(!!$("cat-search").querySelector("svg"), "a category has its own magnifier");
   $("cat-search").dispatchEvent(new w.MouseEvent("click", {bubbles:true}));
   ok2(active() === "search", "which opens search");
-  ok2(ev("searchScope") === "Rehab", "scoped to that category: " + ev("searchScope"));
+  ok2(ev("searchScope") === "rehab", "scoped to that category: " + ev("searchScope"));
   ok2($("search-input").placeholder === "Find in Rehab", "and says so: " + $("search-input").placeholder);
   ok2($("search-body").textContent.includes("in Rehab"), "the prompt too");
 

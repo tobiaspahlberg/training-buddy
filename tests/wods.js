@@ -16,8 +16,8 @@ console.log("");
 
 ok(wods.length === 11, "eleven built-in workouts");
 ok(new Set(wods.map(x => x.id)).size === 11, "ids are unique");
-ok(wods.filter(x => x.cat === "Training").length === 9 && wods.filter(x => x.cat === "Rehab").length === 2,
-   "nine in Training, two in Rehab");
+ok(wods.filter(x => x.cat === "crossfn").length === 9 && wods.filter(x => x.cat === "strength").length === 2,
+   "nine are cross-functional, two are strength");
 ok(wods.every(x => x.min > 0 && x.steps > 0), "all have a running clock");
 
 // every workout opens, starts, and shows its list

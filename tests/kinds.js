@@ -21,7 +21,7 @@ ok(!ev("isWork('walk')") && !ev("isWork('warm')") && !ev("isWork('rest')"),
    "walking, warming up and resting do not");
 
 // the editor offers them
-w.newProgram("Strength");
+w.newProgram("strength");
 w.addBlock("step");
 const sels = [...$("edit-blocks").querySelectorAll("select")];
 ok(sels.length > 0, "the editor has a type picker");
@@ -40,7 +40,7 @@ w.saveProgram();
 ok(ev("programs[0].blocks[0].kind") === "lift", "a strength step is stored as one");
 ok(ev("flatten(programs[0].blocks)[1].kind") === "hold", "and a hold stays a hold");
 
-w.openCategory("Strength");
+w.openCategory("strength");
 const card = [...$("cat-body").querySelectorAll(".card")].find(c => /Leg day/.test(c.textContent));
 const segs = [...card.querySelectorAll(".mini i")].map(i => i.getAttribute("style").split("background:")[1]);
 console.log("  the card draws it as: " + segs.join("  "));

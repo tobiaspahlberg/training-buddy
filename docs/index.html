@@ -518,7 +518,7 @@
   <div class="scroll">
     <div class="field">
       <label>Name</label>
-      <input id="edit-name" placeholder="e.g. Achilles exercises">
+      <input id="edit-name" placeholder="e.g. Saturday session">
     </div>
     <div class="field" id="edit-cat-field">
       <label>Category</label>
@@ -657,6 +657,16 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.23.0",
+    "date": "2026-08-12",
+    "changes": [
+      "New categories, sorted by what a session trains: Cardio, Strength, Cross-functional, Mobility, Rehab and Other",
+      "Training is gone - it held nine of the eleven built-in sessions, and a word that can mean anything sorts nothing. What was in it is Cross-functional",
+      "Strength for Runners and the miniband exercises are strength work, and are filed as such; the 5K plan is cardio and Return to Run stays under rehab",
+      "Anything you saved under the old names still opens where it belongs, and nothing on your phone is rewritten"
+    ]
+  },
   {
     "version": "0.22.4",
     "date": "2026-08-12",
@@ -1039,7 +1049,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.22.4";
+const APP_VERSION = "0.23.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1053,7 +1063,7 @@ const SPARK_RTR = {
   id: "spark-rtr-phase1",
   name: "Return to Run – Phase 1: Restore",
   short: "Return to Run",
-  category: "Rehab",
+  category: "rehab",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 3 Day Run Plan",
   note: "Six weeks, three run days per week. Every session starts and ends with a 10 minute walk.",
   warmupSec: 600,
@@ -1089,7 +1099,7 @@ const SPARK_5K = {
   id: "spark-beginner-5k",
   name: "How to Start Running – Beginner 5K",
   short: "Beginner 5K",
-  category: "Training",
+  category: "cardio",
   source: "Spark Healthy Runner, coach Cat Aniballi – How to Start Running, Beginner 5K Training Plan",
   note: "Eight weeks to a 5K. Four run days and two walk days a week, building from " +
         "one minute of running at a time up to fifteen.",
@@ -1122,7 +1132,7 @@ const PLANS = [SPARK_RTR, SPARK_5K];
 const TEAM_AMRAP_25 = {
   id: "wod-team-amrap-25",
   name: "Team of 2 – AMRAP 25 min",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "As many rounds as possible in 25 minutes, shared between two. " +
         "Split the reps however you like – one works while the other rests.",
@@ -1153,7 +1163,7 @@ function stations(names, workSec, restSec, rounds){
 const TOTAL_TRAINING_25 = {
   id: "wod-total-training-25",
   name: "Total Training – Team AMRAP 25 min",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "As many rounds as possible in 25 minutes, shared between two. " +
         "Split the reps however you like.",
@@ -1177,7 +1187,7 @@ const TOTAL_TRAINING_25 = {
 const ROW_YOUR_BOAT_35 = {
   id: "wod-row-your-boat-35",
   name: "Row Your Boat – Team AMRAP 35 min",
-  category: "Training",
+  category: "crossfn",
   source: "Gym handout",
   note: "Team of 2, I go you go: one works while the other rests. Two rounds of " +
         "the warm-up first, then 35 minutes of work.",
@@ -1221,7 +1231,7 @@ const ROW_YOUR_BOAT_35 = {
 const DB_SNATCH_2115 = {
   id: "wod-db-snatch-21-15-9",
   name: "Dumbbell Snatch & Burpees – 21-15-9",
-  category: "Training",
+  category: "crossfn",
   source: "CrossFit workout",
   note: "For time, with a 15 minute cap. 22.5 kg dumbbell, or 15 kg for the " +
         "lighter standard.",
@@ -1248,7 +1258,7 @@ const DB_SNATCH_2115 = {
 const DECK_OF_CARDS = {
   id: "wod-deck-of-cards",
   name: "Deck of Cards",
-  category: "Training",
+  category: "crossfn",
   source: "Gym handout",
   note: "Turn a card and do its number in the movement for that suit. Face cards " +
         "count 10 and aces 11. The 40 minute cap is not part of the original.",
@@ -1266,7 +1276,7 @@ const DECK_OF_CARDS = {
 const ROW_REPS_PLANK = {
   id: "wod-row-reps-plank",
   name: "Row, Reps, Plank – Team of 3",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "Three stations, rotating when the rower is done: one rows 200 m, one " +
         "works through the reps, one holds a plank. The 30 minute cap is not " +
@@ -1292,7 +1302,7 @@ const ROW_REPS_PLANK = {
 const COUPLETS_AND_4020 = {
   id: "wod-couplets-40-20",
   name: "Couplets & 40/20 Intervals",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "Two six minute blocks, then three rounds of six stations at 40 seconds " +
         "work and 20 seconds rest. The number of rounds is not on the board.",
@@ -1322,7 +1332,7 @@ const COUPLETS_AND_4020 = {
 const INTERVALS_AND_LADDER = {
   id: "wod-intervals-ladder",
   name: "Intervals & 20-16-12-8-4",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "Part one is 15 minutes of conditioning in 60 second efforts – pick the " +
         "machine. Part two is for time, capped at 20 minutes. Neither the rest " +
@@ -1346,7 +1356,7 @@ const INTERVALS_AND_LADDER = {
 const TEAM_CHIPPER = {
   id: "wod-team-chipper",
   name: "Team Chipper – I Go You Go",
-  category: "Training",
+  category: "crossfn",
   source: "Gym whiteboard",
   note: "Team of 2, one works while the other rests. Work down the list, then " +
         "spend the time that is left on the last block. The 30 minute total is " +
@@ -1388,7 +1398,7 @@ const TEAM_CHIPPER = {
 const STRENGTH_FOR_RUNNERS = {
   id: "rehab-strength-for-runners",
   name: "Strength for Runners",
-  category: "Rehab",
+  category: "strength",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 25 minute strength for runners",
   video: "https://youtu.be/pe9v9uiUujQ",
   note: "Seven exercises, timed roughly as the video is chaptered and rounded to " +
@@ -1416,7 +1426,7 @@ const MINIBAND_FOR_RUNNING = {
      first written even though the name has since been put right. */
   id: "rehab-core-hip-stability",
   name: "5 Miniband Exercises for Running",
-  category: "Rehab",
+  category: "strength",
   source: "Spark Healthy Runner, Dr. Duane Scotti – 5 Simple Miniband Exercises for Running",
   video: "https://youtu.be/1uniMWm9fTA",
   note: "Bring a miniband. Five exercises to work through at your own pace, for " +
@@ -1936,16 +1946,49 @@ function clockTime(iso){
 /* =====================================================================
    CATEGORIES
 
-   A category is only a label for sorting the home screen. Programs saved
-   before categories existed simply fall back to the default.
+   The drawers on the home screen, and they sort by one thing: what a
+   session trains. Endurance on its own, strength on its own, or both at
+   once - which is what most of a gym whiteboard is. Rehab is the one
+   deliberate exception: it is a reason rather than a quality, and the
+   reason wins, because being injured is how you go looking for it. Return
+   to Run is running, but you open it because your Achilles hurts.
+
+   The word "Training" used to be one of these, and it swallowed nine of
+   the eleven built-in sessions: a category that can mean anything sorts
+   nothing.
+
+   An id is stored and a label is shown, so a name can be thought better of
+   without moving anything on anybody's phone. Old names are read through
+   CAT_WAS, so a session filed by an older version - or restored from its
+   backup years from now - still lands where it belongs.
    ===================================================================== */
 
-const CATEGORIES = ["Training", "Rehab", "Strength", "Mobility", "Other"];
-const DEFAULT_CATEGORY = "Training";
+const CATEGORIES = ["cardio", "strength", "crossfn", "mobility", "rehab", "other"];
+const DEFAULT_CATEGORY = "other";
+
+const CAT_LABEL = {
+  cardio:   "Cardio",
+  strength: "Strength",
+  crossfn:  "Cross-functional",
+  mobility: "Mobility",
+  rehab:    "Rehab",
+  other:    "Other"
+};
+
+/* What the app called them before. Training becomes Cross-functional
+   because that is what was actually in it. */
+const CAT_WAS = {
+  Training:"crossfn", Rehab:"rehab", Strength:"strength",
+  Mobility:"mobility", Other:"other"
+};
 
 function categoryOf(item){
-  return CATEGORIES.indexOf(item.category) >= 0 ? item.category : DEFAULT_CATEGORY;
+  const c = item && item.category;
+  if(CATEGORIES.indexOf(c) >= 0) return c;
+  return CAT_WAS[c] || DEFAULT_CATEGORY;
 }
+
+function catLabel(c){ return CAT_LABEL[c] || CAT_LABEL[DEFAULT_CATEGORY]; }
 
 /* Drawn rather than written: a glyph from the system font sits differently on
    every phone, and these have to line up inside a 38 pixel button. */
@@ -1976,18 +2019,18 @@ const ICON = {
    it, and the dot on a finished session in the history. The faded shade marks
    what came with the app, as against what you made yourself. */
 const CAT_COLOR = {
-  Training:"var(--run)", Rehab:"var(--walk)", Strength:"var(--warm)",
-  Mobility:"var(--rest)", Other:"var(--dim)"
+  cardio:"var(--run)", strength:"var(--lift)", crossfn:"var(--warm)",
+  mobility:"var(--rest)", rehab:"var(--walk)", other:"var(--dim)"
 };
 const CAT_FADE = {
-  Training:"rgba(74,222,128,.34)", Rehab:"rgba(56,189,248,.34)",
-  Strength:"rgba(251,191,36,.34)", Mobility:"rgba(167,139,250,.34)",
-  Other:"rgba(140,167,154,.34)"
+  cardio:"rgba(74,222,128,.34)", strength:"rgba(244,114,182,.34)",
+  crossfn:"rgba(251,191,36,.34)", mobility:"rgba(167,139,250,.34)",
+  rehab:"rgba(56,189,248,.34)", other:"rgba(140,167,154,.34)"
 };
 const CAT_TINT = {
-  Training:"rgba(74,222,128,.07)", Rehab:"rgba(56,189,248,.07)",
-  Strength:"rgba(251,191,36,.07)", Mobility:"rgba(167,139,250,.07)",
-  Other:"rgba(140,167,154,.07)"
+  cardio:"rgba(74,222,128,.07)", strength:"rgba(244,114,182,.07)",
+  crossfn:"rgba(251,191,36,.07)", mobility:"rgba(167,139,250,.07)",
+  rehab:"rgba(56,189,248,.07)", other:"rgba(140,167,154,.07)"
 };
 
 /* Everything a plan asks of you, added up. Rest days count nothing. */
@@ -2113,7 +2156,7 @@ function renderHome(){
     return '<div class="catcard' + (empty ? " bare" : "") +
       '" onclick="openCategory(\'' + c + '\')">' +
       '<i style="background:' + CAT_COLOR[c] + '"></i>' +
-      "<div><h3>" + esc(c) + "</h3><p>" +
+      "<div><h3>" + esc(catLabel(c)) + "</h3><p>" +
         (empty ? "Nothing here yet" : parts.join(" · ")) + "</p></div>" +
       "<span>&rsaquo;</span></div>";
   }).join("");
@@ -2150,7 +2193,7 @@ function openCategory(c){
 function renderCategory(){
   const c = currentCategory;
   document.getElementById("cat-title").innerHTML =
-    '<i class="dot" style="background:' + CAT_COLOR[c] + '"></i>' + esc(c);
+    '<i class="dot" style="background:' + CAT_COLOR[c] + '"></i>' + esc(catLabel(c));
 
   /* One scale for the whole category, so a plan and a session can be held
      against each other rather than each being the longest of its own kind. */
@@ -2289,7 +2332,8 @@ function openSearch(cat){
   showScreen("search");
   const box = document.getElementById("search-input");
   box.value = "";
-  box.placeholder = searchScope ? "Find in " + searchScope : "Find a plan or a session";
+  box.placeholder = searchScope ? "Find in " + catLabel(searchScope)
+                                : "Find a plan or a session";
   renderSearch();
   /* The keyboard is the point of the screen, so it opens with it up. */
   setTimeout(() => box.focus(), 60);
@@ -2321,7 +2365,7 @@ function renderSearch(){
   const body = document.getElementById("search-body");
   if(!q){
     body.innerHTML = '<div class="empty">' + (searchScope
-      ? "Type a few letters to find something in " + esc(searchScope) + "."
+      ? "Type a few letters to find something in " + esc(catLabel(searchScope)) + "."
       : "Type a few letters to find a plan or a session, wherever it is filed.") +
       "</div>";
     return;
@@ -2330,7 +2374,7 @@ function renderSearch(){
   body.innerHTML = hits.length
     ? hits.map(x => '<div class="hit" data-hit="' + x.kind + ":" + x.id + '">' +
         '<i style="background:' + CAT_COLOR[x.cat] + '"></i>' +
-        "<div><b>" + markHit(x.name, q) + "</b><small>" + esc(x.what + " · " + x.cat) +
+        "<div><b>" + markHit(x.name, q) + "</b><small>" + esc(x.what + " · " + catLabel(x.cat)) +
         "</small></div></div>").join("")
     : '<div class="empty">Nothing called that.</div>';
 }
@@ -2594,7 +2638,7 @@ function copyPlan(){
       };
       myPlans.push(copy);
       save(KEY_MYPLANS, myPlans);
-      currentCategory = copy.category;
+      currentCategory = categoryOf(copy);
       openPlan(copy.id);
     });
 }
@@ -3731,23 +3775,25 @@ function editProgram(id){
    was being made, so each category suggests something it might plausibly
    hold - and a session, not a week of a plan, since that is what this is. */
 const NAME_HINT = {
-  Training: "e.g. Tuesday intervals",
-  Rehab:    "e.g. Achilles exercises",
-  Strength: "e.g. Legs and core",
-  Mobility: "e.g. Morning stretch",
-  Other:    "e.g. Saturday session"
+  cardio:   "e.g. Tuesday intervals",
+  strength: "e.g. Legs and core",
+  crossfn:  "e.g. Saturday AMRAP",
+  mobility: "e.g. Morning stretch",
+  rehab:    "e.g. Achilles exercises",
+  other:    "e.g. Saturday session"
 };
 
 function nameHint(){
   const c = document.getElementById("edit-category").value;
-  document.getElementById("edit-name").placeholder = NAME_HINT[c] || NAME_HINT.Training;
+  document.getElementById("edit-name").placeholder = NAME_HINT[c] || NAME_HINT.other;
 }
 
 function openEditor(title){
   document.getElementById("editor-title").textContent = title;
   document.getElementById("edit-name").value = editing.name;
   const cat = document.getElementById("edit-category");
-  cat.innerHTML = CATEGORIES.map(c => "<option>" + c + "</option>").join("");
+  cat.innerHTML = CATEGORIES.map(c =>
+    '<option value="' + c + '">' + esc(catLabel(c)) + "</option>").join("");
   cat.value = categoryOf(editing);
   nameHint();
   /* A session inside a plan takes its category from the plan, and is deleted

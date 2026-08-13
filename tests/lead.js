@@ -79,7 +79,7 @@ ok(ev("lastStepIdx") === 0 && $("step-label").textContent === "Warm-up",
 
 // ---- leaving during the count-in asks nothing ----
 ev("stopTicker(); session = null;");
-w.openCategory("Training");
+w.openCategory("crossfn");
 ev(START + " mainButton();");
 w.confirmQuit();
 ok(!$("overlay").classList.contains("show"), "nothing has been run, so nothing is asked");

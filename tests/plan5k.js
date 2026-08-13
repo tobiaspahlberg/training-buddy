@@ -41,8 +41,8 @@ ok(ev("flatten(planSession(PLANS[1], PLANS[1].weeks[0], 1).blocks).length") === 
    "W1 Tue is 6 run + 6 walk, nothing added: " + ev("flatten(planSession(PLANS[1],PLANS[1].weeks[0],1).blocks).length"));
 
 // --- the calendar ---
-w.openCategory("Training");
-ok($("cat-body").textContent.includes("How to Start Running"), "listed under Training");
+w.openCategory("cardio");
+ok($("cat-body").textContent.includes("How to Start Running"), "listed under Cardio");
 w.openPlan("spark-beginner-5k");
 const cls = sel => $("plan-weeks").querySelectorAll(sel).length;
 console.log("\n  calendar cells: run "+cls(".cell.run")+", walk "+cls(".cell.walk")+

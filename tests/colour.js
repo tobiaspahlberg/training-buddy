@@ -6,7 +6,7 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 const errs=[]; w.addEventListener("error",e=>errs.push(e.message));
 
 // --- icons in the plan header ---
-w.openCategory("Rehab");
+w.openCategory("rehab");
 w.openPlan("spark-rtr-phase1");
 const sel = $("select-btn"), cp = $("plan-copy");
 ok(sel.querySelector("svg") && sel.innerHTML.includes("M4 20h4"), "the select button is a pencil");
@@ -28,7 +28,7 @@ ok(ev("myPlans.length") === 1, "the header copy button still makes a copy");
 const copyId = ev("myPlans[0].id");
 
 // --- colour ---
-w.openCategory("Rehab");
+w.openCategory("rehab");
 ok($("cat-title").innerHTML.includes("var(--walk)"), "Rehab's name carries its colour: " + $("cat-title").innerHTML.slice(0,60));
 
 const cards = [...$("cat-body").querySelectorAll(".card")];
@@ -49,12 +49,14 @@ ok(copy.querySelector(".tag").getAttribute("style").includes("var(--walk)"), "in
 ok(builtIn.querySelector(".tag").textContent === "Built in", "the built-in one says Built in");
 ok(!builtIn.querySelector(".tag").getAttribute("style"), "with no colour on it");
 
-// a Training card should be green, not blue
-w.openCategory("Training");
+// a cross-functional card should be amber, not blue
+w.openCategory("crossfn");
 const wod = [...$("cat-body").querySelectorAll(".card")].find(c => /Team of 2/.test(c.textContent));
-ok(edge(wod).startsWith("rgba(74,222,128"), "a built-in Training workout is faded green: " + edge(wod));
+ok(edge(wod).startsWith("rgba(251,191,36"),
+   "a built-in cross-functional workout is faded amber: " + edge(wod));
 
 // --- a plan carries more, and looks it ---
+w.openCategory("cardio");
 const plan5k = [...$("cat-body").querySelectorAll(".card")].find(c => /How to Start Running/.test(c.textContent));
 ok(width(plan5k) === 9, "a plan wears a 9px edge: " + width(plan5k));
 ok(width(wod) === 5, "a single session wears 5px: " + width(wod));
@@ -72,21 +74,22 @@ ev(`history = [
 w.openHistory();
 const dots = [...$("history-body").querySelectorAll(".dot")].map(x => x.getAttribute("style"));
 console.log("\n  history dots: " + dots.map(x=>x.replace("background:","")).join(", "));
-ok(dots[0].includes("var(--run)"), "a Training workout gets green");
+ok(dots[0].includes("var(--warm)"), "a cross-functional workout gets amber: " + dots[0]);
 ok(dots[1].includes("var(--walk)"), "a Rehab plan session gets blue");
 ok(dots[2].includes("var(--line)"), "something since deleted gets no colour");
 
 console.log(errs.length ? "\nERRORS: "+errs.join("; ") : "\nno uncaught errors");
 
 // --- a plan's name is set as a heading, a session's is not ---
-w.openCategory("Training");
+w.openCategory("cardio");
 const planCard = [...$("cat-body").querySelectorAll(".card")].find(c => /How to Start/.test(c.textContent));
+w.openCategory("crossfn");
 const sessCard = [...$("cat-body").querySelectorAll(".card")].find(c => /Team of 2/.test(c.textContent));
 ok(planCard.classList.contains("plan"), "the plan card is marked as one");
 ok(!sessCard.classList.contains("plan"), "the session card is not");
 ok(/--accent:var\(--run\)/.test(planCard.getAttribute("style")),
    "the plan carries its category colour: " + planCard.getAttribute("style").slice(0,26));
-ok(/--accent:var\(--run\)/.test(sessCard.getAttribute("style")),
+ok(/--accent:var\(--warm\)/.test(sessCard.getAttribute("style")),
    "and so does a session, for its done-today ring");
 // the rule is a property of the heading, so it spans the text and nothing else
 const css = fs.readFileSync(require("path").join(__dirname, "..", "docs", "index.html"),"utf8");
@@ -95,7 +98,7 @@ ok(/\.card\.plan h3\{[^}]*border-bottom:2px solid var\(--accent/.test(css),
 ok(/\.card\.plan h3\{[^}]*font-size:20\.5px/.test(css), "with the name set a size larger");
 
 // --- Edit and Reset read as buttons, not as prose ---
-w.newProgram("Training"); w.addBlock("step"); $("edit-name").value = "Mine"; w.saveProgram();
+w.newProgram("crossfn"); w.addBlock("step"); $("edit-name").value = "Mine"; w.saveProgram();
 ev('progress[programs[0].id] = today();');
 w.renderCategory();
 const mineCard = [...$("cat-body").querySelectorAll(".card")].find(c => /Mine/.test(c.textContent));
@@ -114,13 +117,13 @@ ok(wodActs.length === 1 && wodActs[0].textContent === "Reset",
    "a built-in one can only be reset: " + wodActs.map(a=>a.textContent).join());
 
 // --- done today wears the category's colour, not green ---
-w.openCategory("Rehab");
+w.openCategory("strength");
 ev('progress["rehab-strength-for-runners"] = today();');
 w.renderCategory();
 const doneCard = [...$("cat-body").querySelectorAll(".card.done")][0];
-ok(!!doneCard, "a Rehab session finished today is marked");
-ok(/--accent:var\(--walk\)/.test(doneCard.getAttribute("style")),
-   "and its ring is Rehab blue: " + doneCard.getAttribute("style").slice(0,24));
+ok(!!doneCard, "a Strength session finished today is marked");
+ok(/--accent:var\(--lift\)/.test(doneCard.getAttribute("style")),
+   "and its ring is Strength pink: " + doneCard.getAttribute("style").slice(0,24));
 ok(/\.card\.done\{border-color:var\(--accent\);background:var\(--tint\)\}/.test(css),
    "the ring and wash both come from the card, not from a fixed green");
 ok(/\.card\.done h3::before\{content:"\\2713\\00a0";color:var\(--accent\)\}/.test(css),

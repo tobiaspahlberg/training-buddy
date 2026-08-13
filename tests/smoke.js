@@ -22,17 +22,17 @@ const ok = (cond, msg) => console.log((cond ? "  ok  " : "FAIL  ") + msg);
 // --- home is now categories ---
 ok(active() === "home", "starts on home");
 const cats = [...$("cat-list").querySelectorAll(".catcard h3")].map(x => x.textContent);
-ok(JSON.stringify(cats) === '["Training","Rehab","Strength","Mobility","Other"]',
+ok(JSON.stringify(cats) === '["Cardio","Strength","Cross-functional","Mobility","Rehab","Other"]',
    "home lists every category, empty or not: " + cats);
-ok([...$("cat-list").querySelectorAll(".catcard.bare")].length === 3,
-   "the three empty ones are dimmed");
+ok([...$("cat-list").querySelectorAll(".catcard.bare")].length === 2,
+   "the two empty ones are dimmed");
 
 // --- category screen ---
-w.openCategory("Rehab");
+w.openCategory("rehab");
 ok(active() === "category", "opening a category switches screen");
 ok($("cat-body").textContent.includes("Return to Run"), "Rehab holds the built-in plan");
 
-w.openCategory("Training");
+w.openCategory("crossfn");
 ok($("cat-body").textContent.includes("Team of 2"), "Training holds the AMRAP workout");
 
 // --- built-in workout sheet + run ---
@@ -49,7 +49,7 @@ ok($("run-stage").classList.contains("haslist"), "stage makes room for the list"
 ev("stopTicker(); session = null;"); w.showScreen("home");
 
 // --- plan view, long press, select mode ---
-w.openCategory("Rehab");
+w.openCategory("rehab");
 w.openPlan("spark-rtr-phase1");
 ok(active() === "plan", "plan opens");
 const cells = () => [...$("plan-weeks").querySelectorAll("[data-sel]")];
@@ -123,9 +123,10 @@ const press = el => {
   ok(ev("Object.keys(progress).length") === 6, "only the copy's progress went with it");
 
   // --- own program ---
-  w.openCategory("Strength");
-  w.newProgram("Strength");
-  ok($("edit-category").value === "Strength", "a new program starts in the category it was made in");
+  w.openCategory("strength");
+  w.newProgram("strength");
+  ok($("edit-category").value === "strength",
+     "a new program starts in the category it was made in, by its id");
   ok(ev("editing.blocks.length") === 0, "and starts empty, with nobody else's session in it");
   $("edit-name").value = "Test";
   w.saveProgram();

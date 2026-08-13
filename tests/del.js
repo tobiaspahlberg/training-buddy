@@ -20,14 +20,14 @@ const press = el => {
 
 // two of my own programs
 ["Alpha","Beta"].forEach(n => {
-  w.newProgram("Training");
+  w.newProgram("crossfn");
   w.addBlock("step");
   $("edit-name").value = n;
   w.saveProgram();
 });
-w.openCategory("Training");
+w.openCategory("crossfn");
 const cards = () => [...$("cat-body").querySelectorAll("[data-open]")];
-ok(cards().length === 12, "5K plan + 9 built-in workouts + 2 own programs: " + cards().length);
+ok(cards().length === 11, "9 built-in workouts + 2 own programs: " + cards().length);
 const bins = () => [...$("cat-body").querySelectorAll(".trash")];
 ok(bins().length === 2, "a bin on each of my two programs, and nowhere else: " + bins().length);
 ok(bins().every(b => b.dataset.act === "drop-prog"), "each bin knows what it drops");
@@ -64,7 +64,7 @@ const wod = () => cards().filter(c => c.dataset.open.startsWith("wod:"))[0];
   ok($("sheet").classList.contains("show"), "tap still opens the program");
   w.startFromSheet();
   ok(active() === "run", "and Start in the sheet runs it");
-  ev("session = null;"); w.openCategory("Training");
+  ev("session = null;"); w.openCategory("crossfn");
 
   // the Edit link is not a delete target, and still edits
   const edit = $("cat-body").querySelector('[data-act="edit"]');

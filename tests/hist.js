@@ -9,7 +9,7 @@ const ok = (c,m) => console.log((c?"  ok  ":"FAIL  ")+m);
 const txt = id => $(id).textContent;
 
 // make a program and run it to the end
-w.newProgram("Training");
+w.newProgram("crossfn");
 $("edit-name").value = "Quickie";
 ev("editing.blocks = [{type:'step',text:'Go',kind:'run',sec:1}]");
 w.saveProgram();
@@ -26,7 +26,7 @@ setTimeout(() => {
   ok(ev("progress['" + pid + "']") === new Date().toISOString().slice(0,10), "marked done today");
 
   // green in the list
-  w.openCategory("Training");
+  w.openCategory("crossfn");
   const card = $("cat-body").querySelector(".card.done");
   ok(!!card, "the program is green");
   ok(card.textContent.includes("Last done today"), "and dated: " + (card && card.querySelector("p").textContent.trim()));
@@ -42,7 +42,7 @@ setTimeout(() => {
   ok(txt("history-slot").includes("1 session finished"), "home shows the history card: " + txt("history-slot").trim().slice(0,60));
 
   // reset the program: mark goes, history stays
-  w.openCategory("Training");
+  w.openCategory("crossfn");
   w.resetProgram(pid);
   ok(!$("cat-body").querySelector(".card.done"), "reset clears the green mark");
   ok(ev("history.length") === 1, "reset keeps the history");

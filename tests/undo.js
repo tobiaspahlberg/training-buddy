@@ -11,10 +11,10 @@ const offering = () => bar().classList.contains("show") && !bar().classList.cont
 const text = () => $("undo-text").textContent;
 const bins = () => [...$("cat-body").querySelectorAll('[data-act="drop-prog"]')];
 
-const make = n => { w.newProgram("Strength"); w.addBlock("step");
+const make = n => { w.newProgram("strength"); w.addBlock("step");
                     $("edit-name").value = n; w.saveProgram(); };
 ["One","Two","Three"].forEach(make);
-w.openCategory("Strength");
+w.openCategory("strength");
 ok(ev("programs.length") === 3, "three sessions to play with");
 
 // 1st delete
@@ -66,7 +66,7 @@ ok(ev("undone") === null, "with nothing left held");
 
 // a plan and a session can both be taken back
 w.openPlan("spark-rtr-phase1"); w.copyPlan(); $("dlg-ok").onclick();
-w.openCategory("Rehab");
+w.openCategory("rehab");
 const planBin = $("cat-body").querySelector('[data-act="drop-plan"]');
 tap(planBin);
 ok(ev("myPlans.length") === 0 && offering(), "a plan copy goes with an offer too");
@@ -79,7 +79,7 @@ console.log(errs.length ? "\nERRORS: "+errs.join("; ") : "\nno uncaught errors")
 setTimeout(() => {
   const ok2 = (c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
   ok2(ev("UNDO_MS") === 5000, "the offer stands for five seconds: " + ev("UNDO_MS"));
-  w.openCategory("Strength");
+  w.openCategory("strength");
   ok2(!d.body.classList.contains("undo-up"), "no room given while nothing is shown");
   tap($("cat-body").querySelector('[data-act="drop-prog"]'));
   ok2(d.body.classList.contains("undo-up"), "the list makes room while the bar is up");

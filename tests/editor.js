@@ -14,7 +14,7 @@ const tap = el => { el.dispatchEvent(new w.MouseEvent("pointerdown",{bubbles:tru
 // =====================================================================
 // Putting a session in order
 // =====================================================================
-w.newProgram("Training");
+w.newProgram("crossfn");
 ok(active() === "editor", "a new session opens in the editor");
 ok(names() === "", "with nothing in it: " + JSON.stringify(names()));
 ok($("edit-total").textContent === "Total 0 min – 0 steps",
@@ -97,7 +97,7 @@ w.cancelEdit();
 // =====================================================================
 // A work list is yours to change
 // =====================================================================
-w.openCategory("Training");
+w.openCategory("crossfn");
 w.openProgram("wod-team-amrap-25");
 w.copyToMine();
 ok(active() === "editor", "a built-in workout copied out opens in the editor");
@@ -129,7 +129,7 @@ ok(ev("programs.length") === 2, "saved as a session of its own");
 // =====================================================================
 // One of your own opens like anything else
 // =====================================================================
-w.openCategory("Training");
+w.openCategory("crossfn");
 /* Two of mine sit in Training now, so pick the one by name rather than by
    the order the list happens to be in. */
 const mine = name => [...$("cat-body").querySelectorAll('[data-open^="prog:"]')]
@@ -161,7 +161,7 @@ ok($("run-title").textContent === "List test", "the one that was open: " + $("ru
 ev("stopTicker(); session = null;");
 
 // the ticks still work from the sheet
-w.openCategory("Training");
+w.openCategory("crossfn");
 tap(mine("List test"));
 w.toggleDone();
 ok(ev("progress['" + ev("programs[0].id") + "'] || progress['" + ev("programs[1].id") + "']") !== undefined,
@@ -177,8 +177,8 @@ ok(ev("backArmed") === true,
 // =====================================================================
 // Duplicating, quick lengths, colour, templates, and getting out
 // =====================================================================
-w.openCategory("Training");
-w.newProgram("Training");
+w.openCategory("crossfn");
+w.newProgram("crossfn");
 
 // ---- a template to start from ----
 const starts = () => [...$("edit-start").querySelectorAll(".chip")].map(b => b.textContent);
@@ -289,14 +289,14 @@ ok(adders.every(b => b.querySelector("small").textContent.length <= 16),
    "and none of the labels is long enough to wrap: " +
    adders.map(b => b.querySelector("small").textContent).join(" / "));
 
-w.newProgram("Rehab");
+w.newProgram("rehab");
 ok($("edit-name").placeholder === "e.g. Achilles exercises",
    "a rehab session suggests a rehab name: " + $("edit-name").placeholder);
-$("edit-category").value = "Strength";
+$("edit-category").value = "strength";
 w.nameHint();
 ok($("edit-name").placeholder === "e.g. Legs and core",
    "changing the category changes the suggestion: " + $("edit-name").placeholder);
-w.newProgram("Mobility");
+w.newProgram("mobility");
 ok($("edit-name").placeholder === "e.g. Morning stretch",
    "and it is set when the editor opens: " + $("edit-name").placeholder);
 ev("editing = null;");

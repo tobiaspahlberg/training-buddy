@@ -11,12 +11,12 @@ const card = sel => [...$("cat-body").querySelectorAll("[data-open]")]
 
 (async () => {
   // make a copy of the 5K plan and tick two days off in it
-  w.openCategory("Training");
+  w.openCategory("cardio");
   w.openPlan("spark-beginner-5k");
   w.copyPlan(); $("dlg-ok").onclick();
   const id = ev("myPlans[0].id");
   ev(`progress["${id}:w1d1"]=today(); progress["${id}:w1d2"]=today();`);
-  w.openCategory("Training");
+  w.openCategory("cardio");
   ok(ev("myPlans.length") === 1, "a copy exists");
   ok(!!card("plan:" + id), "the copy has a card");
   const planBins = () => [...$("cat-body").querySelectorAll('[data-act="drop-plan"]')];

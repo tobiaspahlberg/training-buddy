@@ -37,7 +37,7 @@ function phone(store, native){
 // =====================================================================
 const a = phone();
 a.ev(`
-  programs.push({ id:"p1", name:"My circuit", category:"Strength",
+  programs.push({ id:"p1", name:"My circuit", category:"strength",
                   blocks:[{type:"step",text:"Go",kind:"lift",sec:60}] });
   save(KEY_PROGRAMS, programs);
 `);
@@ -121,9 +121,9 @@ function run2(){
   // it is a merge, not a wipe
   const c = phone();
   c.ev(`
-    programs.push({ id:"own", name:"Mine already", category:"Rehab",
+    programs.push({ id:"own", name:"Mine already", category:"rehab",
                     blocks:[{type:"step",text:"Go",kind:"run",sec:60}] });
-    programs.push({ id:"p1", name:"An older My circuit", category:"Other",
+    programs.push({ id:"p1", name:"An older My circuit", category:"other",
                     blocks:[{type:"step",text:"Go",kind:"run",sec:30}] });
     progress["own"] = "2026-08-05";
     progress["p1"] = "2026-08-09";
@@ -227,7 +227,7 @@ function run2(){
 // =====================================================================
 setTimeout(() => {
   const slot = p => p.$("backup-slot").textContent;
-  const withOne = `programs.push({ id:"p1", name:"Mine", category:"Training",
+  const withOne = `programs.push({ id:"p1", name:"Mine", category:"crossfn",
       blocks:[{type:"step",text:"Go",kind:"run",sec:60}] }); save(KEY_PROGRAMS, programs);`;
 
   // an empty phone has nothing to lose and is not nagged
@@ -246,7 +246,7 @@ setTimeout(() => {
   // the old New program button is gone from home
   ok(!p.$("home").textContent.includes("New program"),
      "and the home screen no longer offers New program");
-  p.w.openCategory("Training");
+  p.w.openCategory("crossfn");
   ok(p.$("cat-body").textContent.includes("+ New session"),
      "which is still where it always was, inside a category");
   p.w.showScreen("home");

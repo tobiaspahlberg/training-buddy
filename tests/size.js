@@ -9,14 +9,14 @@ const tap = el => { el.dispatchEvent(new w.MouseEvent("pointerdown",{bubbles:tru
                     el.dispatchEvent(new w.MouseEvent("click",{bubbles:true})); };
 
 // ---- back out of a workout lands where it started ----
-w.openCategory("Training");
+w.openCategory("crossfn");
 w.openProgram("wod-team-amrap-25"); w.startFromSheet();
 ok(active() === "run", "started a workout from a category");
 w.confirmQuit();
-ok(active() === "category" && $("cat-title").textContent === "Training",
+ok(active() === "category" && $("cat-title").textContent === "Cross-functional",
    "quitting before the clock starts goes back to the category, not home");
 
-w.openCategory("Rehab");
+w.openCategory("rehab");
 w.openPlan("spark-rtr-phase1");
 tap($("plan-weeks").querySelector("[data-d]"));
 w.startFromSheet();
@@ -43,13 +43,14 @@ setTimeout(() => {
   ok(active() === "home", "with no history behind it, back means home");
 
   // ---- bins ----
-  w.openCategory("Rehab");
+  w.openCategory("rehab");
   ok($("cat-body").querySelectorAll(".trash").length === 0, "nothing of mine yet, so no bins");
-  w.newProgram("Rehab"); w.addBlock("step"); $("edit-name").value = "Mine"; w.saveProgram();
+  w.newProgram("rehab"); w.addBlock("step"); $("edit-name").value = "Mine"; w.saveProgram();
   const bin = $("cat-body").querySelector(".trash");
   ok(!!bin, "my new program has a bin");
   ok(bin.title === "Delete Mine", "titled with its name: " + bin.title);
-  ok($("cat-body").querySelectorAll(".cardtop").length === 4, "every card has a top row");
+  ok($("cat-body").querySelectorAll(".cardtop").length === 2, "every card has a top row: " +
+     $("cat-body").querySelectorAll(".cardtop").length);
 
   tap(bin);
   ok(ev("programs.length") === 0, "the bin drops it at once");
@@ -61,15 +62,15 @@ setTimeout(() => {
   ok(ev("programs.length") === 0, "gone again");
 
   // tapping a bin must not also open the card
-  w.newProgram("Rehab"); w.addBlock("step"); $("edit-name").value = "Mine again"; w.saveProgram();
+  w.newProgram("rehab"); w.addBlock("step"); $("edit-name").value = "Mine again"; w.saveProgram();
   tap($("cat-body").querySelector(".trash"));
   ok(active() === "category", "the tap did not start the session underneath");
   w.hideUndo();
 
   // ---- size at a glance ----
-  w.openCategory("Training");
+  w.openCategory("crossfn");
   const cards = [...$("cat-body").querySelectorAll(".card")];
-  console.log("\n  Training, by width:");
+  console.log("\n  Cross-functional, by width:");
   cards.forEach(c => {
     const bar = c.querySelector(".mini,.span");
     if(!bar) return;
@@ -83,10 +84,7 @@ setTimeout(() => {
 
   const bar = n => { const c = cards.find(x => new RegExp(n).test(x.textContent));
                      return +c.querySelector(".mini,.span").getAttribute("style").match(/width:(\d+)%/)[1]; };
-  ok(bar("How to Start Running") === 100, "the longest thing in the category fills the row");
-  ok(bar("Row Your Boat") < 45, "and the longest single session is well short of it: " + bar("Row Your Boat"));
-  ok(bar("How to Start Running") > bar("Row Your Boat") * 2,
-     "a plan reads as a different order of thing, not a slightly longer one");
+  ok(bar("Row Your Boat") === 100, "the longest session in the category fills the row");
   // order is kept, and the sessions still tell each other apart
   ok(bar("21-15-9") < bar("Team of 2"), "15 min reads shorter than 25");
   ok(bar("Team of 2") < bar("Deck of Cards"), "25 shorter than 40");
@@ -94,9 +92,24 @@ setTimeout(() => {
   ok(bar("Row Your Boat") - bar("21-15-9") > 15,
      "and 15 against 41 is a visible gap: " + bar("21-15-9") + "% to " + bar("Row Your Boat") + "%");
 
+  /* A plan against a session, on the one axis they share. They live in
+     different categories now, so the comparison is made where both are:
+     the 5K plan and a twenty minute session of my own, in Cardio. */
+  w.newProgram("cardio");
+  ev("editing.blocks = [{type:'step',text:'Easy',kind:'run',sec:1200}];");
+  $("edit-name").value = "Twenty easy";
+  w.saveProgram();
+  const cardio = [...$("cat-body").querySelectorAll(".card")];
+  const wide = n => { const c = cardio.find(x => new RegExp(n).test(x.textContent));
+                      return +c.querySelector(".mini,.span").getAttribute("style").match(/width:(\d+)%/)[1]; };
+  ok(wide("How to Start Running") === 100, "the plan fills the row");
+  ok(wide("Twenty easy") < 45, "and a single session is well short of it: " + wide("Twenty easy"));
+  ok(wide("How to Start Running") > wide("Twenty easy") * 2,
+     "a plan reads as a different order of thing, not a slightly longer one");
+
   // a program shows its shape, a plan does not
   const amrap = cards.find(x => /Team of 2/.test(x.textContent));
-  const plan  = cards.find(x => /How to Start Running/.test(x.textContent));
+  const plan  = cardio.find(x => /How to Start Running/.test(x.textContent));
   ok(amrap.querySelector(".mini") && !amrap.querySelector(".span"), "a session draws its steps");
   ok(plan.querySelector(".span") && !plan.querySelector(".mini"), "a plan is one solid block");
   ok(amrap.querySelectorAll(".mini i").length === 1, "the AMRAP is one long block: " +
@@ -119,7 +132,7 @@ setTimeout(() => {
 setTimeout(() => {
   const ok2 = (c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
   w.openPlan("spark-rtr-phase1"); w.copyPlan(); $("dlg-ok").onclick();
-  w.openCategory("Rehab");
+  w.openCategory("rehab");
   const plans = [...$("cat-body").querySelectorAll('[data-open^="plan:"]')];
   const pct = c => +c.querySelector(".span").getAttribute("style").match(/width:(\d+)%/)[1];
   ok2(plans.length === 2, "the plan and its copy are both listed");

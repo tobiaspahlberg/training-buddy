@@ -5,10 +5,13 @@ const w=dom.window, d=w.document, ev=e=>w.eval(e);
 const $=id=>d.getElementById(id);
 const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
-w.openCategory("Rehab");
-ok($("cat-body").textContent.includes("Strength for Runners"), "it shows up under Rehab");
-ok($("cat-body").textContent.includes("Return to Run"), "next to the plan it belongs with");
-ok(!ev('JSON.stringify(programsIn("Training"))').includes("Strength for Runners"), "and not under Training");
+w.openCategory("strength");
+ok($("cat-body").textContent.includes("Strength for Runners"),
+   "it is strength work, and filed as such");
+w.openCategory("rehab");
+ok($("cat-body").textContent.includes("Return to Run"), "the plan is the rehab one");
+ok(!ev('JSON.stringify(programsIn("crossfn"))').includes("Strength for Runners"),
+   "and nothing of it is left in the drawer that used to hold everything");
 
 w.openProgram("rehab-strength-for-runners");
 ok($("sheet-when").textContent.includes("follow-along"), "the note warns the times are chapter marks");

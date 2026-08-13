@@ -134,9 +134,20 @@ permanent record: every finished session with its date and length. Resetting a
 program or a plan clears marks, never history.
 
 A **category** (`CATEGORIES` in the script) is what the home screen is made
-of: home lists the categories that hold something, and the plans and programs
-only appear once one is opened. Programs saved before categories existed fall
-back to the default, so `categoryOf()` is the only place that reads the field.
+of: home lists every category, and the plans and programs only appear once one
+is opened. They sort by one axis – what a session trains – with `crossfn` for
+the things that train both at once, and `rehab` as the deliberate exception: a
+reason rather than a quality, and the reason wins, because being injured is how
+you go looking for it.
+
+**An id is stored and a label is shown.** `CATEGORIES` holds ids (`crossfn`),
+`CAT_LABEL` holds what is written on the screen ("Cross-functional"), and
+`CAT_WAS` maps the names an older version stored, so nothing on a phone is ever
+rewritten and a backup from any version still lands where it belongs.
+`categoryOf()` is the only place that reads the field, and the only place that
+needs to know any of this. A name can therefore be thought better of for the
+price of one line.
+
 A new session is made from inside a category, which is how it gets the right
 one; home has no New button of its own.
 
