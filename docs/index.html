@@ -658,6 +658,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.22.4",
+    "date": "2026-08-12",
+    "changes": [
+      "The quick lengths are one row of five rather than eight over three rows: 20s, 40s, 1m, 1m 30s, 2m for work, and 10s, 20s, 30s, 45s, 1m for a rest"
+    ]
+  },
+  {
     "version": "0.22.3",
     "date": "2026-08-12",
     "changes": [
@@ -1032,7 +1039,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.22.3";
+const APP_VERSION = "0.22.4";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3786,10 +3793,13 @@ function blockHead(label, i, last){
 }
 
 /* The lengths people actually reach for, so that most of a session can be
-   built without the keyboard coming up at all. The two boxes stay for
-   everything that is not one of these. */
-const WORK_SECS = [20, 30, 45, 60, 90, 120, 300, 600];
-const REST_SECS = [10, 15, 20, 30, 45, 60, 90];
+   built without the keyboard coming up at all. One row each, five of them:
+   eight chips wrapped onto a second and third line and turned a shortcut
+   into a wall. Anything longer - a ten minute warm-up - is two taps in the
+   boxes, which is what they are there for. A rest is offered lower down the
+   scale than the work is, because a rest is not two minutes. */
+const WORK_SECS = [20, 40, 60, 90, 120];
+const REST_SECS = [10, 20, 30, 45, 60];
 
 function secLabel(v){
   if(v < 60) return v + "s";

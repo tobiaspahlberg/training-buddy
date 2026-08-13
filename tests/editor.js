@@ -206,20 +206,27 @@ w.removeBlock(2);
 
 // ---- quick lengths ----
 const chips = i => [...blocks()[i].querySelectorAll(".chips")[0].querySelectorAll(".chip")];
-ok(chips(0).map(c => c.textContent).join(" ") === "20s 30s 45s 1m 1m 30s 2m 5m 10m",
+ok(chips(0).map(c => c.textContent).join(" ") === "20s 40s 1m 1m 30s 2m",
    "a step offers the lengths worth a tap: " + chips(0).map(c => c.textContent).join(" "));
+ok(chips(0).length === 5, "five of them, which is one row on a narrow phone");
+/* A new step is five minutes, which is not one of the five - so nothing is
+   marked until it is set to one of them, which is the honest answer. */
+ok(chips(0).filter(c => c.classList.contains("on")).length === 0,
+   "a length that is not on the row marks nothing");
+w.pickSec(0, "sec", 60);
 ok(chips(0).filter(c => c.classList.contains("on")).length === 1 &&
-   chips(0).find(c => c.classList.contains("on")).textContent === "5m",
+   chips(0).find(c => c.classList.contains("on")).textContent === "1m",
    "the one it is set to is filled in");
-tap(chips(0).find(c => c.textContent === "45s"));
-ok(ev("editing.blocks[0].sec") === 45, "tapping one sets it: " + ev("editing.blocks[0].sec"));
-ok(chips(0).find(c => c.classList.contains("on")).textContent === "45s", "and moves the mark");
-ok(blocks()[0].querySelectorAll("input[type=number]")[1].value === "45",
+tap(chips(0).find(c => c.textContent === "40s"));
+ok(ev("editing.blocks[0].sec") === 40, "tapping one sets it: " + ev("editing.blocks[0].sec"));
+ok(chips(0).find(c => c.classList.contains("on")).textContent === "40s", "and moves the mark");
+ok(blocks()[0].querySelectorAll("input[type=number]")[1].value === "40",
    "the boxes agree: " + blocks()[0].querySelectorAll("input[type=number]")[1].value);
 
 // the recovery side of an interval is offered shorter ones
 const restChips = [...blocks()[1].querySelectorAll(".chips")[1].querySelectorAll(".chip")];
-ok(restChips[0].textContent === "10s", "a recovery starts lower down: " + restChips[0].textContent);
+ok(restChips.map(c => c.textContent).join(" ") === "10s 20s 30s 45s 1m",
+   "a recovery is offered lower down the scale: " + restChips.map(c => c.textContent).join(" "));
 
 // ---- colour by kind ----
 const edge = i => blocks()[i].style.borderLeftColor;
