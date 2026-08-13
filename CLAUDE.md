@@ -108,11 +108,16 @@ the explanation instead.
 
 The editor works at session level. A user-made program is simply a plan with
 one session; copying a single day out of a plan produces exactly that, an
-ordinary program with no link back. Blocks are added, removed and moved up or
-down; a step's `list` is typed one line to a line and disappears when it is
-emptied, which turns the step back into a plain one. Editing a session *inside*
-a copied plan uses the same editor, but `editing.planId` sends the result back
-into the plan instead of into the program list.
+ordinary program with no link back. Blocks are added, removed, duplicated and
+moved up or down; a step's `list` is typed one line to a line and disappears
+when it is emptied, which turns the step back into a plain one. Every duration
+carries a row of chips (`WORK_SECS`, `REST_SECS`) beside its two boxes, a block
+wears `colorOf()` its kind down its left edge, and `miniTimeline()` draws the
+session under the total as it is built. `START_FROM` is the honest version of
+the blocks that used to be written in unasked: three shapes, offered only while
+the session is empty. Editing a session *inside* a copied plan uses the same
+editor, but `editing.planId` sends the result back into the plan instead of
+into the program list.
 
 `BUILTIN_PROGRAMS` are single sessions with no schedule around them. A step
 may carry a `list` of strings – movements to work through, as on a gym
@@ -201,6 +206,13 @@ sends afterwards; the flag is cleared on the next `pointerdown`.
 a day of a plan, a built-in workout, one of your own – opens the sheet, and
 Start is a second, deliberate tap. Your own sessions used to start under the
 thumb, which meant there was no way to look at one without editing it.
+
+**The editor asks before it throws work away.** Everywhere else a delete
+happens and `offerUndo()` covers it; leaving the editor cannot be undone once
+the screen is gone, so `cancelEdit()` compares against `editing.opened` – the
+state as the editor opened – and asks only when something really changed. A
+session will not save without a name either: "Untitled session" was a name
+nobody chose and nobody could find again.
 
 **A long press is never the only way to do something.** Holding a day is a
 shortcut into select mode, which the header button also opens; holding a

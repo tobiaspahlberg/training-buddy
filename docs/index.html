@@ -337,6 +337,19 @@
   .mv svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;
     stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
   .mv[disabled]{opacity:.25}
+  /* A block carries the colour of what it is, down its left edge. */
+  .block.tinted{border-left-width:6px;border-left-style:solid}
+  /* The lengths worth a tap rather than two numbers typed in. */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 4px}
+  .chip{background:var(--surface-2);border:1px solid var(--line);border-radius:999px;
+    color:var(--dim);font-family:inherit;font-size:13.5px;font-weight:600;
+    padding:7px 12px;cursor:pointer}
+  .chip.on{background:var(--run);border-color:var(--run);color:#08120C}
+  .chip.wide{padding:11px 14px;font-size:14.5px;color:var(--text)}
+  #edit-start{margin-top:16px}
+  /* The session as it stands, drawn the way the cards draw one. */
+  .preview{margin-top:14px;height:14px;border-radius:7px;overflow:hidden}
+  .preview .mini{height:14px;margin:0}
 
   /* ---- Undo ----
      Sits above the thumb, says what went, and takes itself away. */
@@ -510,9 +523,12 @@
       <button class="btn ghost" onclick="addBlock('repeat')">+ Interval<small>two, repeated</small></button>
       <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit<small>stations, round and round</small></button>
     </div>
+    <div id="edit-start"></div>
+    <div id="edit-preview"></div>
     <div class="ver" id="edit-total"></div>
+    <button class="btn" id="edit-save-foot" onclick="saveProgram()">Save session</button>
     <button class="btn danger" id="edit-delete" onclick="deleteProgram()"
-      style="display:none">Delete session</button>
+      style="display:none;margin-top:10px">Delete session</button>
   </div>
 </div>
 
@@ -633,6 +649,19 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.22.0",
+    "date": "2026-08-12",
+    "changes": [
+      "Duplicate a block: five similar steps no longer mean typing five similar steps",
+      "Quick lengths under every duration - 20s, 30s, 45s, 1m, 2m, 5m and so on - so most of a session can be built without the keyboard",
+      "Every block wears the colour of what it is, and the session is drawn as a coloured bar under the editor as you build it",
+      "An empty session can start from a shape: run/walk intervals, warm-up + work + cool-down, or a circuit",
+      "Save sits at the foot of the editor as well as in the corner",
+      "A session will not save without a name, instead of quietly calling itself Untitled session",
+      "Backing out of the editor with unsaved changes now asks first"
+    ]
+  },
   {
     "version": "0.21.1",
     "date": "2026-08-12",
@@ -972,7 +1001,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.21.1";
+const APP_VERSION = "0.22.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3672,6 +3701,7 @@ function openEditor(title){
   document.getElementById("edit-delete").style.display =
     editing.isNew || editing.planId ? "none" : "block";
   renderBlocks();
+  editing.opened = editorState();
   showScreen("editor");
 }
 
@@ -3693,16 +3723,43 @@ function kindSelect(path){
     "</select>";
 }
 
-/* The head of a block: what it is, and the three things that can be done to
+/* The head of a block: what it is, and the four things that can be done to
    the block as a whole. The arrows are how a session is put in order – there
-   is no dragging, which on a phone fights with the scroll. */
+   is no dragging, which on a phone fights with the scroll. Duplicate is there
+   because five similar steps used to mean typing five similar steps. */
 function blockHead(label, i, last){
   return '<div class="block-head"><b>' + label + "</b>" +
     '<button class="mv" onclick="moveBlock(' + i + ',-1)" title="Move up"' +
       (i === 0 ? " disabled" : "") + ">" + ICON.up + "</button>" +
     '<button class="mv" onclick="moveBlock(' + i + ',1)" title="Move down"' +
       (last ? " disabled" : "") + ">" + ICON.down + "</button>" +
+    '<button class="mv" onclick="copyBlock(' + i + ')" title="Duplicate">' + ICON.copy + "</button>" +
     '<button class="del" onclick="removeBlock(' + i + ')">Remove</button></div>';
+}
+
+/* The lengths people actually reach for, so that most of a session can be
+   built without the keyboard coming up at all. The two boxes stay for
+   everything that is not one of these. */
+const WORK_SECS = [20, 30, 45, 60, 90, 120, 300, 600];
+const REST_SECS = [10, 15, 20, 30, 45, 60, 90];
+
+function secLabel(v){
+  if(v < 60) return v + "s";
+  return (v % 60) ? Math.floor(v / 60) + "m " + (v % 60) + "s" : (v / 60) + "m";
+}
+
+/* `where` is how the block holds this duration: a key on the block itself,
+   or one of the two sides of an interval. */
+function chipRow(i, where, sec, rest){
+  return '<div class="chips">' + (rest ? REST_SECS : WORK_SECS).map(v =>
+    '<button class="chip' + (v === sec ? " on" : "") + '" onclick="pickSec(' + i +
+      ",'" + where + "'," + v + ')">' + secLabel(v) + "</button>").join("") + "</div>";
+}
+
+function pickSec(i, where, v){
+  const b = editing.blocks[i];
+  if(where === "a" || where === "b") b[where].sec = v; else b[where] = v;
+  renderBlocks();
 }
 
 /* Minutes and seconds for one named number on a block. */
@@ -3714,12 +3771,21 @@ function secFields(i, key){
       (sec % 60) + '" onchange="setSec(' + i + ',\'' + key + '\',\'s\',this.value)"></div>';
 }
 
+/* A block wears the colour of what it is: the same green, blue, pink and
+   amber the clock and the timeline use, so the shape of a session can be
+   seen while it is being built. */
+function blockColor(b){
+  if(b.type === "repeat") return colorOf(b.a.kind);
+  return colorOf(b.kind);
+}
+
 function renderBlocks(){
   const host = document.getElementById("edit-blocks");
   const end = editing.blocks.length - 1;
   host.innerHTML = editing.blocks.map((b, i) => {
+    const edge = ' style="border-left-color:' + blockColor(b) + '"';
     if(b.type === "repeat"){
-      return '<div class="block">' + blockHead("Interval", i, i === end) +
+      return '<div class="block tinted"' + edge + ">" + blockHead("Interval", i, i === end) +
         '<div class="field"><label>Repeats</label>' +
           '<input type="number" min="1" max="99" value="' + b.reps +
             '" onchange="setField(\'' + i + '.reps\',this.value)"></div>' +
@@ -3729,7 +3795,7 @@ function renderBlocks(){
     }
     if(b.type === "circuit"){
       const names = b.names || [];
-      return '<div class="block">' + blockHead("Circuit", i, i === end) +
+      return '<div class="block tinted"' + edge + ">" + blockHead("Circuit", i, i === end) +
         '<div class="field"><label>Rounds</label>' +
           '<input type="number" min="1" max="99" value="' + b.rounds +
             '" onchange="setField(\'' + i + '.rounds\',this.value)"></div>' +
@@ -3738,13 +3804,14 @@ function renderBlocks(){
             ',this.value)">' + esc(names.join("\n")) + "</textarea></div>" +
         '<div class="grid three">' + secFields(i, "workSec") +
           '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
-        "</div>" +
+        "</div>" + chipRow(i, "workSec", b.workSec) +
         '<div class="grid">' + secFields(i, "restSec") + "</div>" +
+        chipRow(i, "restSec", b.restSec, true) +
         '<div class="hint" style="padding:0">Rest between stations, and none after ' +
           "the last one.</div>" +
       "</div>";
     }
-    return '<div class="block">' + blockHead("Step", i, i === end) +
+    return '<div class="block tinted"' + edge + ">" + blockHead("Step", i, i === end) +
       '<div class="field"><label>Name</label>' +
         '<input value="' + esc(b.text) + '" onchange="setField(\'' + i + '.text\',this.value)"></div>' +
       /* A work list has no timing of its own – it is the movements to get
@@ -3757,7 +3824,7 @@ function renderBlocks(){
           ',\'\',true)">+ Work list</button>') +
       '<div class="grid three">' + secFields(i, "sec") +
         '<div class="field"><label>Type</label>' + kindSelect(i + ".kind") + "</div>" +
-      "</div>" +
+      "</div>" + chipRow(i, "sec", b.sec) +
     "</div>";
   }).join("");
 
@@ -3768,8 +3835,52 @@ function renderBlocks(){
     else sels[0].value = b.kind || "lift";
   });
 
+  /* An empty session is offered a shape to start from, in the open, rather
+     than having one written into it before anybody asked. */
+  document.getElementById("edit-start").innerHTML = editing.blocks.length ? "" :
+    '<div class="section-title">Or start from</div><div class="chips">' +
+    START_FROM.map((t, i) => '<button class="chip wide" onclick="useTemplate(' + i + ')">' +
+      esc(t.name) + "</button>").join("") + "</div>";
+
+  /* The same drawing the cards use, of the session as it stands: warm-up,
+     work and cool-down in proportion, so a mistake shows before it is run. */
+  document.getElementById("edit-preview").innerHTML = editing.blocks.length
+    ? '<div class="preview">' + miniTimeline(editing.blocks, 100) + "</div>"
+    : "";
+
+  /* There is nothing to save until there is something in it, and a button
+     that can only produce a complaint is not worth the room. */
+  document.getElementById("edit-save-foot").style.display =
+    editing.blocks.length ? "block" : "none";
+
   document.getElementById("edit-total").textContent =
     "Total " + fmtLong(totalSec(editing.blocks)) + " – " + flatten(editing.blocks).length + " steps";
+}
+
+/* Three shapes that cover most of what people build. Each is only a starting
+   point: it fills the session in and is then edited like anything else. */
+const START_FROM = [
+  { name:"Run / walk intervals", blocks:[
+    { type:"step", text:"Warm-up walk", kind:"warm", sec:300 },
+    { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
+                             b:{ text:"Walk", kind:"walk", sec:60 } },
+    { type:"step", text:"Cool-down walk", kind:"warm", sec:300 }
+  ] },
+  { name:"Warm-up, work, cool-down", blocks:[
+    { type:"step", text:"Warm-up", kind:"warm", sec:300 },
+    { type:"step", text:"Work", kind:"run", sec:1200 },
+    { type:"step", text:"Cool-down", kind:"warm", sec:300 }
+  ] },
+  { name:"Circuit", blocks:[
+    { type:"step", text:"Warm-up", kind:"warm", sec:300 },
+    { type:"circuit", rounds:3, workSec:40, restSec:20, kind:"lift",
+      names:["Station 1", "Station 2", "Station 3"] }
+  ] }
+];
+
+function useTemplate(i){
+  editing.blocks = clone(START_FROM[i].blocks);
+  renderBlocks();
 }
 
 function sideEditor(i, side, s, label){
@@ -3781,7 +3892,7 @@ function sideEditor(i, side, s, label){
       '<div class="field"><label>Sec</label><input type="number" min="0" max="59" value="' +
         (s.sec % 60) + '" onchange="setDur(' + i + ',\'' + side + '\',\'s\',this.value)"></div>' +
       '<div class="field"><label>Type</label>' + kindSelect(i + "." + side + ".kind") + "</div>" +
-    "</div>";
+    "</div>" + chipRow(i, side, s.sec, side === "b");
 }
 
 function setField(path, value){
@@ -3826,6 +3937,13 @@ function setList(i, text, open){
   renderBlocks();
 }
 
+/* One block, twice. It lands directly under the one it came from, which is
+   where the eye is and where the next one usually belongs. */
+function copyBlock(i){
+  editing.blocks.splice(i + 1, 0, clone(editing.blocks[i]));
+  renderBlocks();
+}
+
 function moveBlock(i, dir){
   const to = i + dir;
   if(to < 0 || to >= editing.blocks.length) return;
@@ -3862,7 +3980,17 @@ function removeBlock(i){
 }
 
 function saveProgram(){
-  editing.name = document.getElementById("edit-name").value.trim() || "Untitled session";
+  /* It used to save itself as "Untitled session", which is a name nobody
+     chose and nobody can find again in a list of them. */
+  const name = document.getElementById("edit-name").value.trim();
+  if(!name){
+    dialog("It needs a name", "Give the session a name, so you can find it again.", "OK", () => {
+      closeDialog();
+      document.getElementById("edit-name").focus();
+    });
+    return;
+  }
+  editing.name = name;
   if(!editing.blocks.length){ dialog("Nothing to save", "Add at least one step first.", "OK", closeDialog); return; }
 
   if(editing.planId){
@@ -3890,7 +4018,33 @@ function saveProgram(){
   openCategory(currentCategory);
 }
 
+/* What the session looked like when the editor opened, so that backing out
+   can tell "I changed my mind" from "I have been typing for five minutes".
+   The app does not ask before a delete, because undo covers it; here there
+   is nothing to undo once the screen is gone, so it asks. */
+function editorState(){
+  if(!editing) return "";
+  return JSON.stringify({
+    name: document.getElementById("edit-name").value.trim(),
+    category: document.getElementById("edit-category").value,
+    blocks: editing.blocks
+  });
+}
+
+function editorChanged(){ return !!editing && editorState() !== editing.opened; }
+
 function cancelEdit(){
+  if(editorChanged()){
+    dialog("Leave without saving?", "What you have typed will not be kept.", "Leave", () => {
+      closeDialog();
+      leaveEditor();
+    });
+    return;
+  }
+  leaveEditor();
+}
+
+function leaveEditor(){
   const planId = editing && editing.planId;
   editing = null;
   if(planId) openPlan(planId); else goHomeish();
