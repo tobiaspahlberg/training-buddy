@@ -406,6 +406,7 @@
   <div class="scroll">
     <div id="update-slot"></div>
     <div id="resume-slot"></div>
+    <div id="recent-slot"></div>
     <div class="section-title">Categories</div>
     <div id="cat-list"></div>
     <div id="history-slot"></div>
@@ -657,6 +658,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.24.0",
+    "date": "2026-08-12",
+    "changes": [
+      "Recent: the last three sessions you finished sit at the top of the home screen, one tap from starting again",
+      "They open the same details sheet as anywhere else, and leave you standing in the category they live in"
+    ]
+  },
   {
     "version": "0.23.0",
     "date": "2026-08-12",
@@ -1049,7 +1058,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.23.0";
+const APP_VERSION = "0.24.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -2169,6 +2178,7 @@ function renderHome(){
       "</p></div>"
     : "";
 
+  renderRecentSlot();
   renderBackupSlot();
   document.getElementById("ver-line").textContent = "Version " + APP_VERSION;
 }
@@ -2409,6 +2419,76 @@ const HISTORY_MAX = 200;
 function openHistory(){
   renderHistory();
   showScreen("history");
+}
+
+/* =====================================================================
+   RECENT
+
+   Most weeks are the same few sessions over again, and finding one of them
+   meant a category, a card and a sheet every time. The history already
+   knows which they are, so the last few sit at the top of home - the ones
+   you actually run, rather than the ones somebody filed neatly.
+
+   A finished session remembers only its id, so what it points at has to be
+   found again: one of yours, a built-in workout, or a day of a plan, whose
+   id carries the plan and the day inside it. Anything that no longer
+   resolves has been deleted since, and a row that opens nothing is worse
+   than no row.
+   ===================================================================== */
+
+const RECENT_MAX = 3;
+
+function recentTarget(id){
+  if(programs.some(p => p.id === id)) return { open:"own", id:id };
+  if(BUILTIN_PROGRAMS.some(p => p.id === id)) return { open:"wod", id:id };
+  const m = /^(.+):w(\d+)d(\d+)$/.exec(String(id));
+  if(m && findPlan(m[1]))
+    return { open:"day", planId:m[1], weekN:+m[2], dayIndex:+m[3] };
+  return null;
+}
+
+/* Each session once, however many times it has been run. */
+function recentDone(){
+  const seen = {}, out = [];
+  for(const h of history){
+    if(seen[h.id]) continue;
+    seen[h.id] = true;
+    const target = recentTarget(h.id);
+    if(!target) continue;
+    out.push({ h: h, target: target });
+    if(out.length >= RECENT_MAX) break;
+  }
+  return out;
+}
+
+function renderRecentSlot(){
+  const rows = recentDone();
+  document.getElementById("recent-slot").innerHTML = rows.length
+    ? '<div class="section-title">Recent</div>' + rows.map(r =>
+        '<div class="hit" data-recent="' + esc(r.h.id) + '">' +
+          '<i style="background:' + historyColour(r.h) + '"></i>' +
+          "<div><b>" + esc(r.h.name) + "</b><small>" +
+            esc((r.h.planName ? r.h.planName + " · " : "") +
+                dayName(r.h.at) + " · " + fmtLong(r.h.sec)) +
+          "</small></div></div>").join("")
+    : "";
+}
+
+/* It opens the same sheet the category would have, and leaves you standing
+   in the category it lives in, so back goes somewhere sensible. */
+function openRecent(id){
+  const t = recentTarget(id);
+  if(!t) return;
+  if(t.open === "day"){
+    const plan = findPlan(t.planId);
+    currentCategory = categoryOf(plan);
+    openPlan(t.planId);
+    openDay(t.weekN, t.dayIndex);
+    return;
+  }
+  const item = (t.open === "own" ? programs : BUILTIN_PROGRAMS).find(p => p.id === id);
+  currentCategory = categoryOf(item);
+  if(t.open === "own") openOwn(id); else openProgram(id);
 }
 
 /* A finished session remembers only what it was called, so the colour is
@@ -4448,6 +4528,11 @@ document.getElementById("search-input").addEventListener("input", renderSearch);
 document.getElementById("search-body").addEventListener("click", e => {
   const row = e.target.closest("[data-hit]");
   if(row) openHit(row);
+});
+
+document.getElementById("recent-slot").addEventListener("click", e => {
+  const row = e.target.closest("[data-recent]");
+  if(row) openRecent(row.dataset.recent);
 });
 
 renderChangelog();

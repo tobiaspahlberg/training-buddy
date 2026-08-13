@@ -115,7 +115,7 @@ when it is emptied, which turns the step back into a plain one. Every duration
 carries a row of chips (`WORK_SECS`, `REST_SECS`) beside its two boxes, a block
 wears `colorOf()` its kind down its left edge, and `miniTimeline()` draws the
 session under the total as it is built. `START_FROM` is the honest version of
-the blocks that used to be written in unasked: three shapes, offered only while
+the blocks that used to be written in unasked: two shapes, offered only while
 the session is empty. Editing a session *inside* a copied plan uses the same
 editor, but `editing.planId` sends the result back into the plan instead of
 into the program list.
@@ -124,6 +124,13 @@ into the program list.
 may carry a `list` of strings – movements to work through, as on a gym
 whiteboard. The list has no timing, so it is never timed – only shown, in the
 sheet and on the run screen, and typed as lines in the editor.
+
+**Recent** is the first thing on home: the last `RECENT_MAX` sessions actually
+finished, each once however often it has been run. A history entry holds only
+an id, so `recentTarget()` works out what it points at – one of yours, a
+built-in workout, or a day of a plan, whose id carries the plan and the day
+inside it – and a row whose target no longer resolves is not drawn, because it
+would open nothing.
 
 **Done** means two different things, deliberately. `progress` holds the day a
 session was last finished. For a day of a plan that is final: it is done and

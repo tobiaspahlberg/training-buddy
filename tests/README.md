@@ -27,12 +27,16 @@ node lead.js    # one of them, with its output in full
 | `colour`, `size`, `sheet`, `kinds` | how things are drawn, and where a session opens from |
 | `voices`, `latevoice`, `note` | speech engines, the voice picker, the ongoing notification |
 | `search`, `update`, `backup`, `editor` | search, the update check, backup and restore, the editor |
+| `cats`, `recent` | the categories and the old names they replace, and what is on home |
 
 `shot.js` is not a suite. It walks the app to a screen and writes the page out
-as HTML, so a real browser can take a picture of a screen jsdom cannot draw:
+as HTML, so a real browser can take a picture of a screen jsdom cannot draw.
+Whatever the walk leaves in `localStorage` is written into the page ahead of the
+app, because the page starts itself again when the browser opens it – without
+that, anything drawn from storage is drawn a second time from an empty phone:
 
 ```bash
-node shot.js 'openCategory("Training"); newProgram("Training");' /tmp/x.html
+node shot.js 'openCategory("cardio"); newProgram("cardio");' /tmp/x.html
 chromium --headless=new --window-size=500,1200 --screenshot=/tmp/x.png file:///tmp/x.html
 ```
 
