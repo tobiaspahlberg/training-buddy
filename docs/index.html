@@ -328,7 +328,10 @@
      underneath what it is, which is where the difference between a step, an
      interval and a circuit is learned. */
   .addrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-  .addrow .btn{padding:12px 6px;font-size:15px;line-height:1.25}
+  /* margin-top:0 is not a nicety: .btn+.btn stacks buttons down a screen with
+     a gap, and inside a grid that pushed the second and third cell down and
+     left the first one standing taller than its neighbours. */
+  .addrow .btn{margin-top:0;padding:12px 6px;font-size:15px;line-height:1.25}
   .addrow small{display:block;font-size:11px;font-weight:500;color:var(--dim);
     margin-top:4px;letter-spacing:0}
   /* Up and down, big enough for a thumb, quiet enough to stay out of the way. */
@@ -514,14 +517,14 @@
     </div>
     <div class="field" id="edit-cat-field">
       <label>Category</label>
-      <select id="edit-category"></select>
+      <select id="edit-category" onchange="nameHint()"></select>
     </div>
     <div class="section-title">Blocks</div>
     <div id="edit-blocks"></div>
     <div class="addrow">
       <button class="btn ghost" onclick="addBlock('step')">+ Step<small>one timed thing</small></button>
       <button class="btn ghost" onclick="addBlock('repeat')">+ Interval<small>two, repeated</small></button>
-      <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit<small>stations, round and round</small></button>
+      <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit<small>many, in rounds</small></button>
     </div>
     <div id="edit-start"></div>
     <div id="edit-preview"></div>
@@ -649,6 +652,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.22.1",
+    "date": "2026-08-12",
+    "changes": [
+      "Fixed: the Step button stood taller than Interval and Circuit beside it",
+      "The example name in a new session now suits the category it is being made in, instead of suggesting a rehab session whatever you are building"
+    ]
+  },
   {
     "version": "0.22.0",
     "date": "2026-08-12",
@@ -1001,7 +1012,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.22.0";
+const APP_VERSION = "0.22.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3689,12 +3700,29 @@ function editProgram(id){
   openEditor("Edit session");
 }
 
+/* The example in the empty name field. "Achilles week 3" is a rehab session
+   and reads as nonsense while making a circuit, so each category suggests
+   something it might plausibly hold. */
+const NAME_HINT = {
+  Training: "e.g. Tuesday intervals",
+  Rehab:    "e.g. Achilles week 3",
+  Strength: "e.g. Legs and core",
+  Mobility: "e.g. Morning stretch",
+  Other:    "e.g. Saturday session"
+};
+
+function nameHint(){
+  const c = document.getElementById("edit-category").value;
+  document.getElementById("edit-name").placeholder = NAME_HINT[c] || NAME_HINT.Training;
+}
+
 function openEditor(title){
   document.getElementById("editor-title").textContent = title;
   document.getElementById("edit-name").value = editing.name;
   const cat = document.getElementById("edit-category");
   cat.innerHTML = CATEGORIES.map(c => "<option>" + c + "</option>").join("");
   cat.value = categoryOf(editing);
+  nameHint();
   /* A session inside a plan takes its category from the plan, and is deleted
      with the plan, so neither control belongs here. */
   document.getElementById("edit-cat-field").style.display = editing.planId ? "none" : "block";

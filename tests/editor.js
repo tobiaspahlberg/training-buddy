@@ -24,7 +24,7 @@ ok($("edit-total").textContent === "Total 0 min – 0 steps",
 const adders = [...d.querySelectorAll(".addrow .btn")];
 ok(adders.length === 3, "three ways to add a block");
 ok(adders.map(b => b.querySelector("small").textContent).join(" / ") ===
-   "one timed thing / two, repeated / stations, round and round",
+   "one timed thing / two, repeated / many, in rounds",
    "each explained: " + adders.map(b => b.querySelector("small").textContent).join(" / "));
 
 tap(adders[0]); tap(adders[1]); tap(adders[0]);
@@ -263,3 +263,29 @@ w.cancelEdit();
 ok($("dlg-title").textContent === "Leave without saving?", "so does a name nobody saved");
 $("dlg-ok").onclick();
 ok(ev("programs[2].name") === "Made by hand", "which is also not kept: " + ev("programs[2].name"));
+
+// =====================================================================
+// The three add buttons, and the example name
+// =====================================================================
+/* jsdom has no layout engine, so an equal height cannot be measured here.
+   What can be checked is the rule that made them unequal: .btn+.btn stacks
+   buttons down a screen with a gap, which inside a grid pushed the second
+   and third cell down and left the first standing taller. */
+const css = fs.readFileSync(require("path").join(__dirname, "..", "docs", "index.html"), "utf8")
+  .match(/\.addrow \.btn\{([^}]*)\}/)[1];
+ok(/margin-top:0/.test(css), "the add buttons cancel the stacking margin: " + css);
+ok(adders.every(b => b.querySelector("small").textContent.length <= 16),
+   "and none of the labels is long enough to wrap: " +
+   adders.map(b => b.querySelector("small").textContent).join(" / "));
+
+w.newProgram("Rehab");
+ok($("edit-name").placeholder === "e.g. Achilles week 3",
+   "a rehab session suggests a rehab name: " + $("edit-name").placeholder);
+$("edit-category").value = "Strength";
+w.nameHint();
+ok($("edit-name").placeholder === "e.g. Legs and core",
+   "changing the category changes the suggestion: " + $("edit-name").placeholder);
+w.newProgram("Mobility");
+ok($("edit-name").placeholder === "e.g. Morning stretch",
+   "and it is set when the editor opens: " + $("edit-name").placeholder);
+ev("editing = null;");
