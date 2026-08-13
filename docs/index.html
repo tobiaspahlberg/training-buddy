@@ -324,6 +324,13 @@
   .grid.three{grid-template-columns:1fr 1fr 1fr}
   .del{background:none;border:none;color:var(--stop);font-size:13px;font-weight:600;
     cursor:pointer;font-family:inherit;padding:4px}
+  /* The three ways to add a block, side by side and the same size. Each says
+     underneath what it is, which is where the difference between a step, an
+     interval and a circuit is learned. */
+  .addrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .addrow .btn{padding:12px 6px;font-size:15px;line-height:1.25}
+  .addrow small{display:block;font-size:11px;font-weight:500;color:var(--dim);
+    margin-top:4px;letter-spacing:0}
   /* Up and down, big enough for a thumb, quiet enough to stay out of the way. */
   .mv{background:none;border:1px solid var(--line);border-radius:9px;padding:5px;
     cursor:pointer;color:var(--dim);display:flex}
@@ -498,10 +505,10 @@
     </div>
     <div class="section-title">Blocks</div>
     <div id="edit-blocks"></div>
-    <div class="row">
-      <button class="btn ghost" onclick="addBlock('step')">+ Step</button>
-      <button class="btn ghost" onclick="addBlock('repeat')">+ Interval</button>
-      <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit</button>
+    <div class="addrow">
+      <button class="btn ghost" onclick="addBlock('step')">+ Step<small>one timed thing</small></button>
+      <button class="btn ghost" onclick="addBlock('repeat')">+ Interval<small>two, repeated</small></button>
+      <button class="btn ghost" onclick="addBlock('circuit')">+ Circuit<small>stations, round and round</small></button>
     </div>
     <div class="ver" id="edit-total"></div>
     <button class="btn danger" id="edit-delete" onclick="deleteProgram()"
@@ -626,6 +633,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.21.1",
+    "date": "2026-08-12",
+    "changes": [
+      "A new session starts empty instead of with a warm-up, six intervals and a cool-down already written in it",
+      "The three ways to add a block sit side by side and each says what it is: a step is one timed thing, an interval is two repeated, a circuit is stations round and round"
+    ]
+  },
   {
     "version": "0.21.0",
     "date": "2026-08-12",
@@ -957,7 +972,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.21.0";
+const APP_VERSION = "0.21.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3622,17 +3637,16 @@ window.addEventListener("pagehide", persist);
 
 let editing = null;
 
+/* A new session starts empty. It used to open with a warm-up, six intervals
+   and a cool-down already in it, which is somebody else's session: everybody
+   who wanted something different had to delete three blocks before they could
+   begin, and it read as though the app had decided for them. */
 function newProgram(category){
   editing = {
     id: "p" + Date.now(),
     name: "",
     category: category || DEFAULT_CATEGORY,
-    blocks: [
-      { type:"step", text:"Warm-up walk", kind:"warm", sec:600 },
-      { type:"repeat", reps:6, a:{ text:"Run", kind:"run", sec:120 },
-                               b:{ text:"Walk", kind:"walk", sec:30 } },
-      { type:"step", text:"Cool-down walk", kind:"warm", sec:600 }
-    ],
+    blocks: [],
     isNew: true
   };
   openEditor("New session");

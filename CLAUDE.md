@@ -101,6 +101,11 @@ The UI calls a user-made program a **session**, which is what it is; the code
 still says `programs`, because `session` is taken by the one the clock is
 running, and `tb.programs` is what is on people's phones.
 
+A new session starts **empty**. It used to open with a warm-up, six intervals
+and a cool-down in it, which is somebody else's session: everyone who wanted
+something else had to delete three blocks first. The three add buttons carry
+the explanation instead.
+
 The editor works at session level. A user-made program is simply a plan with
 one session; copying a single day out of a plan produces exactly that, an
 ordinary program with no link back. Blocks are added, removed and moved up or
