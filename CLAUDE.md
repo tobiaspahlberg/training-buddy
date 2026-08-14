@@ -88,7 +88,12 @@ gives one interval for the whole week and only the repeats per day, which
 how a plan says which. Only `isSession()` days have a clock to run; the rest
 are ticked off and no more, and they are not counted in "3 of 18 done".
 `runDays` is every day that carries something, not only the days with running
-in them – the name is older than the idea, and stored copies use it.
+in them – the name is older than the idea, and stored copies use it. An
+`otherDays` entry may carry a `sessionId`: the strength days of Return to Run
+name Strength for Runners, which `otherSession()` looks up, so the day opens
+and runs that workout – under the day's own key, so finishing it ticks the day
+off in the calendar. Such a day is still not an `isSession()` day and is not
+counted in "3 of 18 done", which counts what the plan itself times.
 
 `planSession(plan, week, dayIndex)` is the one door into a plan's sessions.
 A built-in plan generates them from `runSec`/`walkSec`/`reps`; a **copied

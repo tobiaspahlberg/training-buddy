@@ -659,6 +659,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.25.0",
+    "date": "2026-08-13",
+    "changes": [
+      "The strength days of Return to Run open Strength for Runners, which is the session they mean, and run it against that day - finishing it ticks the day off in the calendar",
+      "Those days now show how long they are in the calendar, like every other day with a clock"
+    ]
+  },
+  {
     "version": "0.24.1",
     "date": "2026-08-13",
     "changes": [
@@ -1065,7 +1073,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.24.1";
+const APP_VERSION = "0.25.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1085,10 +1093,15 @@ const SPARK_RTR = {
   warmupSec: 600,
   cooldownSec: 600,
   runDays: ["Tuesday", "Thursday", "Saturday"],
+  /* The strength days are not a vague instruction: they are the session this
+     same coach films for them, which the app already carries. Naming it here
+     is what lets the day be opened and run rather than only ticked off. */
   otherDays: [
-    { day: "Monday",    label: "Strength Training" },
+    { day: "Monday",    label: "Strength Training",
+      sessionId: "rehab-strength-for-runners" },
     { day: "Wednesday", label: "Rest & Recovery" },
-    { day: "Friday",    label: "Strength Training" },
+    { day: "Friday",    label: "Strength Training",
+      sessionId: "rehab-strength-for-runners" },
     { day: "Sunday",    label: "Rest & Recovery" }
   ],
   /* runSec / walkSec are one interval, reps are Tuesday, Thursday, Saturday */
@@ -2477,6 +2490,11 @@ function recentTarget(id){
   const m = /^(.+):w(\d+)d(\d+)$/.exec(String(id));
   if(m && findPlan(m[1]))
     return { open:"day", planId:m[1], weekN:+m[2], dayIndex:+m[3] };
+  /* A day the plan does not time itself, but which names a session: the
+     second colon is what tells the two apart. */
+  const o = /^(.+):w(\d+):(.+)$/.exec(String(id));
+  if(o && findPlan(o[1]))
+    return { open:"other", planId:o[1], weekN:+o[2], day:o[3] };
   return null;
 }
 
@@ -2512,11 +2530,12 @@ function renderRecentSlot(){
 function openRecent(id){
   const t = recentTarget(id);
   if(!t) return;
-  if(t.open === "day"){
+  if(t.open === "day" || t.open === "other"){
     const plan = findPlan(t.planId);
     currentCategory = categoryOf(plan);
     openPlan(t.planId);
-    openDay(t.weekN, t.dayIndex);
+    if(t.open === "day") openDay(t.weekN, t.dayIndex);
+    else openOther(t.weekN, t.day);
     return;
   }
   const item = (t.open === "own" ? programs : BUILTIN_PROGRAMS).find(p => p.id === id);
@@ -2634,6 +2653,14 @@ const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sun
    so strength days can be ticked off as well. */
 function otherKey(planId, weekN, day){ return planId + ":w" + weekN + ":" + day; }
 
+/* A day the plan does not time itself can still name a session the app has:
+   the strength days of Return to Run are Strength for Runners. */
+function otherSession(other){
+  return other && other.sessionId
+    ? BUILTIN_PROGRAMS.find(p => p.id === other.sessionId) || null
+    : null;
+}
+
 /* Cells carry their identity in data attributes instead of an onclick, so the
    same element can answer to a tap and to a long press. Both are handled once,
    on the container, further down. */
@@ -2648,9 +2675,12 @@ function renderPlan(plan){
       const other = plan.otherDays.find(o => o.day === day);
       if(!(other && /strength/i.test(other.label))) return '<div class="cell off">Rest</div>';
       const key = otherKey(plan.id, w.n, day);
+      const workout = otherSession(plan.otherDays.find(o => o.day === day));
       return '<div class="cell str' + (progress[key] ? " done" : "") +
         (selected[key] ? " sel" : "") + '" data-sel="' + key +
-        '" data-w="' + w.n + '" data-day="' + day + '"><b>Str</b></div>';
+        '" data-w="' + w.n + '" data-day="' + day + '"><b>Str</b>' +
+        (workout ? "<span>" + Math.round(totalSec(workout.blocks) / 60) + " min</span>" : "") +
+        "</div>";
     }).join("");
     return '<div class="cal-row"><span class="wk' + (selectMode ? " pick" : "") +
       '" data-week="' + w.n + '">W' + w.n + "</span>" + cells + "</div>";
@@ -3006,9 +3036,23 @@ function openOther(weekN, day){
   const plan = findPlan(openPlanId);
   const other = plan.otherDays.find(o => o.day === day);
   if(selectMode) return toggleSelect(otherKey(plan.id, weekN, day));
-  sheetTarget = { kind:"other", planId:plan.id, weekN, day, id:otherKey(plan.id, weekN, day) };
+  const workout = otherSession(other);
+  sheetTarget = { kind:"other", planId:plan.id, weekN, day,
+                  id:otherKey(plan.id, weekN, day),
+                  sessionId: workout ? workout.id : "" };
 
   document.getElementById("sheet-title").textContent = "Week " + weekN + " – " + day;
+
+  /* A day that names a session opens as that session, and runs under this
+     day's own key, so finishing it ticks the day off in the calendar. */
+  if(workout){
+    sheetWhen(workout.name + " – " + fmtLong(totalSec(workout.blocks)) + " in total",
+              workout.video);
+    document.getElementById("sheet-steps").innerHTML = blockRows(workout.blocks);
+    showSheet({ start:true, mark:true });
+    return;
+  }
+
   sheetWhen(plan.name + " – " + other.label);
   document.getElementById("sheet-steps").innerHTML =
     "<div><span>" + esc(other.label) + "</span><span>not timed</span></div>";
@@ -3089,6 +3133,14 @@ function toggleDone(){
 function startFromSheet(){
   const t = sheetTarget;
   closeSheet();
+  if(t.kind === "other"){
+    const workout = BUILTIN_PROGRAMS.find(p => p.id === t.sessionId);
+    const plan = findPlan(t.planId);
+    if(workout) begin({ id:t.id, name:workout.name,
+                        planName:(plan && (plan.short || plan.name)) || "",
+                        blocks:workout.blocks });
+    return;
+  }
   if(t.kind === "own"){ startSession(t.programId); return; }
   if(t.kind === "program"){
     begin(BUILTIN_PROGRAMS.find(p => p.id === t.programId));

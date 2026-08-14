@@ -55,3 +55,59 @@ const all = JSON.parse(ev(`JSON.stringify(BUILTIN_PROGRAMS.filter(p => p.video).
 ok(all.length === 2, "two sessions carry a video: " + all.length);
 ok(all.every(u => /^https:\/\/youtu\.be\/[\w-]+$/.test(u)), "both plain links: " + all.join(" "));
 ok(new Set(all).size === 2, "and they are not the same link twice");
+
+// =====================================================================
+// The strength days of Return to Run are this session
+// =====================================================================
+w.openPlan("spark-rtr-phase1");
+const strCells = [...$("plan-weeks").querySelectorAll(".cell.str")];
+ok(strCells.length === 12, "two a week for six weeks: " + strCells.length);
+ok(strCells[0].textContent === "Str24 min",
+   "and the cell says how long it is, like every other day with a clock: " +
+   strCells[0].textContent);
+
+// tapping one opens the workout, not a line of text
+const tap = el => { el.dispatchEvent(new w.MouseEvent("pointerdown",{bubbles:true}));
+                    el.dispatchEvent(new w.MouseEvent("click",{bubbles:true})); };
+tap(strCells[0]);
+ok($("sheet-title").textContent === "Week 1 – Monday", "the day is named: " + $("sheet-title").textContent);
+ok($("sheet-when").textContent.indexOf("Strength for Runners") === 0,
+   "and the session is: " + $("sheet-when").textContent);
+ok($("sheet-when").innerHTML.includes("youtu.be"), "with the video that goes with it");
+ok($("sheet-steps").textContent.indexOf("Fire hydrants") === 0,
+   "the steps are the workout's own: " + $("sheet-steps").textContent.slice(0, 40));
+ok($("sheet-start").style.display !== "none", "it can be started");
+ok($("sheet-mark").style.display !== "none", "or ticked off by hand, as before");
+
+// running it belongs to the day, not to the workout
+w.startFromSheet();
+ok(ev('session.id') === "spark-rtr-phase1:w1:Monday",
+   "it runs against the day, so the calendar knows: " + ev("session.id"));
+ok(ev("session.name") === "Strength for Runners", "under the workout's name");
+ok(ev("session.planName") === "Return to Run", "and the plan's");
+ev(`session.steps = [{text:"Go",kind:"lift",sec:1,start:0,end:1}]; setLead(0); mainButton();`);
+
+setTimeout(() => {
+  const ok2=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
+  ok2(d.querySelector(".screen.active").id === "done", "it finishes like anything else");
+  ok2(!!ev('progress["spark-rtr-phase1:w1:Monday"]'), "which ticks the day off in the plan");
+  w.leaveRun();
+  const cell = $("plan-weeks").querySelector(".cell.str");
+  ok2(cell.classList.contains("done"), "and the cell is marked in the calendar");
+
+  // and it can be reached again from Recent
+  w.showScreen("home"); w.renderHome();
+  const row = $("recent-slot").querySelector(".hit");
+  ok2(!!row && row.querySelector("b").textContent === "Strength for Runners",
+      "the finished strength day turns up in Recent");
+  tap(row);
+  ok2($("sheet-title").textContent === "Week 1 – Monday" &&
+      d.querySelector(".screen.active").id === "plan",
+      "and opens the same day of the plan again: " + $("sheet-title").textContent);
+
+  // a rest day is still only a rest day
+  w.closeSheet();
+  const wed = [...$("plan-weeks").querySelectorAll(".cell.off")];
+  ok2(wed.length === 12 && !wed[0].getAttribute("data-sel"),
+      "the rest days are untouched by any of this: " + wed.length);
+}, 1200);
