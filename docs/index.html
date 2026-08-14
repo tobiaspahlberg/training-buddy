@@ -659,6 +659,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.24.1",
+    "date": "2026-08-13",
+    "changes": [
+      "Sessions still filed under the old category names are moved to the new ones once, on the first start, instead of being translated on every read; restoring an older backup moves them too"
+    ]
+  },
+  {
     "version": "0.24.0",
     "date": "2026-08-12",
     "changes": [
@@ -1058,7 +1065,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.24.0";
+const APP_VERSION = "0.24.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -1885,8 +1892,10 @@ function restore(raw){
 function mergeBackup(data){
   const n = { programs:0, plans:0, days:0, history:0 };
 
+  /* Whatever the file calls its categories, what is stored is an id. */
   const put = (list, item) => {
     if(!item || !item.id) return false;
+    item.category = categoryOf(item);
     const at = list.findIndex(x => x.id === item.id);
     if(at >= 0) list[at] = item; else list.push(item);
     return true;
@@ -1984,8 +1993,15 @@ const CAT_LABEL = {
   other:    "Other"
 };
 
-/* What the app called them before. Training becomes Cross-functional
-   because that is what was actually in it. */
+/* What the app called them before ids existed, when the word on the screen
+   was also the word in storage. Training becomes Cross-functional, because
+   that is what was actually in it.
+
+   This is a removal van, not a permanent translation: everything it finds is
+   rewritten once, on the first start after the change and again on the way in
+   from a backup, so nothing keeps arriving in an old spelling. Nothing had
+   been released when the names changed, so the day no phone and no backup can
+   still say "Training", this map goes with them. */
 const CAT_WAS = {
   Training:"crossfn", Rehab:"rehab", Strength:"strength",
   Mobility:"mobility", Other:"other"
@@ -1998,6 +2014,23 @@ function categoryOf(item){
 }
 
 function catLabel(c){ return CAT_LABEL[c] || CAT_LABEL[DEFAULT_CATEGORY]; }
+
+/* Move whatever is still filed under an old name, and say how much moved so
+   that a test can tell "nothing to do" from "quietly did nothing". */
+function migrateCategories(list){
+  let moved = 0;
+  list.forEach(item => {
+    const c = categoryOf(item);
+    if(item.category !== c){ item.category = c; moved++; }
+  });
+  return moved;
+}
+
+function migrateStoredCategories(){
+  const moved = migrateCategories(programs) + migrateCategories(myPlans);
+  if(moved){ save(KEY_PROGRAMS, programs); save(KEY_MYPLANS, myPlans); }
+  return moved;
+}
 
 /* Drawn rather than written: a glyph from the system font sits differently on
    every phone, and these have to line up inside a 38 pixel button. */
@@ -4534,6 +4567,10 @@ document.getElementById("recent-slot").addEventListener("click", e => {
   const row = e.target.closest("[data-recent]");
   if(row) openRecent(row.dataset.recent);
 });
+
+/* Before anything is drawn: a session filed under a name the app no longer
+   uses is moved, once, rather than translated on every read for ever. */
+migrateStoredCategories();
 
 renderChangelog();
 renderHome();

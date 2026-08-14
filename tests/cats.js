@@ -69,8 +69,28 @@ ok(old.$("cat-body").textContent.includes("An old session of mine"),
    "a session saved as Training opens under Cross-functional");
 old.w.openCategory("rehab");
 ok(old.$("cat-body").textContent.includes("An old rehab session"), "and a rehab one stays put");
-ok(JSON.parse(old.w.localStorage.getItem("tb.programs"))[0].category === "Training",
-   "without anything being rewritten on the phone: the old word is read, not replaced");
+ok(JSON.parse(old.w.localStorage.getItem("tb.programs"))[0].category === "crossfn",
+   "and the phone is put right once, on that first start, rather than being " +
+   "translated on every read for ever: " +
+   JSON.parse(old.w.localStorage.getItem("tb.programs"))[0].category);
+ok(old.ev("migrateStoredCategories()") === 0, "with nothing left to move the next time");
+
+/* A backup written before the names changed. */
+const older = phone();
+older.w.showScreen("backup");
+older.$("restore-text").value = JSON.stringify({
+  app:"training-buddy", version:"0.22.4", at:new Date().toISOString(),
+  programs:[{ id:"z", name:"An old backup session", category:"Training",
+              blocks:[{ type:"step", text:"Go", kind:"run", sec:300 }] }],
+  myplans:[], progress:{}, history:[]
+});
+older.w.restoreFromText();
+ok(older.ev("programs[0].category") === "crossfn",
+   "a backup from before the change arrives in the new drawer: " + older.ev("programs[0].category"));
+ok(JSON.parse(older.w.localStorage.getItem("tb.programs"))[0].category === "crossfn",
+   "and is written that way, so it never has to be worked out again");
+older.w.openCategory("crossfn");
+ok(older.$("cat-body").textContent.includes("An old backup session"), "and there it is");
 
 // the same session, opened in the editor, is offered its new home
 old.w.editProgram("a");
