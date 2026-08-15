@@ -145,9 +145,11 @@ list you came to read. The eye beside the session's name turns them on and is
 remembered in `tb.demos`; `renderEye()` only offers it on a session that has a
 drawing in it, because a switch with nothing behind it is a lie.
 `DEMOS` maps the exact wordings a movement is written under to the drawing it
-gets, after a leading count is stripped and a plural tried as a singular; it is
-a table and not a guess, because matching on a word inside the line would put
-an air squat beside "50 goblet squats". **No drawing is the right answer for
+gets, after a leading count is stripped, anything after a comma set aside
+("21 dumbbell snatches, arm 1" says which arm, not which movement) and a plural
+tried as a singular; it is a table and not a guess, because matching on a word
+inside the line would put an air squat beside "50 goblet squats", and a
+whiteboard that says only "snatches" has not said with what. **No drawing is the right answer for
 everything the app has not been drawn for**, which is most of it, and adding
 one means drawing it rather than widening the match.
 

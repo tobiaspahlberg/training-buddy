@@ -8,7 +8,8 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length >= 1, "the app carries " + held.length + " drawing(s)");
+ok(held.length >= 2, "the app carries " + held.length + " drawings: " +
+   held.map(s => s.dataset.demo).join(", "));
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
 ok(held.every(s => s.getAttribute("viewBox")), "each has a view box, so it scales to its row");
@@ -16,17 +17,30 @@ const names = new Set(Object.keys(ev("DEMOS")).map(k => ev("DEMOS")[JSON.stringi
 ok([...names].every(n => held.some(s => s.dataset.demo === n)),
    "and every name the table can return is one that is actually here: " + [...names].join(", "));
 
-// ---- it moves ----
-const squat = held.find(s => s.dataset.demo === "squat");
-ok(!!squat, "the air squat is the one that is drawn so far");
-const anim = squat.querySelectorAll("animate, animateTransform");
-ok(anim.length > 10, "it is " + anim.length + " animations, not a still");
-ok([...anim].every(a => a.getAttribute("repeatCount") === "indefinite"),
-   "every one of them loops, so it is still going when you look up");
-const dur = new Set([...anim].map(a => a.getAttribute("dur")));
-ok(dur.size === 1, "on one clock, or the limbs would drift apart: " + [...dur][0]);
-const counts = new Set([...anim].map(a => a.getAttribute("values").split(";").length));
-ok(counts.size === 1, "and one frame count throughout: " + [...counts][0] + " frames");
+// ---- they move ----
+held.forEach(fig => {
+  const what = fig.dataset.demo;
+  const anim = fig.querySelectorAll("animate, animateTransform");
+  ok(anim.length > 10, what + ": " + anim.length + " animations, not a still");
+  ok([...anim].every(a => a.getAttribute("repeatCount") === "indefinite"),
+     what + ": every one of them loops, so it is still going when you look up");
+  const dur = new Set([...anim].map(a => a.getAttribute("dur")));
+  ok(dur.size === 1, what + ": on one clock, or the limbs drift apart – " + [...dur][0]);
+  const counts = new Set([...anim].map(a => a.getAttribute("values").split(";").length));
+  ok(counts.size === 1, what + ": one frame count throughout, " + [...counts][0] + " frames");
+});
+
+// the weight is carried to the hand and turned over, which is two transforms
+// and therefore two nested groups: one element can only be given one
+const load = held.find(s => s.dataset.demo === "snatch").querySelector(".load");
+const kinds = [...load.querySelectorAll("animateTransform")].map(a => a.getAttribute("type"));
+ok(JSON.stringify(kinds) === '["translate","rotate"]',
+   "the dumbbell is moved and turned, in that nesting: " + kinds.join(", "));
+const spin = load.querySelector('animateTransform[type="rotate"]')
+  .getAttribute("values").split(";").map(Number);
+ok(Math.min(...spin) <= -175 && Math.max(...spin) >= 0,
+   "half a turn of it, thumb forward to thumb back: " +
+   Math.max(...spin) + "° to " + Math.min(...spin) + "°");
 
 // ---- which lines get one ----
 const has = line => ev("demoFor(" + JSON.stringify(line) + ")") !== "";
@@ -38,6 +52,13 @@ ok(!has("50 goblet squats, kettlebell"),
 ok(!has("5 bow bend squats"), "and so is a bow bend squat");
 ok(!has("50 burpees") && !has("Run 400 m") && !has(""),
    "everything the app has not been drawn for gets nothing, which is honest");
+
+// the snatch, written five ways on four whiteboards
+ok(has("30 alternating dumbbell snatches") && has("21 dumbbell snatches, arm 1"),
+   "which arm is not which movement, so what follows a comma is set aside");
+ok(!has("100 snatches, kettlebell or dumbbell") && !has("Snatches"),
+   "but a board that only says 'snatches' has not said with what, and a " +
+   "kettlebell snatch is not this drawing");
 
 // ---- and where it turns up ----
 w.openProgram("wod-total-training-25");
