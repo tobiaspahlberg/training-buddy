@@ -227,7 +227,18 @@
     border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));
     max-height:82vh;overflow-y:auto}
   .sheet h2{font-size:23px;margin-bottom:3px}
-  .sheet .when{font-size:16px;color:var(--dim);margin-bottom:16px}
+  .sheet-sub{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .sheet .when{font-size:16px;color:var(--dim);flex:1;min-width:0}
+  /* The eye that shows and hides the drawings. It is on the line above them
+     and only on a session that has one, because a switch with nothing behind
+     it is a lie. */
+  .eye{background:var(--surface-2);border:1px solid var(--line);color:var(--dim);
+    width:42px;height:42px;border-radius:12px;flex-shrink:0;cursor:pointer;
+    display:none;align-items:center;justify-content:center}
+  .eye.there{display:flex}
+  .eye.on{color:var(--run);border-color:var(--run)}
+  .eye svg{width:23px;height:23px;display:block;fill:none;stroke:currentColor;
+    stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   /* The step list is the other thing read at a distance: it is what you look
      at to see what is coming while the phone lies on the floor. */
   .steplist{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:16px}
@@ -239,7 +250,14 @@
     align-items:center}
   /* A line that carries a drawing does not want the indent as well – the
      drawing is the indent, and a wider one. */
-  .steplist div.sub.drawn{padding:4px 15px 4px 11px;justify-content:flex-start;gap:11px}
+  /* The drawing goes at the far end of the row, where the times are on the
+     rows above it, so the words all still start in the same place. */
+  .steplist div.sub.drawn{padding:4px 15px 4px 28px}
+  /* Hidden is how a session opens: a drawing answers "what is that" and is in
+     the way of anybody who already knows. With them off the row is an
+     ordinary line again. */
+  .steplist.nodemos .demo{display:none}
+  .steplist.nodemos div.sub.drawn{padding:9px 15px 9px 28px}
 
   /* ---- Drawings ----
      A movement is a word you either know or you do not, and "air squat" is
@@ -691,7 +709,10 @@
 <div class="sheet-wrap" id="sheet" onclick="if(event.target===this)closeSheet()">
   <div class="sheet">
     <h2 id="sheet-title"></h2>
-    <div class="when" id="sheet-when"></div>
+    <div class="sheet-sub">
+      <div class="when" id="sheet-when"></div>
+      <button class="eye" id="sheet-eye" onclick="toggleDemos()"></button>
+    </div>
     <div class="steplist" id="sheet-steps"></div>
     <button class="btn" id="sheet-start" onclick="startFromSheet()">Start session</button>
     <div class="sheet-acts">
@@ -771,6 +792,14 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.26.1",
+    "date": "2026-08-15",
+    "changes": [
+      "The drawings are hidden until you ask for them: an eye beside the session name shows and hides them, and it only appears on a session that has one. The choice is remembered",
+      "The drawing now sits at the end of its line rather than the start, so the movements still read down the left edge of the list"
+    ]
+  },
   {
     "version": "0.26.0",
     "date": "2026-08-15",
@@ -1200,7 +1229,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.26.0";
+const APP_VERSION = "0.26.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -2193,7 +2222,13 @@ const ICON = {
   search: '<svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7"/>' +
           '<path d="M15.8 15.8L21 21"/></svg>',
   up:     '<svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
-  down:   '<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>'
+  down:   '<svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>',
+  /* An eye, and the same eye with a line through it: the drawings are shown
+     or they are not, and the icon says which it is about to become. */
+  eye:    '<svg viewBox="0 0 24 24"><path d="M1.6 12S5.9 4.8 12 4.8 22.4 12 22.4 12 18.1 19.2 12 19.2 1.6 12 1.6 12Z"/>' +
+          '<circle cx="12" cy="12" r="4.3"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24"><path d="M1.6 12S5.9 4.8 12 4.8 22.4 12 22.4 12 18.1 19.2 12 19.2 1.6 12 1.6 12Z"/>' +
+          '<circle cx="12" cy="12" r="4.3"/><path d="M4 20L20 4"/></svg>'
 };
 
 /* Each category owns a colour, and it is carried through: the card on the home
@@ -3131,6 +3166,28 @@ let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayI
    anybody writes it. */
 const DEMOS = { "air squat":"squat", "bodyweight squat":"squat" };
 
+/* A session opens with them off. A drawing answers "what is that", which is a
+   question you ask once: after that it is a moving thing between you and the
+   list you came to read. The eye turns them on for good, or off again. */
+const KEY_DEMOS = "tb.demos";
+let showDemos = load(KEY_DEMOS, false);
+
+function renderEye(){
+  const list = document.getElementById("sheet-steps");
+  const eye = document.getElementById("sheet-eye");
+  list.classList.toggle("nodemos", !showDemos);
+  eye.classList.toggle("there", !!list.querySelector(".demo"));
+  eye.classList.toggle("on", showDemos);
+  eye.innerHTML = showDemos ? ICON.eye : ICON.eyeOff;
+  eye.title = showDemos ? "Hide the drawings" : "Show the drawings";
+}
+
+function toggleDemos(){
+  showDemos = !showDemos;
+  save(KEY_DEMOS, showDemos);
+  renderEye();
+}
+
 function demoName(line){
   return String(line).toLowerCase().replace(/^[\s\d]+/, "").replace(/[.,;:!]+$/, "").trim();
 }
@@ -3141,11 +3198,12 @@ function demoFor(line){
   return el ? el.outerHTML : "";
 }
 
-/* A line of a work list, with its drawing if the app has one of it. */
+/* A line of a work list, with its drawing if the app has one of it. The
+   drawing comes after the words, so a list still reads down its left edge. */
 function subRow(text){
   const d = demoFor(text);
-  return '<div class="sub' + (d ? " drawn" : "") + '">' + d +
-    "<span>" + esc(text) + "</span></div>";
+  return '<div class="sub' + (d ? " drawn" : "") + '">' +
+    "<span>" + esc(text) + "</span>" + d + "</div>";
 }
 
 /* The block list as it is shown in the sheet. A work list has no timing of
@@ -3260,6 +3318,7 @@ function showSheet(show){
   sheetAct("sheet-copy", ICON.copy, "Copy");
   sheetAct("sheet-close", ICON.close, "Close");
   document.getElementById("sheet-mark").classList.toggle("on", !!progress[sheetTarget.id]);
+  renderEye();
 
   document.getElementById("sheet").classList.add("show");
   armBack();

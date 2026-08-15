@@ -48,12 +48,39 @@ const said = r => r.querySelector("span").textContent;
 ok(drawn.length === 1 && said(drawn[0]) === "100 air squats",
    "one of them carries a drawing, and it is the one the app has: " +
    drawn.map(said).join(", "));
-ok(drawn[0].classList.contains("drawn"),
-   "the row says so, so it can give up the indent the drawing replaces");
+ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");
 ok(drawn[0].querySelector("svg").getAttribute("class") === "demo",
    "the copy is the same drawing, not a second copy of the styles");
+ok(drawn[0].firstElementChild.tagName.toLowerCase() === "span" &&
+   drawn[0].lastElementChild.tagName.toLowerCase() === "svg",
+   "the words come first and the drawing goes at the far end, so a list still " +
+   "reads down its left edge");
+
+// ---- the eye ----
+const list = $("sheet-steps"), eye = $("sheet-eye");
+ok(list.classList.contains("nodemos"),
+   "a session opens with the drawings off: they answer a question you ask once");
+ok(eye.classList.contains("there"), "and the eye is offered, because there is one to show");
+ok(!eye.classList.contains("on") && eye.innerHTML.includes("M4 20L20 4"),
+   "struck through while they are hidden");
+w.toggleDemos();
+ok(!list.classList.contains("nodemos") && eye.classList.contains("on"),
+   "pressing it shows them, and the eye opens");
+ok(!eye.innerHTML.includes("M4 20L20 4"), "with the line through it gone");
+ok(w.localStorage.getItem("tb.demos") === "true",
+   "the choice is the phone's, not the session's: " + w.localStorage.getItem("tb.demos"));
+w.openProgram("wod-team-chipper");
+ok(!$("sheet-steps").classList.contains("nodemos"),
+   "so the next session opens with them on");
+w.toggleDemos();
+ok($("sheet-steps").classList.contains("nodemos"), "and off again");
+
+// a session with nothing drawn in it is not offered a switch with nothing behind it
+w.openProgram("wod-deck-of-cards");
+ok(!$("sheet-eye").classList.contains("there"),
+   "a session the app has no drawing for does not show the eye at all");
 
 // the other workout that calls for them
 w.openProgram("wod-team-chipper");

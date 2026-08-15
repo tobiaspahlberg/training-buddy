@@ -136,8 +136,14 @@ whiteboard. The list has no timing, so it is never timed – only shown, in the
 sheet and on the run screen, and typed as lines in the editor.
 
 **A drawing is offered where the name is not enough.** A movement the app has
-been drawn for shows a looping figure beside its line in the session details –
-`subRow()` puts it there, for a work list and for a circuit's stations alike.
+been drawn for shows a looping figure at the end of its line in the session
+details – `subRow()` puts it there, for a work list and for a circuit's
+stations alike, after the words, so a list still reads down its left edge.
+A session opens with them **off**: a drawing answers "what is that", which is
+a question you ask once, and after that it is a moving thing in front of the
+list you came to read. The eye beside the session's name turns them on and is
+remembered in `tb.demos`; `renderEye()` only offers it on a session that has a
+drawing in it, because a switch with nothing behind it is a lie.
 `DEMOS` maps the exact wordings a movement is written under to the drawing it
 gets, after a leading count is stripped and a plural tried as a singular; it is
 a table and not a guess, because matching on a word inside the line would put
