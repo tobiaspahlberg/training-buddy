@@ -158,8 +158,9 @@ where they are needed. Each is a person made of thick round strokes, animated
 by SMIL: a pose is the set of *angles* at the joints, so nothing stretches as it
 moves, and the frames are worked out ahead of time and written into the file as
 lists of positions. **The numbers are output, not source** – the rig and the
-key poses are kept outside the app, so a drawing is changed by regenerating it,
-never by editing the lists by hand.
+key poses live in `tools/`, outside the app and shipped with nothing, so a
+drawing is changed by editing a pose and regenerating it, never by editing the
+lists by hand. `tools/README.md` says how.
 
 **Recent** is the first thing on home: the last `RECENT_MAX` sessions actually
 finished, each once however often it has been run. A history entry holds only
