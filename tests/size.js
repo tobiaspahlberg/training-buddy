@@ -146,3 +146,37 @@ setTimeout(() => {
   ok2(plans[1].querySelector(".trash").closest(".cardtop") === plans[1].querySelector(".cardtop"),
       "and the bin sits in the row above it");
 }, 1600);
+
+// =====================================================================
+// A phone on its side
+//
+// jsdom has no layout and no media queries, so what can be checked here is
+// that the rules exist and are written the way they have to be. The proof is
+// a screenshot: tests/README.md says how to take one, and 500x340 in a
+// headless browser is a viewport of 253px, shorter than any phone on its
+// side, with nothing cut off.
+// =====================================================================
+setTimeout(() => {
+  const ok3 = (c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
+  const sheet = fs.readFileSync(require("path").join(__dirname, "..", "docs", "index.html"), "utf8");
+  const block = h => {
+    const at = sheet.indexOf("@media (max-height:" + h + "px)");
+    return at < 0 ? "" : sheet.slice(at, sheet.indexOf("\n  }", at));
+  };
+  const short = block(520), tiny = block(400);
+  ok3(!!short, "there is a rule for a screen with no height to spare");
+  ok3(/\.steplabel\{font-size:\d+px;font-size:min\(/.test(short),
+     "the step's name is capped against the height, in pixels first: " +
+     (short.match(/\.steplabel\{[^}]*\}/) || [""])[0]);
+  ok3(/\.bigtime\{font-size:\d+px;font-size:min\(/.test(short),
+     "and so is the clock, which is the tallest thing on the screen");
+  ok3(/#run \.btn\{padding/.test(short),
+     "the button gives up some of its padding, and only this screen's button");
+  ok3(!!tiny && /\.nextup\{display:none\}/.test(tiny),
+     "shorter still, and what is coming next goes before what is on");
+
+  /* The portrait sizes are the ones read at two metres, and they are not
+     what this touched. */
+  ok3(/\.steplabel\{font-size:44px/.test(sheet), "the portrait step name is still 44px");
+  ok3(/\.bigtime\{font-size:19vh/.test(sheet), "and the portrait clock still 19vh");
+}, 1400);

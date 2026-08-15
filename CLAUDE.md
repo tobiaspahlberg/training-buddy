@@ -48,7 +48,12 @@ that stays on a branch never becomes an APK. Finished work belongs on `main`.
 - **The run screen and the session details are read at about two metres**,
   with the phone on the floor. Their type is sized for that, not for reading
   in the hand – do not shrink it back. The calendar is the exception: seven
-  days have to fit across, so it keeps its small type.
+  days have to fit across, so it keeps its small type. A phone turned on its
+  side has a third of the height, so the run screen caps its type against the
+  height as well (`@media (max-height:…)`, pixels first and `min()` second, so
+  a WebView that does not know `min()` keeps the portrait sizes): the stage
+  centres what it holds and hides the overflow, which cut the step's name in
+  half rather than making it smaller.
 - Colours are CSS variables at the top: `--run` green, `--walk` blue,
   `--warm` amber (warm-up and cool-down), `--rest` purple, `--lift` pink
   (strength), `--hold` teal (planks and the like), `--stop` red

@@ -301,6 +301,34 @@
     margin-bottom:14px;font-variant-numeric:tabular-nums}
   .paused .bigtime,.paused .steplabel{opacity:.4}
 
+  /* A phone turned on its side has a third of the height and nothing else
+     changes: the stage centres what it holds and hides the overflow, so the
+     step's name was being cut off at the top. Everything on the run screen is
+     therefore capped against the height as well as set in pixels - the pixels
+     first, so a WebView that has never heard of min() keeps the portrait
+     sizes rather than none at all. It stays as large as the screen allows,
+     which is the whole point of these sizes; it just stops pretending there
+     is more screen than there is. */
+  @media (max-height:520px){
+    #run .runtop{padding:8px 12px}
+    #run .runtop .iconbtn{width:40px;height:40px}
+    .stage{padding:4px 12px}
+    .steplabel{font-size:30px;font-size:min(44px,9vh)}
+    .stepmeta{font-size:15px;font-size:min(19px,4.6vh);margin-top:4px}
+    .bigtime{font-size:80px;font-size:min(19vh,25vh);letter-spacing:-2px;margin:6px 0 2px}
+    .nextup{font-size:15px;font-size:min(19px,4.6vh);margin-top:6px}
+    .runfoot{padding:0 12px 10px}
+    .timeline{height:13px;margin-bottom:7px}
+    .totals{font-size:13px;margin-bottom:9px}
+    #run .btn{padding:11px}
+  }
+  /* Shorter still - a small phone on its side - and what is coming next is
+     the first thing to go: the step you are on matters more. */
+  @media (max-height:400px){
+    .nextup{display:none}
+    .stepmeta{margin-top:2px}
+  }
+
   /* ---- Editor ---- */
   .field{margin-bottom:14px}
   .field label{display:block;font-size:12px;font-weight:650;color:var(--dim);
@@ -658,6 +686,13 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.25.1",
+    "date": "2026-08-13",
+    "changes": [
+      "Fixed: with the phone on its side, the name of the step was cut off at the top of the run screen. Everything on that screen is now capped against the height of the screen it is on"
+    ]
+  },
   {
     "version": "0.25.0",
     "date": "2026-08-13",
@@ -1073,7 +1108,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.25.0";
+const APP_VERSION = "0.25.1";
 
 /* =====================================================================
    BUILT-IN PLANS
