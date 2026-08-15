@@ -10,7 +10,7 @@
 cd "$(dirname "$0")" || exit 1
 
 SUITES="smoke hist clock del wods rehab plan5k delplan delhist colour size undo
-        speech voices sheet kinds latevoice search note update lead backup editor cats recent"
+        speech voices sheet kinds latevoice search note update lead backup editor cats recent demos"
 SUITES=$(echo $SUITES)          # onto one line, so the check below can match
 
 total=0; bad=0

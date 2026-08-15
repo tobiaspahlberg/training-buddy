@@ -28,6 +28,7 @@ node lead.js    # one of them, with its output in full
 | `voices`, `latevoice`, `note` | speech engines, the voice picker, the ongoing notification |
 | `search`, `update`, `backup`, `editor` | search, the update check, backup and restore, the editor |
 | `cats`, `recent` | the categories and the old names they replace, and what is on home |
+| `demos` | the exercise drawings: which lines get one, and which must not |
 
 `shot.js` is not a suite. It walks the app to a screen and writes the page out
 as HTML, so a real browser can take a picture of a screen jsdom cannot draw.

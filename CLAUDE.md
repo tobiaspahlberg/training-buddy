@@ -135,6 +135,24 @@ may carry a `list` of strings – movements to work through, as on a gym
 whiteboard. The list has no timing, so it is never timed – only shown, in the
 sheet and on the run screen, and typed as lines in the editor.
 
+**A drawing is offered where the name is not enough.** A movement the app has
+been drawn for shows a looping figure beside its line in the session details –
+`subRow()` puts it there, for a work list and for a circuit's stations alike.
+`DEMOS` maps the exact wordings a movement is written under to the drawing it
+gets, after a leading count is stripped and a plural tried as a singular; it is
+a table and not a guess, because matching on a word inside the line would put
+an air squat beside "50 goblet squats". **No drawing is the right answer for
+everything the app has not been drawn for**, which is most of it, and adding
+one means drawing it rather than widening the match.
+
+The drawings themselves live in `<div id="demos" hidden>` and are copied to
+where they are needed. Each is a person made of thick round strokes, animated
+by SMIL: a pose is the set of *angles* at the joints, so nothing stretches as it
+moves, and the frames are worked out ahead of time and written into the file as
+lists of positions. **The numbers are output, not source** – the rig and the
+key poses are kept outside the app, so a drawing is changed by regenerating it,
+never by editing the lists by hand.
+
 **Recent** is the first thing on home: the last `RECENT_MAX` sessions actually
 finished, each once however often it has been run. A history entry holds only
 an id, so `recentTarget()` works out what it points at – one of yours, a

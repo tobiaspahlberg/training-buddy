@@ -28,6 +28,18 @@
     --lift:#F472B6;     /* strength work */
     --hold:#2DD4BF;     /* holds and planks */
     --stop:#F43F5E;     /* stop and alarms */
+
+    /* The exercise drawings. Every other colour here means a state; these
+       mean skin, kit and hair, so they are their own set. The far side of
+       the body is the same colour turned down, which is what makes a flat
+       drawing read as three-quarters rather than as a diagram. */
+    --skin:#F2C9A0;
+    --skin-far:#C79A74;
+    --vest:#38BDF8;
+    --shorts:#F43F5E;
+    --shoe:#F2F7F4;
+    --shoe-far:#B9C6BE;
+    --hair:#43301F;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   html,body{height:100%}
@@ -223,7 +235,31 @@
     font-size:18px;border-bottom:1px solid var(--line)}
   .steplist div:last-child{border-bottom:none}
   .steplist div span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
-  .steplist div.sub{padding:9px 15px 9px 28px;font-size:16.5px;color:var(--dim)}
+  .steplist div.sub{padding:9px 15px 9px 28px;font-size:16.5px;color:var(--dim);
+    align-items:center}
+  /* A line that carries a drawing does not want the indent as well – the
+     drawing is the indent, and a wider one. */
+  .steplist div.sub.drawn{padding:4px 15px 4px 11px;justify-content:flex-start;gap:11px}
+
+  /* ---- Drawings ----
+     A movement is a word you either know or you do not, and "air squat" is
+     not a word anybody is born with. Where the app has a drawing of one it
+     is shown beside the line that names it, looping, so the name is not the
+     whole of the explanation. It is a person, so it has its own colours
+     rather than borrowing the ones that mean run and rest. */
+  .demo{height:88px;width:auto;flex-shrink:0}
+  .demo line{stroke-linecap:round;fill:none}
+  .demo .skin{stroke:var(--skin)}
+  .demo .far{stroke:var(--skin-far)}
+  .demo .vest{stroke:var(--vest)}
+  .demo .shorts{stroke:var(--shorts)}
+  .demo .shoe{stroke:var(--shoe)}
+  .demo .shoe-far{stroke:var(--shoe-far)}
+  .demo .skin-fill{fill:var(--skin)}
+  .demo .hair{fill:var(--hair)}
+  .demo .nose{fill:var(--skin-far)}
+  .demo .shadow{fill:rgba(255,255,255,.055)}
+  .demo .load rect{fill:var(--warm)}
 
   /* ---- Work list ----
      Some workouts are a single block of time with a list of movements in it.
@@ -683,9 +719,65 @@
   </div>
 </div>
 
+<!-- ============================ DRAWINGS ============================
+     Each drawing is a person made of thick round strokes - a limb is a
+     stroke, which is a filled capsule; the vest and the shorts are thicker
+     strokes over the same bones; a shoe is a short fat one at the end of a
+     shin. A pose is the set of ANGLES at the joints, so nothing can stretch
+     as it moves, and the frames are worked out ahead of time and written
+     here as lists of positions, so the phone only plays them.
+
+     They are held here, out of sight, and copied into place where a line
+     names a movement one of them shows. Editing the numbers by hand is not
+     the way to change one: the poses and the rig that turns them into these
+     lists are kept outside the app, and this is its output.
+     ================================================================= -->
+<div id="demos" hidden>
+<svg class="demo" data-demo="squat" width="94" height="177" viewBox="63 41 94 177">
+<ellipse class="shadow" cx="92" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="96" y1="126" x2="95" y2="160"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="95" y1="160" x2="84" y2="190"><animate attributeName="x1" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="84" y1="190" x2="97" y2="190">
+</line>
+<line class="far" stroke-width="10" x1="94" y1="80" x2="95" y2="105"><animate attributeName="x1" values="94;94;95;95;97;98;100;102;102;102;102;102;102;102;102;102;102;102;101;100;98;97;96;95;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="80;80;81;83;88;95;106;113;117;119;119;119;119;119;119;119;118;115;111;104;95;89;84;82;81;80;80" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;97;100;106;115;123;126;127;127;127;127;127;127;127;127;127;127;125;122;115;107;102;98;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="105;105;106;108;111;114;116;117;118;118;118;118;118;118;118;118;118;118;117;116;114;111;109;107;105;105;105" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="95" y1="105" x2="94" y2="128"><animate attributeName="x1" values="95;95;97;100;106;115;123;126;127;127;127;127;127;127;127;127;127;127;125;122;115;107;102;98;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="105;105;106;108;111;114;116;117;118;118;118;118;118;118;118;118;118;118;117;116;114;111;109;107;105;105;105" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="94;95;97;103;113;129;143;148;150;150;150;150;150;150;150;150;150;149;147;142;129;116;106;99;96;95;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="128;128;129;130;132;132;127;123;120;119;119;119;119;119;119;119;120;121;124;128;132;133;131;130;128;128;128" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="96" y1="126" x2="94" y2="80"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;95;95;97;98;100;102;102;102;102;102;102;102;102;102;102;102;101;100;98;97;96;95;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="80;80;81;83;88;95;106;113;117;119;119;119;119;119;119;119;118;115;111;104;95;89;84;82;81;80;80" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="96" y1="126" x2="106" y2="159"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="106;106;107;110;112;115;115;114;113;112;112;112;112;112;112;112;112;113;114;115;115;113;110;108;107;106;106" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="159;159;159;159;160;161;162;161;161;160;160;160;160;160;160;160;160;161;161;162;161;161;160;159;159;159;159" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="106" y1="159" x2="100" y2="190"><animate attributeName="x1" values="106;106;107;110;112;115;115;114;113;112;112;112;112;112;112;112;112;113;114;115;115;113;110;108;107;106;106" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="159;159;159;159;160;161;162;161;161;160;160;160;160;160;160;160;160;161;161;162;161;161;160;159;159;159;159" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="96" y1="126" x2="102" y2="146"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="102;102;103;104;105;104;103;101;100;99;99;99;99;99;99;99;100;100;102;103;104;105;104;103;103;102;102" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="146;146;147;148;150;153;157;158;159;159;159;159;159;159;159;159;159;159;158;156;153;151;149;147;146;146;146" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="100" y1="190" x2="113" y2="190">
+</line>
+<circle class="hair" r="12" cx="91" cy="55"><animate attributeName="cx" values="91;91;92;94;97;102;107;110;112;113;113;113;113;113;113;113;112;111;110;106;102;97;95;93;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="55;55;56;58;63;72;83;91;96;98;99;99;99;99;99;98;97;94;89;81;72;64;60;57;56;55;55" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="94" cy="58"><animate attributeName="cx" values="94;94;95;97;100;105;110;113;115;116;116;116;116;116;116;116;115;114;113;109;105;100;98;96;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="58;58;59;61;66;75;86;94;99;101;102;102;102;102;102;101;100;97;92;84;75;67;63;60;59;58;58" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="103" cy="59"><animate attributeName="cx" values="103;103;104;106;109;114;119;122;124;125;125;125;125;125;125;125;124;123;122;118;114;109;107;105;104;103;103" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="59;59;60;62;67;76;87;95;100;102;103;103;103;103;103;102;101;98;93;85;76;68;64;61;60;59;59" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="94" y1="80" x2="97" y2="105"><animate attributeName="x1" values="94;94;95;95;97;98;100;102;102;102;102;102;102;102;102;102;102;102;101;100;98;97;96;95;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="80;80;81;83;88;95;106;113;117;119;119;119;119;119;119;119;118;115;111;104;95;89;84;82;81;80;80" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="97;97;98;102;108;116;124;126;127;127;127;127;127;127;127;127;127;127;126;123;116;109;103;100;98;97;97" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="105;105;106;107;110;113;115;115;116;116;116;116;116;116;116;116;116;116;115;114;113;110;108;106;105;105;105" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="97" y1="105" x2="98" y2="128"><animate attributeName="x1" values="97;97;98;102;108;116;124;126;127;127;127;127;127;127;127;127;127;127;126;123;116;109;103;100;98;97;97" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="105;105;106;107;110;113;115;115;116;116;116;116;116;116;116;116;116;116;115;114;113;110;108;106;105;105;105" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="98;98;100;106;116;132;145;149;150;150;150;150;150;150;150;150;150;150;148;143;132;119;109;102;99;98;98" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="128;128;129;130;131;130;124;120;117;116;116;116;116;116;116;116;116;118;121;125;130;131;130;129;128;128;128" dur="3.2s" repeatCount="indefinite"/>
+</line>
+</svg>
+</div>
+
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.26.0",
+    "date": "2026-08-15",
+    "changes": [
+      "Movements the app has a drawing of now show it beside their line in the session details, looping, so the name is not the whole of the explanation. Air squats first – the rest follow one at a time, as each is drawn"
+    ]
+  },
   {
     "version": "0.25.1",
     "date": "2026-08-13",
@@ -1108,7 +1200,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.25.1";
+const APP_VERSION = "0.26.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3028,6 +3120,34 @@ bindTapAndHold(document.getElementById("plan-weeks"), {
 
 let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayIndex|day, id }
 
+/* ---- Drawings ----
+   Which wordings get which drawing. A work list is typed by hand, so this is
+   a table of the exact names a movement is written under and nothing
+   cleverer: guessing from a word inside the line would put an air squat
+   beside "50 goblet squats", which is a different movement with a different
+   point. No drawing is the honest answer for everything the app has not been
+   drawn for, and that is most of it. A leading count is taken off the line
+   first, and a plural is tried as a singular, because "100 air squats" is how
+   anybody writes it. */
+const DEMOS = { "air squat":"squat", "bodyweight squat":"squat" };
+
+function demoName(line){
+  return String(line).toLowerCase().replace(/^[\s\d]+/, "").replace(/[.,;:!]+$/, "").trim();
+}
+function demoFor(line){
+  const n = demoName(line);
+  const key = DEMOS[n] || DEMOS[n.replace(/s$/, "")];
+  const el = key && document.querySelector('#demos [data-demo="' + key + '"]');
+  return el ? el.outerHTML : "";
+}
+
+/* A line of a work list, with its drawing if the app has one of it. */
+function subRow(text){
+  const d = demoFor(text);
+  return '<div class="sub' + (d ? " drawn" : "") + '">' + d +
+    "<span>" + esc(text) + "</span></div>";
+}
+
 /* The block list as it is shown in the sheet. A work list has no timing of
    its own, so its lines hang under the step they belong to. */
 function blockRows(blocks){
@@ -3041,10 +3161,10 @@ function blockRows(blocks){
          the way a work list is – the header only says how it is run. */
       return "<div><span>" + esc(b.rounds + " × " + count(names.length, "station")) +
         "</span><span>" + fmt(b.workSec) + " : " + fmt(b.restSec) + "</span></div>" +
-        names.map(n => '<div class="sub"><span>' + esc(n) + "</span></div>").join("");
+        names.map(subRow).join("");
     }
     return "<div><span>" + esc(b.text) + "</span><span>" + fmt(b.sec) + "</span></div>" +
-      (b.list ? b.list.map(x => '<div class="sub"><span>' + esc(x) + "</span></div>").join("") : "");
+      (b.list ? b.list.map(subRow).join("") : "");
   }).join("");
 }
 
