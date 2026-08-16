@@ -9,7 +9,7 @@
 const fs = require("fs"), path = require("path");
 const { ALL, dressed } = require("./all.js");
 
-const SHIPPED = ["squat", "snatch", "pushup", "pullup", "boxjump", "burpee",
+const SHIPPED = ["mascot", "squat", "snatch", "pushup", "pullup", "boxjump", "burpee",
                  "wallball", "swing", "lunge", "press", "pushpress", "thruster",
                  "kneeraise", "deadlift", "goblet", "situp", "row"];
 

@@ -8,8 +8,11 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 17, "the app carries " + held.length + " drawings: " +
+ok(held.length === 18, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
+ok(held.some(s => s.dataset.demo === "mascot"),
+   "one of which is not a movement: the figure beside the app's name, who is " +
+   "the same rig and the same clothes as the rest of them");
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
 ok(held.every(s => s.getAttribute("viewBox")), "each has a view box");
@@ -189,3 +192,36 @@ ev(`programs.push({ id:"circ", name:"Circuit", category:"crossfn",
 w.openProgram("circ");
 ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
    "a circuit's stations get their drawings as well");
+
+// ---- what he wears ----
+const root = () => d.documentElement.style;
+ok(root().getPropertyValue("--vest") === "#38BDF8",
+   "the colours are set on the page, not baked into each drawing: " +
+   root().getPropertyValue("--vest"));
+ok(root().getPropertyValue("--shoe-far") && root().getPropertyValue("--shoe-far") !==
+   root().getPropertyValue("--shoe"),
+   "the far shoe is the near one turned down, worked out rather than chosen: " +
+   root().getPropertyValue("--shoe-far"));
+ok(!!$("mascot").querySelector("svg"), "and he stands beside the app's name");
+
+w.pickKit("vest", "#4ADE80");
+ok(root().getPropertyValue("--vest") === "#4ADE80", "picking a colour writes the variable");
+ok(JSON.parse(w.localStorage.getItem("tb.kit")).vest === "#4ADE80",
+   "and the phone remembers it: " + w.localStorage.getItem("tb.kit"));
+w.pickKit("shoe", "#1F2937");
+const far = root().getPropertyValue("--shoe-far");
+ok(far !== "#1F2937" && /^#[0-9a-f]{6}$/.test(far),
+   "a new shoe brings its own far side with it: " + far);
+ok([...$("kit-rows").querySelectorAll(".swatch.on")].length === 4,
+   "one colour is ringed in each of the four rows");
+ok([...$("kit-rows").querySelectorAll(".kit-row h3")].map(x => x.textContent).join(", ") ===
+   "Vest, Shorts, Hair, Shoes", "which are the four things he wears");
+
+// a phone that already had a choice on it
+const dom2 = new JSDOM(fs.readFileSync(require("path").join(__dirname, "..", "docs", "index.html"), "utf8"),
+  { runScripts:"dangerously", url:"https://example.org/",
+    beforeParse(win){ win.localStorage.setItem("tb.kit", '{"hair":"#C2410C"}'); } });
+ok(dom2.window.document.documentElement.style.getPropertyValue("--hair") === "#C2410C",
+   "a colour chosen last time is worn from the start");
+ok(dom2.window.document.documentElement.style.getPropertyValue("--vest") === "#38BDF8",
+   "and the ones never chosen keep their defaults, rather than going blank");

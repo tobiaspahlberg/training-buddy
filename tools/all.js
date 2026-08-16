@@ -206,21 +206,33 @@ const burpee = {
 const wb = { ankleAX: 102, ankleAY: 182, footA: 0, bendA: -1,
              ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+/* The ball is carried on a pair of numbers of its own rather than on the hand,
+   so that at the top it can go on without them - which is the whole movement.
+   It is left out of the crop: it is meant to leave the picture, and growing
+   the box to follow it would shrink the person for the sake of the air. */
 const wbStand = P(wb, { hipX: 94, hipY: 120, torso: -90, head: -88,
-                        upperA: 105, foreA: -25, upperB: 100, foreB: -30 });
+                        upperA: 105, foreA: -25, upperB: 100, foreB: -30,
+                        ballX: 108, ballY: 89 });
 const wbLow   = P(wb, { hipX: 76, hipY: 154, torso: -58, head: -50,
-                        upperA: 100, foreA: -30, upperB: 96, foreB: -34 });
+                        upperA: 100, foreA: -30, upperB: 96, foreB: -34,
+                        ballX: 116, ballY: 128 });
 const wbThrow = P(wb, { hipX: 94, hipY: 118, torso: -90, head: -84,
-                        upperA: -60, foreA: -70, upperB: -56, foreB: -66 });
+                        upperA: -60, foreA: -70, upperB: -56, foreB: -66,
+                        ballX: 114, ballY: 26 });
+const wbGone  = P(wb, { hipX: 94, hipY: 118, torso: -90, head: -84,
+                        upperA: -62, foreA: -74, upperB: -58, foreB: -70,
+                        ballX: 118, ballY: -12 });
 
 const wallball = {
-  ground: 190, dur: "3.6s", frames: 30, carry: [{ what: "ball", cls: "kitload" }],
+  ground: 190, dur: "3.6s", frames: 30,
+  carry: [{ what: "ball", at: "ball", cls: "kitload", crop: false }],
   keys: [
     { t: 0,   pose: wbStand },
-    { t: .32, pose: wbLow },
-    { t: .40, pose: wbLow },
-    { t: .58, pose: wbThrow },
-    { t: .70, pose: wbThrow },
+    { t: .30, pose: wbLow },
+    { t: .38, pose: wbLow },
+    /* the drive and the throw are one movement: the ball is not put anywhere */
+    { t: .54, flow: true, pose: wbThrow },
+    { t: .64, pose: wbGone },
     { t: 1,   pose: wbStand }
   ]
 };
@@ -231,8 +243,11 @@ const wallball = {
 const kb = { ankleAX: 112, ankleAY: 182, footA: 0, bendA: -1,
              ankleBX: 96, ankleBY: 184, footB: 0, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+/* The arms point down and only a little back: further back than this and the
+   bell swings past the leg instead of between them, which is the difference
+   between a swing and waving a weight about behind you. */
 const kbBack = P(kb, { hipX: 72, hipY: 148, torso: -28, head: -14,
-                       upperA: 132, foreA: 130, upperB: 136, foreB: 134, kbA: 40 });
+                       upperA: 149, foreA: 147, upperB: 147, foreB: 145, kbA: 55 });
 const kbMid  = P(kb, { hipX: 88, hipY: 132, torso: -62, head: -50,
                        upperA: 55, foreA: 53, upperB: 59, foreB: 57, kbA: -37 });
 const kbTop  = P(kb, { hipX: 100, hipY: 120, torso: -90, head: -86,
@@ -388,7 +403,7 @@ const hk = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: 1, armB: -1,
 const hkHang = P(hk, { torso: -90, head: -88,
                        thighA: 96, shinA: 94, thighB: 92, shinB: 90 });
 const hkUp   = P(hk, { torso: -96, head: -94,
-                       thighA: -8, shinA: 58, thighB: -12, shinB: 54 });
+                       thighA: -33, shinA: 40, thighB: -37, shinB: 36 });
 
 const kneeraise = {
   dur: "3.2s", frames: 26, props: bar, include: [[34, 26], [158, 34]],
@@ -423,7 +438,25 @@ const goblet = {
          { t: .48, pose: gbLow }, { t: 1, pose: gbStand }]
 };
 
+/* ===================== the mascot =====================
+   Not a movement: the figure that stands beside the app's name, breathing.
+   He is here rather than drawn by hand because he has to be the same person as
+   the ones in the sessions - same rig, same clothes, same colours. */
+const ms = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const msUp   = P(ms, { hipX: 94, hipY: 118, torso: -90, head: -88,
+                       upperA: 96, foreA: 92, upperB: 92, foreB: 88 });
+const msDown = P(ms, { hipX: 94, hipY: 122, torso: -89, head: -87,
+                       upperA: 100, foreA: 97, upperB: 96, foreB: 93 });
+
+const mascot = {
+  ground: 190, dur: "4s", frames: 20,
+  keys: [{ t: 0, pose: msUp }, { t: .5, pose: msDown }, { t: 1, pose: msUp }]
+};
+
 const ALL = [
+  ["mascot", "The mascot", mascot, "Not a movement: the figure beside the app\u2019s name."],
   ["squat", "Air squat", squat, "In the app already."],
   ["snatch", "Dumbbell snatch", snatch, "In the app already."],
   ["pushup", "Push-up", pushup, "Six lines call for this one, more than anything else."],

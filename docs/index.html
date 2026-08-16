@@ -271,6 +271,28 @@
      the movement happens to be: a press-up is short and wide, and stretching
      it to the height of a standing figure made a giant. */
   .demo{flex-shrink:0;height:auto;max-width:44%}
+
+  /* ---- The figure beside the app's name ----
+     Tapping him is the way to his colours. It is the only place they can be
+     changed, and the only place anybody would think to look for them. */
+  .mascot{background:none;border:0;padding:0 2px 0 0;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:flex-end}
+  /* Both the width and the height are set on every drawing, so asking for one
+     of them and leaving the other alone letterboxes him inside a taller box
+     rather than making him bigger. `width:auto` takes the other from the
+     shape. */
+  .mascot .demo{height:58px;width:auto;max-width:none}
+  /* Bigger on the screen that is about him. */
+  .kit-him{display:flex;justify-content:center;padding:6px 0 22px}
+  .kit-him .demo{height:200px;width:auto;max-width:none}
+  /* A row of colours for one thing he wears. The one he has on is ringed. */
+  .kit-row{margin-bottom:20px}
+  .kit-row h3{font-size:13px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;
+    color:var(--dim);margin-bottom:9px}
+  .swatches{display:flex;gap:11px;flex-wrap:wrap}
+  .swatch{width:46px;height:46px;border-radius:14px;cursor:pointer;
+    border:2px solid transparent;box-shadow:inset 0 0 0 2px var(--bg)}
+  .swatch.on{border-color:var(--text)}
   .demo line{stroke-linecap:round;fill:none}
   .demo .skin{stroke:var(--skin)}
   .demo .far{stroke:var(--skin-far)}
@@ -493,6 +515,7 @@
 <!-- ============================ HOME ============================ -->
 <div class="screen active" id="home">
   <header class="big">
+    <button class="mascot" id="mascot" onclick="showScreen('kit')" title="Colours"></button>
     <h1>Training Buddy</h1>
     <button class="iconbtn" id="search-btn" onclick="openSearch()" title="Search"></button>
     <button class="iconbtn" id="about-btn" onclick="showScreen('about')" title="About"></button>
@@ -635,6 +658,20 @@
   </div>
 </div>
 
+<!-- ============================ COLOURS ============================ -->
+<div class="screen" id="kit">
+  <header>
+    <button class="iconbtn back" onclick="goBack()" title="Back"></button>
+    <h1>Colours</h1>
+  </header>
+  <div class="scroll">
+    <div class="kit-him" id="kit-him"></div>
+    <div id="kit-rows"></div>
+    <p class="note" style="margin-top:18px">He wears these in the session details too,
+       wherever a movement has a drawing.</p>
+  </div>
+</div>
+
 <!-- ============================ ABOUT ============================ -->
 <div class="screen" id="about">
   <header>
@@ -766,6 +803,39 @@
      lists are kept outside the app, and this is its output.
      ================================================================= -->
 <div id="demos" hidden>
+<svg class="demo" data-demo="mascot" width="33" height="90" viewBox="65 33 60 164">
+<ellipse class="shadow" cx="93" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="94" y1="118" x2="90" y2="152"><animate attributeName="y1" values="118;118;118;118;119;120;121;122;122;122;122;122;122;122;121;120;119;118;118;118;118" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;90;94;97;99;100;100;100;100;100;100;100;99;97;94;90;90;90;90" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="152;152;152;152;153;154;155;155;155;155;155;155;155;155;155;154;153;152;152;152;152" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="90" y1="152" x2="86" y2="184"><animate attributeName="x1" values="90;90;90;90;94;97;99;100;100;100;100;100;100;100;99;97;94;90;90;90;90" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;152;152;153;154;155;155;155;155;155;155;155;155;155;154;153;152;152;152;152" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="86" y1="184" x2="99" y2="184">
+</line>
+<line class="far" stroke-width="10" x1="94" y1="72" x2="93" y2="97"><animate attributeName="x1" values="94;94;94;94;94;94;95;95;95;95;95;95;95;95;95;94;94;94;94;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="72;72;72;72;73;74;75;76;76;76;76;76;76;76;75;74;73;72;72;72;72" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="93;93;93;93;93;93;92;92;92;92;92;92;92;92;92;93;93;93;93;93;93" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="97;97;97;97;98;99;100;100;101;101;101;101;101;100;100;99;98;97;97;97;97" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="93" y1="97" x2="94" y2="120"><animate attributeName="x1" values="93;93;93;93;93;93;92;92;92;92;92;92;92;92;92;93;93;93;93;93;93" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="97;97;97;97;98;99;100;100;101;101;101;101;101;100;100;99;98;97;97;97;97" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;94;93;92;92;91;91;91;91;91;91;91;92;92;93;94;94;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="120;120;120;120;121;122;123;123;124;124;124;124;124;123;123;122;121;120;120;120;120" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="94" y1="118" x2="94" y2="72"><animate attributeName="y1" values="118;118;118;118;119;120;121;122;122;122;122;122;122;122;121;120;119;118;118;118;118" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;94;94;94;95;95;95;95;95;95;95;95;95;94;94;94;94;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="72;72;72;72;73;74;75;76;76;76;76;76;76;76;75;74;73;72;72;72;72" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="94" y1="118" x2="105" y2="150"><animate attributeName="y1" values="118;118;118;118;119;120;121;122;122;122;122;122;122;122;121;120;119;118;118;118;118" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="105;105;105;105;106;108;109;110;110;110;110;110;110;110;109;108;106;105;105;105;105" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="150;150;150;150;151;151;151;152;152;152;152;152;152;152;151;151;151;150;150;150;150" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="105" y1="150" x2="100" y2="182"><animate attributeName="x1" values="105;105;105;105;106;108;109;110;110;110;110;110;110;110;109;108;106;105;105;105;105" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="150;150;150;150;151;151;151;152;152;152;152;152;152;152;151;151;151;150;150;150;150" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="94" y1="118" x2="101" y2="138"><animate attributeName="y1" values="118;118;118;118;119;120;121;122;122;122;122;122;122;122;121;120;119;118;118;118;118" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="101;101;101;101;102;103;103;104;104;104;104;104;104;104;103;103;102;101;101;101;101" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="138;138;138;138;139;139;140;140;140;140;140;140;140;140;140;139;139;138;138;138;138" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="100" y1="182" x2="113" y2="182">
+</line>
+<circle class="hair" r="12" cx="92" cy="47"><animate attributeName="cx" values="92;92;92;92;92;92;93;93;93;93;93;93;93;93;93;92;92;92;92;92;92" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="47;47;47;48;48;49;50;51;51;51;51;51;51;51;50;49;48;48;47;47;47" dur="4s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="95" cy="50"><animate attributeName="cx" values="95;95;95;95;95;95;96;96;96;96;96;96;96;96;96;95;95;95;95;95;95" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="50;50;50;51;51;52;53;54;54;54;54;54;54;54;53;52;51;51;50;50;50" dur="4s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="104" cy="51"><animate attributeName="cx" values="104;104;104;104;104;104;105;105;105;105;105;105;105;105;105;104;104;104;104;104;104" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="51;51;51;52;52;53;54;55;55;55;55;55;55;55;54;53;52;52;51;51;51" dur="4s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="94" y1="72" x2="91" y2="97"><animate attributeName="x1" values="94;94;94;94;94;94;95;95;95;95;95;95;95;95;95;94;94;94;94;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="72;72;72;72;73;74;75;76;76;76;76;76;76;76;75;74;73;72;72;72;72" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;91;91;91;91;91;91;90;90;90;90;90;91;91;91;91;91;91;91;91" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="97;97;97;97;98;99;100;100;101;101;101;101;101;100;100;99;98;97;97;97;97" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="91" y1="97" x2="91" y2="120"><animate attributeName="x1" values="91;91;91;91;91;91;91;91;90;90;90;90;90;91;91;91;91;91;91;91;91" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="97;97;97;97;98;99;100;100;101;101;101;101;101;100;100;99;98;97;97;97;97" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;90;90;90;89;88;88;88;88;88;88;88;88;88;89;90;90;90;91;91" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="120;120;120;120;121;122;123;123;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4s" repeatCount="indefinite"/>
+</line>
+</svg>
 <svg class="demo" data-demo="squat" width="52" height="86" viewBox="63 41 94 157">
 <ellipse class="shadow" cx="92" cy="190" rx="26" ry="5"/>
 <line class="far" stroke-width="13" x1="96" y1="126" x2="95" y2="160"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/>
@@ -973,47 +1043,47 @@
 <line class="skin" stroke-width="10" x1="140" y1="98" x2="144" y2="121"><animate attributeName="x1" values="140;143;154;164;164;165;164;162;160;159;159;159;159;159;159;159;159;160;163;165;165;164;164;157;124;168;160;155;157;166;124;135;140;140;140;140;140;140;140" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y1" values="98;100;112;145;162;165;165;167;170;172;172;172;172;172;172;172;172;170;167;165;165;162;148;119;77;42;28;25;26;38;78;96;98;98;98;98;98;98;98" dur="4.6s" repeatCount="indefinite"/><animate attributeName="x2" values="144;145;154;171;179;180;180;180;180;180;180;180;180;180;180;180;180;180;180;180;180;179;173;158;145;147;148;148;148;147;145;144;144;144;144;144;144;144;144" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="121;123;137;167;180;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;180;170;144;85;31;8;3;4;25;86;117;121;121;121;121;121;121;121" dur="4.6s" repeatCount="indefinite"/>
 </line>
 </svg>
-<svg class="demo" data-demo="wallball" width="50" height="103" viewBox="61 10 91 187">
+<svg class="demo" data-demo="wallball" width="45" height="97" viewBox="61 20 81 177">
 <ellipse class="shadow" cx="94" cy="190" rx="26" ry="5"/>
-<line class="far" stroke-width="13" x1="94" y1="120" x2="97" y2="154"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="97;97;99;102;106;109;110;110;109;109;109;109;109;109;110;106;98;90;90;90;90;90;90;90;90;93;95;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;155;156;159;162;163;162;162;162;162;162;162;162;163;159;154;152;152;152;152;152;152;152;152;153;153;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="13" x1="94" y1="120" x2="97" y2="154"><animate attributeName="x1" values="94;94;93;91;88;82;79;77;76;76;76;76;76;77;80;88;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;125;132;142;149;153;154;154;154;154;154;152;145;131;118;118;118;118;118;118;118;118;119;119;120;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="97;97;99;103;107;110;110;109;109;109;109;109;109;109;110;106;90;90;90;90;90;90;90;90;93;95;96;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;155;157;160;162;163;162;162;162;162;162;162;162;162;159;152;152;152;152;152;152;152;152;153;153;154;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="11" x1="97" y1="154" x2="86" y2="184"><animate attributeName="x1" values="97;97;99;102;106;109;110;110;109;109;109;109;109;109;110;106;98;90;90;90;90;90;90;90;90;93;95;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;155;156;159;162;163;162;162;162;162;162;162;162;163;159;154;152;152;152;152;152;152;152;152;153;153;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="11" x1="97" y1="154" x2="86" y2="184"><animate attributeName="x1" values="97;97;99;103;107;110;110;109;109;109;109;109;109;109;110;106;90;90;90;90;90;90;90;90;93;95;96;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;155;157;160;162;163;162;162;162;162;162;162;162;162;159;152;152;152;152;152;152;152;152;153;153;154;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
 </line>
 <line class="shoe-far" stroke-width="9" x1="86" y1="184" x2="99" y2="184">
 </line>
-<line class="far" stroke-width="10" x1="94" y1="74" x2="90" y2="99"><animate attributeName="x1" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;91;92;95;96;97;98;98;98;98;98;99;110;122;112;108;108;108;108;108;108;110;115;119;112;100;93;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;100;103;109;120;130;136;139;140;140;140;140;139;128;84;57;51;51;51;51;51;51;53;59;72;91;98;99;99;99" dur="3.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="10" x1="94" y1="74" x2="90" y2="99"><animate attributeName="x1" values="94;94;94;95;97;99;100;100;100;100;100;100;100;100;99;97;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;76;79;87;99;108;113;115;115;115;115;115;112;103;86;72;72;72;72;72;72;72;72;73;73;74;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;91;93;95;97;98;98;98;98;98;98;101;112;122;108;107;107;107;107;108;111;116;119;114;103;96;91;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;100;104;112;124;133;138;140;140;140;140;140;137;125;85;51;51;51;51;51;52;54;60;72;88;97;99;99;99;99" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="9" x1="90" y1="99" x2="110" y2="87"><animate attributeName="x1" values="90;90;90;91;92;95;96;97;98;98;98;98;98;99;110;122;112;108;108;108;108;108;108;110;115;119;112;100;93;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;100;103;109;120;130;136;139;140;140;140;140;139;128;84;57;51;51;51;51;51;51;53;59;72;91;98;99;99;99" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="110;110;110;111;112;114;116;116;117;117;117;117;117;118;127;135;122;117;117;117;117;117;118;120;126;133;129;118;112;110;110" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="87;87;88;91;97;108;117;123;126;127;127;127;127;126;113;66;36;30;30;30;30;30;31;32;39;54;75;85;87;87;87" dur="3.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="9" x1="90" y1="99" x2="110" y2="87"><animate attributeName="x1" values="90;90;90;91;93;95;97;98;98;98;98;98;98;101;112;122;108;107;107;107;107;108;111;116;119;114;103;96;91;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;100;104;112;124;133;138;140;140;140;140;140;137;125;85;51;51;51;51;51;52;54;60;72;88;97;99;99;99;99" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="110;110;110;111;113;115;116;117;117;117;117;117;117;120;129;135;117;116;115;115;115;116;120;126;132;130;122;115;111;110;110" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="87;87;89;92;100;111;120;125;127;127;127;127;127;124;110;67;30;29;29;29;29;30;33;39;53;72;83;86;87;87;87" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="vest" stroke-width="25" x1="94" y1="120" x2="94" y2="74"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/>
+<line class="vest" stroke-width="25" x1="94" y1="120" x2="94" y2="74"><animate attributeName="x1" values="94;94;93;91;88;82;79;77;76;76;76;76;76;77;80;88;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;125;132;142;149;153;154;154;154;154;154;152;145;131;118;118;118;118;118;118;118;118;119;119;120;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;95;97;99;100;100;100;100;100;100;100;100;99;97;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;76;79;87;99;108;113;115;115;115;115;115;112;103;86;72;72;72;72;72;72;72;72;73;73;74;74;74;74;74" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="15" x1="94" y1="120" x2="109" y2="151"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="109;109;110;112;114;115;113;111;110;110;110;110;110;110;113;114;108;105;105;105;105;105;105;105;106;107;108;108;108;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;152;152;153;152;151;151;151;151;151;151;151;152;152;151;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="15" x1="94" y1="120" x2="109" y2="151"><animate attributeName="x1" values="94;94;93;91;88;82;79;77;76;76;76;76;76;77;80;88;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;125;132;142;149;153;154;154;154;154;154;152;145;131;118;118;118;118;118;118;118;118;119;119;120;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="109;109;110;112;115;115;113;111;110;110;110;110;110;111;114;114;105;105;105;105;105;105;105;106;107;107;108;108;109;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;152;153;153;152;151;151;151;151;151;151;151;152;152;150;150;150;150;150;150;150;150;150;150;151;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="12" x1="109" y1="151" x2="102" y2="182"><animate attributeName="x1" values="109;109;110;112;114;115;113;111;110;110;110;110;110;110;113;114;108;105;105;105;105;105;105;105;106;107;108;108;108;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;151;152;152;153;152;151;151;151;151;151;151;151;152;152;151;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="12" x1="109" y1="151" x2="102" y2="182"><animate attributeName="x1" values="109;109;110;112;115;115;113;111;110;110;110;110;110;111;114;114;105;105;105;105;105;105;105;106;107;107;108;108;109;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;151;152;153;153;152;151;151;151;151;151;151;151;152;152;150;150;150;150;150;150;150;150;150;150;151;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="shorts" stroke-width="24" x1="94" y1="120" x2="103" y2="139"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;104;104;105;103;101;99;97;97;97;97;97;98;100;104;102;101;101;101;101;101;101;101;101;102;102;103;103;103;103" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;140;141;144;148;150;151;152;152;152;152;152;152;150;144;139;138;138;138;138;138;138;138;138;138;139;139;139;139;139" dur="3.6s" repeatCount="indefinite"/>
+<line class="shorts" stroke-width="24" x1="94" y1="120" x2="103" y2="139"><animate attributeName="x1" values="94;94;93;91;88;82;79;77;76;76;76;76;76;77;80;88;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;125;132;142;149;153;154;154;154;154;154;152;145;131;118;118;118;118;118;118;118;118;119;119;120;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;104;104;104;102;100;98;97;97;97;97;97;98;101;104;101;101;101;101;101;101;101;101;102;102;103;103;103;103;103" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;140;142;145;149;151;152;152;152;152;152;152;152;150;144;138;138;138;138;138;138;138;138;138;139;139;139;139;139;139" dur="3.6s" repeatCount="indefinite"/>
 </line>
 <line class="shoe" stroke-width="10" x1="102" y1="182" x2="115" y2="182">
 </line>
-<circle class="hair" r="12" cx="92" cy="49"><animate attributeName="cx" values="92;92;93;94;98;104;108;110;111;111;111;111;111;111;108;100;95;93;93;93;93;93;93;93;93;93;92;92;92;92;92" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="49;49;50;54;60;72;84;91;94;95;95;95;95;94;84;62;50;47;47;47;47;47;47;47;48;48;49;49;49;49;49" dur="3.6s" repeatCount="indefinite"/>
+<circle class="hair" r="12" cx="92" cy="49"><animate attributeName="cx" values="92;92;93;95;99;105;109;111;111;111;111;111;111;111;108;101;93;93;93;93;93;93;93;93;93;92;92;92;92;92;92" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="49;49;51;55;63;77;87;93;95;95;95;95;95;92;82;62;47;47;47;47;47;47;47;48;48;48;49;49;49;49;49" dur="3.6s" repeatCount="indefinite"/>
 </circle>
-<circle class="skin-fill" r="11" cx="95" cy="52"><animate attributeName="cx" values="95;95;96;97;101;107;111;113;114;114;114;114;114;114;111;103;98;96;96;96;96;96;96;96;96;96;95;95;95;95;95" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="52;52;53;57;63;75;87;94;97;98;98;98;98;97;87;65;53;50;50;50;50;50;50;50;51;51;52;52;52;52;52" dur="3.6s" repeatCount="indefinite"/>
+<circle class="skin-fill" r="11" cx="95" cy="52"><animate attributeName="cx" values="95;95;96;98;102;108;112;114;114;114;114;114;114;114;111;104;96;96;96;96;96;96;96;96;96;95;95;95;95;95;95" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="52;52;54;58;66;80;90;96;98;98;98;98;98;95;85;65;50;50;50;50;50;50;50;51;51;51;52;52;52;52;52" dur="3.6s" repeatCount="indefinite"/>
 </circle>
-<circle class="nose" r="2.6" cx="104" cy="53"><animate attributeName="cx" values="104;104;105;106;110;116;120;122;123;123;123;123;123;123;120;112;107;105;105;105;105;105;105;105;105;105;104;104;104;104;104" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="53;53;54;58;64;76;88;95;98;99;99;99;99;98;88;66;54;51;51;51;51;51;51;51;52;52;53;53;53;53;53" dur="3.6s" repeatCount="indefinite"/>
+<circle class="nose" r="2.6" cx="104" cy="53"><animate attributeName="cx" values="104;104;105;107;111;117;121;123;123;123;123;123;123;123;120;113;105;105;105;105;105;105;105;105;105;104;104;104;104;104;104" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="53;53;55;59;67;81;91;97;99;99;99;99;99;96;86;66;51;51;51;51;51;51;51;52;52;52;53;53;53;53;53" dur="3.6s" repeatCount="indefinite"/>
 </circle>
-<line class="skin" stroke-width="11" x1="94" y1="74" x2="88" y2="98"><animate attributeName="x1" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="88;88;88;89;90;93;95;96;96;96;96;96;96;98;109;122;111;107;107;107;107;107;107;109;114;119;111;98;91;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="98;98;99;102;109;120;130;136;139;140;140;140;140;139;128;84;56;50;50;50;50;50;51;52;58;72;92;98;99;98;98" dur="3.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="11" x1="94" y1="74" x2="88" y2="98"><animate attributeName="x1" values="94;94;94;95;97;99;100;100;100;100;100;100;100;100;99;97;94;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;76;79;87;99;108;113;115;115;115;115;115;112;103;86;72;72;72;72;72;72;72;72;73;73;74;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="88;88;88;89;91;94;95;96;96;96;96;96;96;100;111;122;106;106;106;106;106;107;110;115;119;114;102;94;89;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="98;98;100;103;111;124;133;138;139;140;140;140;139;137;125;85;50;50;50;50;50;51;53;59;71;89;97;99;99;98;98" dur="3.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="10" x1="88" y1="98" x2="108" y2="88"><animate attributeName="x1" values="88;88;88;89;90;93;95;96;96;96;96;96;96;98;109;122;111;107;107;107;107;107;107;109;114;119;111;98;91;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="98;98;99;102;109;120;130;136;139;140;140;140;140;139;128;84;56;50;50;50;50;50;51;52;58;72;92;98;99;98;98" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="108;108;109;109;111;113;115;116;116;116;116;116;116;117;127;134;120;115;114;114;114;114;115;118;125;132;128;118;111;109;108" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="88;89;90;93;98;109;119;124;127;128;128;128;128;127;114;65;35;29;29;29;29;29;29;31;37;53;77;86;88;88;88" dur="3.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="10" x1="88" y1="98" x2="108" y2="88"><animate attributeName="x1" values="88;88;88;89;91;94;95;96;96;96;96;96;96;100;111;122;106;106;106;106;106;107;110;115;119;114;102;94;89;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="98;98;100;103;111;124;133;138;139;140;140;140;139;137;125;85;50;50;50;50;50;51;53;59;71;89;97;99;99;98;98" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="108;108;109;110;111;114;115;116;116;116;116;116;116;119;129;135;114;113;112;112;112;114;118;125;132;130;121;114;110;109;108" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="88;89;90;93;101;113;121;126;128;128;128;128;128;125;111;66;28;28;28;28;28;29;31;38;52;73;84;88;88;88;88" dur="3.6s" repeatCount="indefinite"/>
 </line>
 <g class="kitload">
-<g><animateTransform attributeName="transform" type="translate" values="108 88;108 89;109 90;109 93;111 98;113 109;115 119;116 124;116 127;116 128;116 128;116 128;116 128;117 127;127 114;134 65;120 35;115 29;114 29;114 29;114 29;114 29;115 29;118 31;125 37;132 53;128 77;118 86;111 88;109 88;108 88" dur="3.6s" repeatCount="indefinite"/>
+<g><animateTransform attributeName="transform" type="translate" values="108 89;108 89;108 91;109 95;111 103;113 114;115 122;116 126;116 128;116 128;116 128;116 128;116 128;116 122;116 103;115 63;115 15;117 -3;118 -11;118 -12;118 -12;118 -10;117 -5;116 6;114 23;112 49;110 68;109 80;108 86;108 89;108 89" dur="3.6s" repeatCount="indefinite"/>
 <g transform="rotate(0)">
 <circle cx="0" cy="0" r="15"/>
 </g>
 </g>
 </g>
 </svg>
-<svg class="demo" data-demo="swing" width="74" height="89" viewBox="46 35 134 162">
+<svg class="demo" data-demo="swing" width="68" height="89" viewBox="48 35 124 162">
 <ellipse class="shadow" cx="104" cy="190" rx="26" ry="5"/>
 <line class="far" stroke-width="13" x1="72" y1="148" x2="106" y2="153"><animate attributeName="x1" values="72;72;73;75;78;84;90;94;97;99;100;100;100;100;100;99;99;97;95;92;89;85;81;78;76;74;73;72;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="148;148;147;146;142;136;130;126;123;121;120;120;120;120;120;121;121;123;125;128;131;135;139;142;144;146;147;148;148;148;148" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="106;106;106;107;109;111;112;111;109;107;106;106;106;106;106;107;108;109;110;111;112;112;111;109;108;107;106;106;106;106;106" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="153;153;154;154;155;156;156;156;155;154;154;154;154;154;154;154;154;155;155;156;156;156;156;155;154;154;154;154;153;153;153" dur="3.4s" repeatCount="indefinite"/>
 </line>
@@ -1021,16 +1091,16 @@
 </line>
 <line class="shoe-far" stroke-width="9" x1="96" y1="184" x2="109" y2="184">
 </line>
-<line class="far" stroke-width="10" x1="113" y1="126" x2="95" y2="144"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;96;99;105;116;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;118;111;105;101;98;97;95;95;95;95" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="144;144;143;141;136;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;131;136;139;141;143;143;144;144;144" dur="3.4s" repeatCount="indefinite"/>
+<line class="far" stroke-width="10" x1="113" y1="126" x2="92" y2="140"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="92;92;93;96;103;114;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;117;109;103;98;95;93;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="140;140;140;138;135;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;130;135;137;139;139;140;140;140;140" dur="3.4s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="9" x1="95" y1="144" x2="79" y2="160"><animate attributeName="x1" values="95;95;96;99;105;116;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;118;111;105;101;98;97;95;95;95;95" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="144;144;143;141;136;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;131;136;139;141;143;143;144;144;144" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="79;79;81;87;99;120;139;146;148;148;148;148;148;148;148;148;148;148;146;143;136;124;110;99;91;86;82;80;79;79;79" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;161;160;158;147;124;107;94;86;82;81;81;81;82;83;87;93;102;115;130;144;154;158;160;161;161;160;160;160;160" dur="3.4s" repeatCount="indefinite"/>
+<line class="far" stroke-width="9" x1="92" y1="140" x2="73" y2="153"><animate attributeName="x1" values="92;92;93;96;103;114;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;117;109;103;98;95;93;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="140;140;140;138;135;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;130;135;137;139;139;140;140;140;140" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="73;73;75;81;94;118;139;146;148;148;148;148;148;148;148;148;148;148;146;143;136;122;106;94;85;80;76;74;73;73;73" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="153;153;154;156;156;147;124;107;94;86;82;81;81;81;82;83;87;93;102;115;130;144;153;156;156;155;155;154;153;153;153" dur="3.4s" repeatCount="indefinite"/>
 </line>
 <g class="load">
-<g><animateTransform attributeName="transform" type="translate" values="79 160;79 160;81 161;87 160;99 158;120 147;139 124;146 107;148 94;148 86;148 82;148 81;148 81;148 81;148 82;148 83;148 87;148 93;146 102;143 115;136 130;124 144;110 154;99 158;91 160;86 161;82 161;80 160;79 160;79 160;79 160" dur="3.4s" repeatCount="indefinite"/>
-<g><animateTransform attributeName="transform" type="rotate" values="40;40;36;28;11;-16;-45;-63;-75;-82;-85;-87;-87;-87;-86;-84;-81;-75;-67;-55;-39;-21;-3;11;22;30;35;38;39;40;40" dur="3.4s" repeatCount="indefinite"/>
-<path d="M-7 4a7 7 0 0 1 14 0z" fill="none" stroke-width="4"/>
-<circle cx="0" cy="17" r="11"/>
-<rect x="-9" y="8" width="18" height="8" rx="2"/>
+<g><animateTransform attributeName="transform" type="translate" values="73 153;73 153;75 154;81 156;94 156;118 147;139 124;146 107;148 94;148 86;148 82;148 81;148 81;148 81;148 82;148 83;148 87;148 93;146 102;143 115;136 130;122 144;106 153;94 156;85 156;80 155;76 155;74 154;73 153;73 153;73 153" dur="3.4s" repeatCount="indefinite"/>
+<g><animateTransform attributeName="transform" type="rotate" values="55;54;51;41;21;-12;-45;-63;-75;-82;-85;-87;-87;-87;-86;-84;-81;-75;-67;-55;-39;-18;4;21;33;43;49;52;54;55;55" dur="3.4s" repeatCount="indefinite"/>
+<path d="M-6 3a6 6 0 0 1 12 0z" fill="none" stroke-width="3.5"/>
+<circle cx="0" cy="12" r="9"/>
+<rect x="-7" y="5" width="14" height="7" rx="2"/>
 </g>
 </g>
 </g>
@@ -1050,9 +1120,9 @@
 </circle>
 <circle class="nose" r="2.6" cx="143" cy="122"><animate attributeName="cx" values="143;143;143;142;141;137;129;122;116;113;111;111;111;111;111;112;113;116;120;125;132;136;139;141;142;143;143;143;143;143;143" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="122;122;120;114;103;87;71;62;57;55;54;53;53;53;53;54;55;57;60;66;74;84;94;103;110;115;118;121;122;122;122" dur="3.4s" repeatCount="indefinite"/>
 </circle>
-<line class="skin" stroke-width="11" x1="113" y1="126" x2="96" y2="145"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="96;96;97;100;107;117;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;119;113;107;103;100;98;97;96;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="145;145;144;142;136;124;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;121;131;136;140;142;144;144;145;145;145" dur="3.4s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="11" x1="113" y1="126" x2="91" y2="139"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;92;95;103;115;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;118;109;103;98;95;93;92;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;139;138;135;125;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;122;130;135;137;138;139;139;139;139;139" dur="3.4s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="10" x1="96" y1="145" x2="81" y2="163"><animate attributeName="x1" values="96;96;97;100;107;117;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;119;113;107;103;100;98;97;96;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="145;145;144;142;136;124;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;121;131;136;140;142;144;144;145;145;145" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="81;81;84;90;102;124;142;147;149;148;148;148;148;148;148;148;149;149;148;145;139;127;114;103;94;88;85;83;82;81;81" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="163;163;163;162;159;146;122;104;91;83;79;78;77;77;78;80;84;90;99;112;128;143;154;159;161;162;163;163;163;163;163" dur="3.4s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="10" x1="91" y1="139" x2="72" y2="152"><animate attributeName="x1" values="91;91;92;95;103;115;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;118;109;103;98;95;93;92;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="139;139;139;138;135;125;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;122;130;135;137;138;139;139;139;139;139" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="72;72;74;80;94;120;142;147;149;148;148;148;148;148;148;148;149;149;148;145;139;124;107;94;85;79;75;73;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="152;152;153;155;156;147;122;104;91;83;79;78;77;77;78;80;84;90;99;112;128;144;153;156;156;155;154;153;152;152;152" dur="3.4s" repeatCount="indefinite"/>
 </line>
 </svg>
 <svg class="demo" data-demo="lunge" width="51" height="89" viewBox="54 35 92 162">
@@ -1241,13 +1311,13 @@
 </g>
 </g>
 </svg>
-<svg class="demo" data-demo="kneeraise" width="72" height="100" viewBox="32 24 131 181">
+<svg class="demo" data-demo="kneeraise" width="74" height="100" viewBox="32 24 134 181">
 <rect class="kit-fill" x="34" y="26" width="124" height="8" rx="4"/>
-<line class="far" stroke-width="13" x1="92" y1="126" x2="91" y2="160"><animate attributeName="x2" values="91;91;93;99;109;121;126;126;125;125;125;125;125;125;125;126;126;126;125;120;111;103;97;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;160;159;155;143;130;123;120;119;119;119;119;119;119;121;123;128;136;145;154;158;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/>
+<line class="far" stroke-width="13" x1="92" y1="126" x2="91" y2="160"><animate attributeName="x2" values="91;91;94;101;113;125;125;122;120;119;119;119;119;119;119;120;122;124;126;124;115;106;99;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;160;159;153;135;118;110;106;106;106;106;106;106;106;107;110;116;125;138;151;157;159;160;160;160;160" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="11" x1="91" y1="160" x2="91" y2="192"><animate attributeName="x1" values="91;91;93;99;109;121;126;126;125;125;125;125;125;125;125;126;126;126;125;120;111;103;97;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;160;159;155;143;130;123;120;119;119;119;119;119;119;121;123;128;136;145;154;158;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;94;102;115;133;141;144;144;144;144;144;144;144;144;144;144;142;139;131;118;107;99;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;192;191;187;173;158;149;146;145;145;145;145;145;145;147;150;156;164;175;185;190;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/>
+<line class="far" stroke-width="11" x1="91" y1="160" x2="91" y2="192"><animate attributeName="x1" values="91;91;94;101;113;125;125;122;120;119;119;119;119;119;119;120;122;124;126;124;115;106;99;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;160;159;153;135;118;110;106;106;106;106;106;106;106;107;110;116;125;138;151;157;159;160;160;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;95;105;122;142;147;147;145;145;145;145;145;145;145;146;147;147;146;140;126;112;102;95;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;192;191;183;162;141;130;125;124;124;124;124;124;125;127;131;138;150;166;181;188;191;192;192;192;192" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="shoe-far" stroke-width="9" x1="91" y1="192" x2="103" y2="197"><animate attributeName="x1" values="91;91;94;102;115;133;141;144;144;144;144;144;144;144;144;144;144;142;139;131;118;107;99;94;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;192;191;187;173;158;149;146;145;145;145;145;145;145;147;150;156;164;175;185;190;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;106;113;127;145;153;155;156;156;156;156;156;156;156;156;155;154;151;143;130;119;111;106;104;103;103" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;197;192;178;164;155;151;150;150;150;150;150;151;152;155;161;170;181;191;195;197;197;197;197;197" dur="3.2s" repeatCount="indefinite"/>
+<line class="shoe-far" stroke-width="9" x1="91" y1="192" x2="103" y2="197"><animate attributeName="x1" values="91;91;95;105;122;142;147;147;145;145;145;145;145;145;145;146;147;147;146;140;126;112;102;95;92;91;91" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;192;191;183;162;141;130;125;124;124;124;124;124;125;127;131;138;150;166;181;188;191;192;192;192;192" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;107;117;134;154;159;158;157;157;157;157;157;157;157;158;158;159;158;151;137;124;114;107;104;103;103" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;196;189;167;147;135;131;130;130;130;130;130;130;132;136;143;155;171;187;194;197;197;197;197;197" dur="3.2s" repeatCount="indefinite"/>
 </line>
 <line class="far" stroke-width="10" x1="92" y1="80" x2="78" y2="59"><animate attributeName="x1" values="92;92;92;91;90;89;88;87;87;87;87;87;87;87;87;87;88;88;88;89;90;91;92;92;92;92;92" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="78;78;78;78;77;76;75;75;75;74;74;74;74;74;74;75;75;75;75;76;77;77;78;78;78;78;78" dur="3.2s" repeatCount="indefinite"/>
 </line>
@@ -1255,13 +1325,13 @@
 </line>
 <line class="vest" stroke-width="25" x1="92" y1="126" x2="92" y2="80"><animate attributeName="x2" values="92;92;92;91;90;89;88;87;87;87;87;87;87;87;87;87;88;88;88;89;90;91;92;92;92;92;92" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="15" x1="92" y1="126" x2="88" y2="160"><animate attributeName="x2" values="88;89;91;97;107;120;125;126;126;126;126;126;126;126;126;126;126;126;124;119;109;101;95;91;89;89;88" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;160;160;156;145;133;125;122;121;121;121;121;121;122;123;126;130;138;147;155;159;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="15" x1="92" y1="126" x2="88" y2="160"><animate attributeName="x2" values="88;89;91;98;111;124;126;123;121;121;121;121;121;121;121;122;123;125;126;123;113;104;96;92;89;89;88" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;160;159;154;137;121;112;108;107;107;107;107;107;108;109;112;118;127;140;152;158;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="12" x1="88" y1="160" x2="86" y2="192"><animate attributeName="x1" values="88;89;91;97;107;120;125;126;126;126;126;126;126;126;126;126;126;126;124;119;109;101;95;91;89;89;88" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;160;160;156;145;133;125;122;121;121;121;121;121;122;123;126;130;138;147;155;159;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="86;87;89;97;111;130;139;142;143;143;143;143;143;143;143;142;142;140;136;127;114;103;95;90;87;86;86" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;192;192;188;176;162;153;149;148;148;148;148;148;149;150;153;159;167;178;187;191;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="12" x1="88" y1="160" x2="86" y2="192"><animate attributeName="x1" values="88;89;91;98;111;124;126;123;121;121;121;121;121;121;121;122;123;125;126;123;113;104;96;92;89;89;88" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;160;159;154;137;121;112;108;107;107;107;107;107;108;109;112;118;127;140;152;158;160;160;160;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="86;87;90;100;118;139;146;146;145;145;145;145;145;145;145;146;146;146;144;137;122;108;97;91;88;86;86" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;192;191;185;165;145;134;129;128;128;128;128;128;129;130;134;142;153;169;183;190;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="shorts" stroke-width="24" x1="92" y1="126" x2="90" y2="147"><animate attributeName="x2" values="90;90;91;95;101;109;113;113;113;113;113;113;113;113;113;113;113;113;112;108;103;97;94;91;90;90;90" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="147;147;147;147;145;138;130;126;124;123;123;123;123;123;123;124;126;129;133;139;144;146;147;147;147;147;147" dur="3.2s" repeatCount="indefinite"/>
+<line class="shorts" stroke-width="24" x1="92" y1="126" x2="90" y2="147"><animate attributeName="x2" values="90;90;92;96;104;112;113;111;110;110;110;110;110;110;110;110;111;112;113;111;105;99;95;92;90;90;90" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="147;147;147;147;143;133;123;117;115;115;115;115;115;115;115;116;117;121;127;135;142;146;147;147;147;147;147" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="shoe" stroke-width="10" x1="86" y1="192" x2="98" y2="197"><animate attributeName="x1" values="86;87;89;97;111;130;139;142;143;143;143;143;143;143;143;142;142;140;136;127;114;103;95;90;87;86;86" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;192;192;188;176;162;153;149;148;148;148;148;148;149;150;153;159;167;178;187;191;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="98;98;101;109;123;142;151;154;154;154;154;154;154;154;154;154;154;152;148;139;126;114;106;102;99;98;98" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;197;194;181;167;159;155;154;154;154;154;154;154;156;159;165;173;184;192;196;197;197;197;197;197" dur="3.2s" repeatCount="indefinite"/>
+<line class="shoe" stroke-width="10" x1="86" y1="192" x2="98" y2="197"><animate attributeName="x1" values="86;87;90;100;118;139;146;146;145;145;145;145;145;145;145;146;146;146;144;137;122;108;97;91;88;86;86" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;192;191;185;165;145;134;129;128;128;128;128;128;129;130;134;142;153;169;183;190;192;192;192;192;192" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="98;99;102;112;130;151;158;158;157;157;157;157;157;157;157;157;158;158;156;149;133;119;109;103;99;98;98" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;197;191;171;151;139;135;134;134;134;134;134;134;136;140;147;159;175;189;195;197;197;197;197;197" dur="3.2s" repeatCount="indefinite"/>
 </line>
 <circle class="hair" r="12" cx="90" cy="55"><animate attributeName="cx" values="90;90;89;89;88;86;84;83;83;83;83;83;83;83;83;83;83;84;85;86;87;88;89;89;90;90;90" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="55;55;55;55;55;55;55;55;55;56;56;56;56;56;56;55;55;55;55;55;55;55;55;55;55;55;55" dur="3.2s" repeatCount="indefinite"/>
 </circle>
@@ -1314,7 +1384,7 @@
 </g>
 </g>
 </svg>
-<svg class="demo" data-demo="goblet" width="48" height="89" viewBox="63 35 87 162">
+<svg class="demo" data-demo="goblet" width="43" height="89" viewBox="63 35 79 162">
 <ellipse class="shadow" cx="93" cy="190" rx="26" ry="5"/>
 <line class="far" stroke-width="13" x1="94" y1="120" x2="97" y2="154"><animate attributeName="x1" values="94;94;93;92;89;84;81;79;78;78;78;78;78;78;78;78;79;80;82;85;88;91;92;93;94;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;146;150;152;152;152;152;152;152;152;151;150;147;143;138;131;126;123;121;120;120;120" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="97;97;99;102;106;109;110;110;110;110;110;110;110;110;110;110;110;110;110;109;107;104;102;99;98;97;97" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;155;157;159;162;163;163;163;163;163;163;163;163;163;163;163;163;163;162;160;158;156;155;154;154;154" dur="3.2s" repeatCount="indefinite"/>
 </line>
@@ -1349,9 +1419,9 @@
 <g class="load">
 <g><animateTransform attributeName="transform" type="translate" values="110 87;110 87;110 88;111 91;113 98;115 109;117 118;118 123;118 126;118 126;118 126;118 126;118 126;118 126;118 126;118 125;118 123;117 119;116 114;115 107;113 99;112 94;111 91;110 89;110 88;110 87;110 87" dur="3.2s" repeatCount="indefinite"/>
 <g transform="rotate(0)">
-<path d="M-7 4a7 7 0 0 1 14 0z" fill="none" stroke-width="4"/>
-<circle cx="0" cy="17" r="11"/>
-<rect x="-9" y="8" width="18" height="8" rx="2"/>
+<path d="M-6 3a6 6 0 0 1 12 0z" fill="none" stroke-width="3.5"/>
+<circle cx="0" cy="12" r="9"/>
+<rect x="-7" y="5" width="14" height="7" rx="2"/>
 </g>
 </g>
 </g>
@@ -1445,6 +1515,16 @@
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.31.0",
+    "date": "2026-08-16",
+    "changes": [
+      "There is a figure beside the app's name now. Tapping him opens his colours – vest, shorts, hair and shoes – and he wears them in every drawing in the session details too",
+      "Hanging knee raises pull the knees up further",
+      "The kettlebell swing takes the bell between the legs, where it goes, rather than past them",
+      "A wall ball now leaves the hands at the top, which is the point of throwing it"
+    ]
+  },
   {
     "version": "0.30.0",
     "date": "2026-08-16",
@@ -1927,7 +2007,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.30.0";
+const APP_VERSION = "0.31.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3853,6 +3933,60 @@ bindTapAndHold(document.getElementById("plan-weeks"), {
 
 let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayIndex|day, id }
 
+/* ---- What he wears ----
+   The drawings are one person, so his colours are the app's and not each
+   drawing's: they are CSS variables, and picking one writes the variable. The
+   far side of a shoe is the near side turned down, worked out rather than
+   chosen, so there is one decision per thing rather than two. */
+const KEY_KIT = "tb.kit";
+const KIT = [
+  { part:"vest",   label:"Vest",
+    colors:["#38BDF8","#4ADE80","#FBBF24","#F472B6","#A78BFA","#F2F7F4"] },
+  { part:"shorts", label:"Shorts",
+    colors:["#F43F5E","#2DD4BF","#A78BFA","#FBBF24","#4ADE80","#E2E8F0"] },
+  { part:"hair",   label:"Hair",
+    colors:["#43301F","#1C1917","#C2410C","#E7C46B","#94A3B8","#7C3AED"] },
+  { part:"shoe",   label:"Shoes",
+    colors:["#F2F7F4","#1F2937","#F43F5E","#38BDF8","#4ADE80","#FBBF24"] }
+];
+const KIT_DEFAULT = { vest:"#38BDF8", shorts:"#F43F5E", hair:"#43301F", shoe:"#F2F7F4" };
+let kit = Object.assign({}, KIT_DEFAULT, load(KEY_KIT, {}));
+
+/* Turned down towards the background, which is what distance does to a colour
+   and what the far side of the body is drawn in. */
+function dim(hex, k){
+  const n = parseInt(hex.slice(1), 16);
+  const mix = (c, b) => Math.round(c * k + b * (1 - k));
+  return "#" + [[n >> 16 & 255, 14], [n >> 8 & 255, 23], [n & 255, 18]]
+    .map(([c, b]) => mix(c, b).toString(16).padStart(2, "0")).join("");
+}
+
+function applyKit(){
+  const root = document.documentElement.style;
+  KIT.forEach(({ part }) => root.setProperty("--" + part, kit[part]));
+  root.setProperty("--shoe-far", dim(kit.shoe, .72));
+}
+
+function pickKit(part, color){
+  kit[part] = color;
+  save(KEY_KIT, kit);
+  applyKit();
+  renderKit();
+}
+
+function renderKit(){
+  const fig = document.querySelector('#demos [data-demo="mascot"]');
+  if(fig){
+    document.getElementById("kit-him").innerHTML = fig.outerHTML;
+    document.getElementById("mascot").innerHTML = fig.outerHTML;
+  }
+  document.getElementById("kit-rows").innerHTML = KIT.map(({ part, label, colors }) =>
+    '<div class="kit-row"><h3>' + label + '</h3><div class="swatches">' +
+    colors.map(c => '<div class="swatch' + (kit[part] === c ? " on" : "") +
+      '" style="background:' + c + '" onclick="pickKit(\'' + part + "','" + c + '\')"></div>').join("") +
+    "</div></div>").join("");
+}
+
 /* ---- Drawings ----
    Which wordings get which drawing. A work list is typed by hand, so this is
    a table of the exact names a movement is written under and nothing
@@ -5579,6 +5713,8 @@ document.getElementById("recent-slot").addEventListener("click", e => {
    uses is moved, once, rather than translated on every read for ever. */
 migrateStoredCategories();
 
+applyKit();
+renderKit();
 renderChangelog();
 renderHome();
 loadVoices();

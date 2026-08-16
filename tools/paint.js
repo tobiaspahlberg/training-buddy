@@ -39,8 +39,8 @@ const HELD = {
             '<rect x="-15" y="-9" width="7.5" height="18" rx="2.5"/>' +
             '<rect x="7.5" y="-9" width="7.5" height="18" rx="2.5"/>',
   /* A kettlebell hangs below the hand, so it is drawn below the origin. */
-  kettle:   '<path d="M-7 4a7 7 0 0 1 14 0z" fill="none" stroke-width="4"/>' +
-            '<circle cx="0" cy="17" r="11"/><rect x="-9" y="8" width="18" height="8" rx="2"/>',
+  kettle:   '<path d="M-6 3a6 6 0 0 1 12 0z" fill="none" stroke-width="3.5"/>' +
+            '<circle cx="0" cy="12" r="9"/><rect x="-7" y="5" width="14" height="7" rx="2"/>',
   ball:     '<circle cx="0" cy="0" r="15"/>',
   /* A loaded barbell, end on: what you see from the side is the plate. */
   plate:    '<circle cx="0" cy="0" r="15" fill="none" stroke-width="9"/>',
@@ -50,7 +50,7 @@ const HELD = {
 };
 
 /* How far a held thing reaches from the hand, for the crop. */
-const HOLDS = { dumbbell: 16, kettle: 30, ball: 16, bar: 14, seat: 16, plate: 21 };
+const HOLDS = { dumbbell: 16, kettle: 22, ball: 16, bar: 14, seat: 16, plate: 21 };
 
 function dressed(o){
   const frames = sample(o.keys, o.frames || 26);
@@ -88,9 +88,13 @@ function dressed(o){
   /* Something held can be painted between the two sides of the body, which is
      the only way a kettlebell is ever between the legs: in front of the far
      one and behind the near one. */
+  /* What a thing is carried on is usually a joint, but it can be a pair of
+     numbers written into the pose instead - which is how a ball leaves the
+     hands and keeps going. */
+  const where = (f, at) => f[at] || { x: f.pose[at + "X"], y: f.pose[at + "Y"] };
   const held = c => {
     const j = c.at || "handA";
-    const move = f => r(f[j].x) + " " + r(f[j].y);
+    const move = f => r(where(f, j).x) + " " + r(where(f, j).y);
     const spin = f => r(c.spin ? f.pose[c.spin] || 0 : 0);
     /* An animate that was dropped for standing still leaves the group with no
        transform at all, so a constant one is written out as an attribute. */
@@ -139,7 +143,14 @@ function dressed(o){
   frames.forEach(f => {
     PAINT.concat(OVER).forEach(([a, b, cls, w]) => { box(f[a].x, f[a].y, w / 2); box(f[b].x, f[b].y, w / 2); });
     box(f.head.x, f.head.y, 15);
-    (o.carry || []).forEach(c => box(f[c.at || "handA"].x, f[c.at || "handA"].y, HOLDS[c.what]));
+    /* `crop:false` keeps a thing out of the box: a ball thrown out of the top
+       of the picture is meant to be out of the picture, and growing the box to
+       hold it shrinks the person for the sake of the empty air it flew
+       through. */
+    (o.carry || []).filter(c => c.crop !== false).forEach(c => {
+      const p = where(f, c.at || "handA");
+      box(p.x, p.y, HOLDS[c.what]);
+    });
   });
   /* The shadow is wide and flat, and boxing it as a circle put twenty units of
      empty floor under every standing figure. */

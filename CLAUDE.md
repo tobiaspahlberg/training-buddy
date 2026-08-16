@@ -56,7 +56,8 @@ that stays on a branch never becomes an APK. Finished work belongs on `main`.
   half rather than making it smaller.
 - Colours are CSS variables at the top: `--run` green, `--walk` blue,
   `--warm` amber (warm-up and cool-down), `--rest` purple, `--lift` pink
-  (strength), `--hold` teal (planks and the like), `--stop` red
+  (strength), `--hold` teal (planks and the like), `--stop` red. Four of them
+  are not the app's to keep – see the figure, below.
 
 ## Data model
 
@@ -179,6 +180,18 @@ lists of positions. **The numbers are output, not source** – the rig and the
 key poses live in `tools/`, outside the app and shipped with nothing, so a
 drawing is changed by editing a pose and regenerating it, never by editing the
 lists by hand. `tools/README.md` says how, and lists the movements this rig has been tried on and cannot draw – anything that turns out of the page, anything lateral, and anything where the hands and the feet end up in the same place.
+
+**The figure beside the app's name is the same person as the drawings.** He is
+`data-demo="mascot"` in the same block, made by the same rig, standing and
+breathing; tapping him opens the Colours screen. `--vest`, `--shorts`, `--hair`
+and `--shoe` are therefore the reader's rather than the app's: `KIT` is what
+can be picked, `applyKit()` writes the four variables onto the root element,
+and `tb.kit` remembers. `--shoe-far` is worked out from `--shoe` by `dim()`
+rather than chosen, so there is one decision per thing rather than two.
+
+Both the width and the height are set on every drawing, so CSS that asks for
+one of them and leaves the other alone letterboxes the figure inside a taller
+box instead of making him bigger. Ask for one and say `width:auto`.
 
 **Recent** is the first thing on home: the last `RECENT_MAX` sessions actually
 finished, each once however often it has been run. A history entry holds only
