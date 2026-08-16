@@ -455,7 +455,78 @@ const mascot = {
   keys: [{ t: 0, pose: msUp }, { t: .5, pose: msDown }, { t: 1, pose: msUp }]
 };
 
+/* ---- the same figure, doing something ----
+   Candidates for the header. He is on screen the whole time home is, so
+   whatever he does has to bear being looked at for a long time and not much
+   at all. */
+
+/* Running on the spot. Nothing is pinned: the feet leave the floor by turns,
+   which is what running is, so the legs are given as angles and land where the
+   angles put them. The knee comes up and the shin folds back under it - a shin
+   that swings forward instead is a kick, and that is what the first attempt
+   was. Opposite arm to opposite leg, as people are built. */
+const runA = { footA: 30, footB: 30, bendA: 1, bendB: 1,
+               hipX: 94, hipY: 112, torso: -88, head: -86,
+               thighA: -14, shinA: 118, thighB: 108, shinB: 74,
+               upperA: 140, foreA: 60, upperB: 60, foreB: -20 };
+const runB = { footA: 30, footB: 30, bendA: 1, bendB: 1,
+               hipX: 94, hipY: 112, torso: -88, head: -86,
+               thighA: 108, shinA: 74, thighB: -18, shinB: 114,
+               upperA: 60, foreA: -20, upperB: 140, foreB: 60 };
+const runMid = { footA: 20, footB: 20, bendA: 1, bendB: 1,
+                 hipX: 94, hipY: 118, torso: -89, head: -87,
+                 thighA: 80, shinA: 95, thighB: 92, shinB: 88,
+                 upperA: 100, foreA: 20, upperB: 100, foreB: 20 };
+
+const mascotRun = {
+  ground: 190, dur: "1.3s", frames: 18,
+  keys: [
+    { t: 0,   pose: runA },
+    { t: .25, flow: true, pose: runMid },
+    { t: .5,  pose: runB },
+    { t: .75, flow: true, pose: runMid },
+    { t: 1,   pose: runA }
+  ]
+};
+
+/* A slow squat: the movement the app has most of, done by the figure who
+   introduces it. */
+const msFeet = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
+                 ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
+                 thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const sqUp   = P(msFeet, { hipX: 94, hipY: 118, torso: -90, head: -88,
+                           upperA: 94, foreA: 90, upperB: 90, foreB: 86 });
+const sqDown = P(msFeet, { hipX: 78, hipY: 150, torso: -60, head: -54,
+                           upperA: -4, foreA: 0, upperB: 0, foreB: 4 });
+
+const mascotSquat = {
+  ground: 190, dur: "3.4s", frames: 24,
+  keys: [{ t: 0, pose: sqUp }, { t: .40, pose: sqDown },
+         { t: .50, pose: sqDown }, { t: 1, pose: sqUp }]
+};
+
+/* Skipping on the spot: two feet, small hops, hands turning at the hips as
+   though there were a rope. There is no rope, because a rope in the header at
+   twenty pixels is a scribble. */
+const hopDown = { footA: 0, footB: 0, bendA: 1, bendB: 1,
+                  hipX: 94, hipY: 126, torso: -88, head: -86,
+                  thighA: 74, shinA: 102, thighB: 78, shinB: 106,
+                  upperA: 126, foreA: 24, upperB: 122, foreB: 20 };
+const hopUp   = { footA: 55, footB: 55, bendA: 1, bendB: 1,
+                  hipX: 94, hipY: 98, torso: -91, head: -89,
+                  thighA: 66, shinA: 128, thighB: 70, shinB: 132,
+                  upperA: 136, foreA: 56, upperB: 132, foreB: 52 };
+
+const mascotHop = {
+  ground: 190, dur: "1.6s", frames: 16,
+  keys: [{ t: 0, pose: hopDown }, { t: .38, pose: hopUp },
+         { t: .62, flow: true, pose: hopUp }, { t: 1, pose: hopDown }]
+};
+
 const ALL = [
+  ["mascot-run", "Mascot, running on the spot", mascotRun, "A header candidate."],
+  ["mascot-squat", "Mascot, squatting", mascotSquat, "A header candidate."],
+  ["mascot-hop", "Mascot, skipping", mascotHop, "A header candidate."],
   ["mascot", "The mascot", mascot, "Not a movement: the figure beside the app\u2019s name."],
   ["squat", "Air squat", squat, "In the app already."],
   ["snatch", "Dumbbell snatch", snatch, "In the app already."],
