@@ -8,10 +8,8 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 11, "the app carries " + held.length + " drawings: " +
+ok(held.length === 12, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
-ok(!held.some(s => s.dataset.demo === "burpee"),
-   "the burpee is drawn but not shipped, because it has not been approved");
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
 ok(held.every(s => s.getAttribute("viewBox")), "each has a view box");
@@ -26,7 +24,7 @@ const scale = s => {
 };
 const scales = held.map(scale);
 ok(Math.max(...scales) - Math.min(...scales) < 0.02,
-   "all eleven are drawn at one scale, within rounding: " +
+   "all of them are drawn at one scale, within rounding: " +
    scales.map(x => x.toFixed(3)).join(" "));
 ok(held.every(s => {
      const [, , w, h] = s.getAttribute("viewBox").split(/\s+/).map(Number);
@@ -76,7 +74,7 @@ ok(has("Air squat") && has("air squats") && has("20 bodyweight squats"),
 ok(!has("50 goblet squats, kettlebell"),
    "but a goblet squat is a different movement and gets no drawing");
 ok(!has("5 bow bend squats"), "and so is a bow bend squat");
-ok(!has("50 burpees") && !has("Run 400 m") && !has(""),
+ok(!has("50 C-crunches") && !has("Run 400 m") && !has(""),
    "everything the app has not been drawn for gets nothing, which is honest");
 
 // the snatch, written five ways on four whiteboards
@@ -106,7 +104,8 @@ ok(has("50 walking lunges") && !has("50 overhead lunges") && !has("20 reverse lu
 ok(has("100 strict press") && has("50 wall balls") && has("80 kettlebell swings") &&
    has("20 pull-ups") && has("50 sit-ups"),
    "the rest of what the built-in workouts actually call for");
-ok(!has("60 burpees"), "and burpees get nothing, because that drawing is not in yet");
+ok(has("60 burpees") && has("5 burpees") && !has("6 lateral burpees over dumbbell"),
+   "a burpee is a burpee, but one that goes sideways over a dumbbell is not one");
 
 // ---- and where it turns up ----
 w.openProgram("wod-total-training-25");
@@ -119,8 +118,8 @@ ok(new Set(which).size === which.length,
    "no drawing turns up twice in one session: " + which.join(", "));
 ok(drawn.some(r => said(r) === "100 air squats") && drawn.some(r => said(r) === "50 push-ups"),
    "each movement the app knows gets its own: " + drawn.map(said).join(", "));
-ok(rows.length - drawn.length === 7,
-   "and the seven it does not know get nothing: " + (rows.length - drawn.length));
+ok(rows.length - drawn.length === 6,
+   "and the six it does not know get nothing: " + (rows.length - drawn.length));
 ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");
