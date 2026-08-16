@@ -172,7 +172,7 @@ function dressed(o){
   /* The shadow is wide and flat, and boxing it as a circle put twenty units of
      empty floor under every standing figure. */
   if(o.ground) box((frames[0].ankleA.x + frames[0].ankleB.x) / 2, o.ground, 26, 5);
-  (o.include || []).forEach(p => box(p[0], p[1], 0));
+  (o.include || []).forEach(p => box(p[0], p[1], 0));   /* undefined is none */
   const pad = 2, W = Math.ceil(x1 - x0 + pad * 2), H = Math.ceil(y1 - y0 + pad * 2);
   /* Every drawing is authored in the same units - a person is about 150 tall -
      so one scale for all of them is what makes the figures the same size. The

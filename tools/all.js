@@ -626,7 +626,100 @@ const poseToes = Object.assign({}, SIDE, { ground: 190, dur: "4.4s", frames: 24,
   keys: [{ t: 0, pose: toeUp }, { t: .38, pose: toeDown },
          { t: .52, pose: toeDown }, { t: 1, pose: toeUp }] });
 
+/* ==================================================================
+   Ten ways of leaning. The wall is the left edge of the button he sits on:
+   every one of these fixes the crop's left edge at the same x with `include`,
+   so whatever he rests on it lands exactly there, and the plate's padding on
+   that side is nothing. Two of them draw a wall as well, to be compared
+   against the ones that do not.
+   ================================================================== */
+const WALL = 58;
+const atWall = { ground: 190, dur: "4.6s", frames: 18, include: [[WALL, 34]] };
+const drawnWall = '<rect class="kit-fill" x="' + (WALL - 9) + '" y="30" width="9" height="160" rx="4"/>';
+const LEAN = Object.assign({ smile: true, band: true }, atWall);
+/* Face on, the wall is behind him rather than beside him, so there is nothing
+   for the crop to reach out to: these are cropped to the figure like any
+   other, and the plate behind him is the wall. */
+const LEANF = Object.assign({ smile: true, band: true, face: "front" },
+  atWall, { include: undefined });
+const sway = (a, b, o) => Object.assign({}, o, {
+  keys: [{ t: 0, pose: a }, { t: .5, pose: b }, { t: 1, pose: a }] });
+
+/* ankles crossed, seen from the side: one leg carries the weight, the other
+   comes across it and rests on its toe */
+const crossed = { ankleAX: 118, ankleAY: 178, footA: 42, bendA: -1,
+                  ankleBX: 102, ankleBY: 183, footB: 0, bendB: -1,
+                  thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+
+/* 1 - the photograph: a straight arm high on the wall */
+const highA = P(crossed, { handBX: WALL + 2, handBY: 74, armB: 1,
+                           hipX: 106, hipY: 130, torso: -100, head: -84,
+                           upperA: 96, foreA: 62 });
+const lean1 = sway(highA, P(highA, { hipY: 132, torso: -99, foreA: 64 }), LEAN);
+
+/* 2 - the same, with a wall actually drawn */
+const lean2 = Object.assign({}, lean1,
+  { props: drawnWall, include: [[WALL - 9, 30], [WALL, 190]] });
+
+/* 3 - the other photograph: back to the wall, arms folded, face on */
+const foldCross = { footA: 0, footB: 180, bendA: 1, bendB: -1,
+                    thighA: 78, shinA: 102, thighB: 102, shinB: 78,
+                    hipX: 84, hipY: 120, torso: -90, head: -90,
+                    upperA: 118, foreA: 20, upperB: 62, foreB: 160 };
+const lean3 = sway(foldCross, P(foldCross, { hipY: 123, head: -89 }), LEANF);
+
+/* 4 - the same, tilted: he is resting on one shoulder, not standing to
+       attention against a wall */
+const foldTilt = P(foldCross, { hipX: 88, torso: -97, head: -95 });
+const lean4 = sway(foldTilt, P(foldTilt, { hipY: 123, torso: -96 }), LEANF);
+
+/* 5 - a shoulder against it, side on, arms folded */
+const shoulderA = P(crossed, { hipX: 82, hipY: 128, torso: -106, head: -88,
+                               upperA: 118, foreA: 26, upperB: 112, foreB: 20,
+                               ankleAX: 112, ankleAY: 178, ankleBX: 96, ankleBY: 183 });
+const lean5 = sway(shoulderA, P(shoulderA, { hipY: 130, torso: -105 }), LEAN);
+
+/* 6 - a forearm along it, head near the hand */
+const elbowA = P(crossed, { handBX: WALL + 2, handBY: 62, armB: -1,
+                            hipX: 104, hipY: 130, torso: -100, head: -70,
+                            upperA: 96, foreA: 62 });
+const lean6 = sway(elbowA, P(elbowA, { hipY: 132, torso: -99 }), LEAN);
+
+/* 7 - a hand on it at hip height, hip pushed out */
+const lowA = P(crossed, { handBX: WALL + 2, handBY: 118, armB: 1,
+                          hipX: 100, hipY: 128, torso: -96, head: -86,
+                          upperA: 94, foreA: 58 });
+const lean7 = sway(lowA, P(lowA, { hipY: 130, torso: -95 }), LEAN);
+
+/* 8 - back to it, hands at the hips, face on */
+const hipsCross = P(foldCross, { upperA: 118, foreA: 42, upperB: 62, foreB: 138 });
+const lean8 = sway(hipsCross, P(hipsCross, { hipY: 123 }), LEANF);
+
+/* 9 - a foot flat against it behind him, arms folded, side on */
+const footWall = { ankleAX: 104, ankleAY: 182, footA: 0, bendA: -1,
+                   ankleBX: WALL + 12, ankleBY: 150, footB: -84, bendB: 1,
+                   thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+                   hipX: 96, hipY: 124, torso: -98, head: -86,
+                   upperA: 120, foreA: 28, upperB: 114, foreB: 22 };
+const lean9 = sway(footWall, P(footWall, { hipY: 126, torso: -97 }), LEAN);
+
+/* 10 - one hand high on it, the other behind his head */
+const easyA = P(crossed, { handBX: WALL + 2, handBY: 70, armB: 1,
+                           hipX: 106, hipY: 130, torso: -100, head: -84,
+                           upperA: -46, foreA: -170 });
+const lean10 = sway(easyA, P(easyA, { hipY: 132, torso: -99, foreA: -166 }), LEAN);
+
 const ALL = [
+  ["lean-1", "1. Straight arm high on it &mdash; the photograph", lean1, "Leaning."],
+  ["lean-2", "2. The same, with a wall drawn in", lean2, "Leaning."],
+  ["lean-3", "3. Back to it, arms folded &mdash; the other photograph", lean3, "Leaning."],
+  ["lean-4", "4. The same, tilted onto one shoulder", lean4, "Leaning."],
+  ["lean-5", "5. A shoulder against it, arms folded", lean5, "Leaning."],
+  ["lean-6", "6. A forearm along it, head near the hand", lean6, "Leaning."],
+  ["lean-7", "7. A hand on it at hip height", lean7, "Leaning."],
+  ["lean-8", "8. Back to it, hands at the hips", lean8, "Leaning."],
+  ["lean-9", "9. A foot flat against it behind him", lean9, "Leaning."],
+  ["lean-10", "10. One hand on it, one behind his head", lean10, "Leaning."],
   ["pose-fold", "1. Arms folded, face on", poseFold, "A header candidate."],
   ["pose-lean", "2. Leaning on the wall, ankles crossed", poseLean, "A header candidate."],
   ["pose-hips", "3. Hands on hips", poseHips, "A header candidate."],
