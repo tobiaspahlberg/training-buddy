@@ -523,7 +523,120 @@ const mascotHop = {
          { t: .62, flow: true, pose: hopUp }, { t: 1, pose: hopDown }]
 };
 
+/* ==================================================================
+   Ten things the figure in the header could be doing. He is on screen the
+   whole time home is, so whatever he does has to bear being looked at for a
+   long time and not much at all.
+
+   Some of these are drawn FRONT ON, which the rig was never asked for before.
+   It costs nothing: both legs still hang off one hip and both arms off one
+   shoulder, and splaying them a few degrees either side reads as a person
+   facing you, because the vest is drawn wide enough to be a body. The one
+   rule that does not survive the turn is the elbow's: face on, the two arms
+   are mirrors, so one bends the way a side view allows and the other bends
+   the opposite way, and both are right.
+   ================================================================== */
+
+const HEAD = { face: "front", smile: true, band: true };
+const SIDE = { smile: true, band: true };
+
+/* the feet of a figure standing face on: toes out, a little apart */
+const upright = { footA: 0, footB: 180, bendA: 1, bendB: -1,
+                  thighA: 84, shinA: 87, thighB: 96, shinB: 93 };
+const U = o => P(upright, o);
+const breath = (a, b, o) => Object.assign({ ground: 190, dur: "4s", frames: 18 }, o, {
+  keys: [{ t: 0, pose: a }, { t: .5, pose: b }, { t: 1, pose: a }] });
+
+/* 1 - arms folded, face on */
+const foldUp = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
+                   upperA: 118, foreA: 20, upperB: 62, foreB: 160 });
+const foldDn = U({ hipX: 94, hipY: 121, torso: -89, head: -89,
+                   upperA: 120, foreA: 22, upperB: 60, foreB: 158 });
+const poseFold = breath(foldUp, foldDn, HEAD);
+
+/* 2 - leaning on the wall to his left, ankles crossed */
+const leanA = { handBX: 60, handBY: 88, armB: 1, footA: 0, footB: 0,
+                bendA: -1, bendB: -1, thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+                ankleAX: 96, ankleAY: 182, ankleBX: 110, ankleBY: 183,
+                hipX: 104, hipY: 126, torso: -102, head: -96,
+                upperA: 90, foreA: 86 };
+const poseLean = breath(P(leanA, {}),
+  P(leanA, { hipY: 129, torso: -101, upperA: 92, foreA: 88 }),
+  Object.assign({}, SIDE, { props: '<rect class="kit-fill" x="46" y="44" width="9" height="146" rx="4"/>',
+                            include: [[46, 44], [55, 190]] }));
+
+/* 3 - hands on hips, face on */
+const hipsUp = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
+                   upperA: 118, foreA: 42, upperB: 62, foreB: 138 });
+const poseHips = breath(hipsUp, U({ hipX: 94, hipY: 121, torso: -89, head: -89,
+                   upperA: 120, foreA: 44, upperB: 60, foreB: 136 }), HEAD);
+
+/* 4 - flexing, face on: one arm curled up, the other down */
+const flexIn  = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
+                    upperA: 106, foreA: 100, upperB: 10, foreB: -78 });
+const flexOut = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
+                    upperA: 106, foreA: 100, upperB: 12, foreB: -96 });
+const poseFlex = Object.assign(breath(flexIn, flexOut, HEAD), { dur: "2.4s" });
+
+/* 5 - waving, face on */
+const waveA = U({ hipX: 94, hipY: 119, torso: -90, head: -90,
+                  upperA: -104, foreA: -76, upperB: 74, foreB: 80 });
+const waveB = U({ hipX: 94, hipY: 119, torso: -90, head: -90,
+                  upperA: -104, foreA: -122, upperB: 74, foreB: 80 });
+const poseWave = Object.assign(breath(waveA, waveB, HEAD), { dur: "1.6s" });
+
+/* 6 - a long stretch, arms overhead, face on */
+const stretchDn = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
+                      upperA: 108, foreA: 100, upperB: 72, foreB: 80 });
+const stretchUp = U({ hipX: 94, hipY: 116, torso: -90, head: -92,
+                      upperA: -100, foreA: -104, upperB: -80, foreB: -76 });
+const poseStretch = Object.assign(breath(stretchDn, stretchUp, HEAD),
+  { dur: "5s", frames: 26 });
+
+/* 7 - star jumps, face on: in the plane of the drawing, which is the one
+       jump this rig can do, and only because he has turned to face you */
+const starIn  = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
+                    thighA: 86, shinA: 88, thighB: 94, shinB: 92,
+                    upperA: 100, foreA: 96, upperB: 80, foreB: 84 });
+const starOut = { footA: 30, footB: 150, bendA: 1, bendB: -1,
+                  hipX: 94, hipY: 112, torso: -90, head: -90,
+                  thighA: 58, shinA: 56, thighB: 122, shinB: 124,
+                  upperA: -142, foreA: -148, upperB: -38, foreB: -32 };
+const poseStar = Object.assign({}, HEAD, { ground: 190, dur: "1.5s", frames: 16,
+  keys: [{ t: 0, pose: starIn }, { t: .42, pose: starOut },
+         { t: .58, flow: true, pose: starOut }, { t: 1, pose: starIn }] });
+
+/* 8 - running on the spot, from the side (as before) */
+const poseRun = Object.assign({}, mascotRun, SIDE);
+
+/* 9 - a slow squat, from the side (as before) */
+const poseSquat = Object.assign({}, mascotSquat, SIDE);
+
+/* 10 - reaching for his toes and standing up again */
+const foldFeet = { ankleAX: 102, ankleAY: 182, footA: 0, bendA: -1,
+                   ankleBX: 88, ankleBY: 184, footB: 0, bendB: -1,
+                   thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+                   handAX: 0, handAY: 0, handBX: 0, handBY: 0,
+                   armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
+const toeUp   = P(foldFeet, { hipX: 94, hipY: 120, torso: -90, head: -88,
+                              handAX: 92, handAY: 122, handBX: 84, handBY: 124 });
+const toeDown = P(foldFeet, { hipX: 88, hipY: 130, torso: -26, head: -8,
+                              handAX: 122, handAY: 172, handBX: 112, handBY: 174 });
+const poseToes = Object.assign({}, SIDE, { ground: 190, dur: "4.4s", frames: 24,
+  keys: [{ t: 0, pose: toeUp }, { t: .38, pose: toeDown },
+         { t: .52, pose: toeDown }, { t: 1, pose: toeUp }] });
+
 const ALL = [
+  ["pose-fold", "1. Arms folded, face on", poseFold, "A header candidate."],
+  ["pose-lean", "2. Leaning on the wall, ankles crossed", poseLean, "A header candidate."],
+  ["pose-hips", "3. Hands on hips", poseHips, "A header candidate."],
+  ["pose-flex", "4. Flexing", poseFlex, "A header candidate."],
+  ["pose-wave", "5. Waving", poseWave, "A header candidate."],
+  ["pose-stretch", "6. A long stretch", poseStretch, "A header candidate."],
+  ["pose-star", "7. Star jumps", poseStar, "A header candidate."],
+  ["pose-run", "8. Running on the spot", poseRun, "A header candidate."],
+  ["pose-squat", "9. Squatting", poseSquat, "A header candidate."],
+  ["pose-toes", "10. Touching his toes", poseToes, "A header candidate."],
   ["mascot-run", "Mascot, running on the spot", mascotRun, "A header candidate."],
   ["mascot-squat", "Mascot, squatting", mascotSquat, "A header candidate."],
   ["mascot-hop", "Mascot, skipping", mascotHop, "A header candidate."],

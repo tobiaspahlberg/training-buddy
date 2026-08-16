@@ -18,7 +18,7 @@ const FAR = [
   ["shoulder", "elbowB", "far", 10], ["elbowB", "handB", "far", 9]
 ];
 const NEAR = [
-  ["hip", "shoulder", "vest", 25],
+  ["hip", "shoulder", "vest", 25],   /* wider face on - see `front` below */
   ["hip", "kneeA", "skin", 15], ["kneeA", "ankleA", "skin", 12],
   ["hip", "kneeA", "shorts", 24],
   ["ankleA", "toeA", "shoe", 10]
@@ -72,7 +72,10 @@ function dressed(o){
     out += '<ellipse class="shadow" cx="' + r((frames[0].ankleA.x + frames[0].ankleB.x) / 2) +
       '" cy="' + o.ground + '" rx="26" ry="5"/>';
 
-  const paint = ([a, b, cls, w]) => {
+  /* Turned to face you a person is wider, and the vest is the whole of his
+     width. Everything else is a limb and stays as it is. */
+  const paint = ([a, b, cls, w0]) => {
+    const w = cls === "vest" && o.face === "front" ? 32 : w0;
     /* Shorts stop half way down the thigh, so they are that bone cut short. */
     const cut = cls === "shorts" ? 0.62 : 1;
     const p = (f, k) => {
@@ -120,14 +123,28 @@ function dressed(o){
       anim("x2", f => r(f[t.to].x)) + anim("y2", f => r(f[t.to].y)) + "</line>";
   }
 
-  const spot = (cls, rad, dx, dy) =>
-    '<circle class="' + cls + '" r="' + rad + '" cx="' + r(frames[0].head.x + dx) +
-    '" cy="' + r(frames[0].head.y + dy) + '">' +
-    anim("cx", f => r(f.head.x + dx)) + anim("cy", f => r(f.head.y + dy)) + "</circle>";
+  /* The head, and everything on it, in one group that is carried to where the
+     head is. Written as offsets from the head's centre it is shorter than six
+     separate animations of cx and cy, and it is the only way a mouth or a
+     headband can be drawn at all: they are shapes, not points. */
+  const front = o.face === "front";
   const face = o.facing === -1 ? -1 : 1;
-  out += spot("hair", 12, -3 * face, -3);
-  out += spot("skin-fill", 11, 0, 0);
-  out += spot("nose", 2.6, 9 * face, 1);
+  const at = f => r(f.head.x) + " " + r(f.head.y);
+  let head = '<circle class="hair" r="12" cx="' + (front ? 0 : -3 * face) + '" cy="-3"/>' +
+             '<circle class="skin-fill" r="11" cx="0" cy="0"/>';
+  /* A headband sits on the forehead, so it goes over the hair and over the
+     top of the face rather than under either. */
+  if(o.band) head += '<line class="band" stroke-width="5" x1="-10.5" y1="-5" x2="10.5" y2="-5"/>';
+  head += front
+    ? '<circle class="nose" r="1.9" cx="-4.4" cy="-1"/><circle class="nose" r="1.9" cx="4.4" cy="-1"/>'
+    : '<circle class="nose" r="2.6" cx="' + (9 * face) + '" cy="1"/>';
+  if(o.smile) head += front
+    ? '<path class="smile" d="M-4.8 4a5 5 0 0 0 9.6 0"/>'
+    : '<path class="smile" d="M' + (2.5 * face) + ' 6.4a4.6 4.6 0 0 0 ' + (6.5 * face) + ' -3.2"/>';
+  out += '<g class="head"' +
+    (anim("transform", at, "translate") ? "" : ' transform="translate(' + at(frames[0]) + ')"') +
+    ">" + anim("transform", at, "translate") + head + "</g>";
+
   OVER.forEach(paint);
 
   (o.carry || []).filter(c => !c.behind).forEach(held);
@@ -179,6 +196,8 @@ const CSS = `
   .demo .skin-fill{fill:var(--skin)}
   .demo .hair{fill:var(--hair)}
   .demo .nose{fill:var(--skin-far)}
+  .demo .smile{fill:none;stroke:var(--skin-far);stroke-width:2;stroke-linecap:round}
+  .demo .band{stroke:var(--vest);stroke-linecap:round}
   .demo .shadow{fill:rgba(255,255,255,.055)}
   .demo .load rect,.demo .load circle,.demo .load path{fill:var(--warm);stroke:var(--warm)}
   .demo .kit{fill:none;stroke:var(--kit);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
