@@ -87,7 +87,13 @@ function dressed(o){
        shorts is just wrong. The far arm keeps its darker tone either way,
        because face on the arms are what cross each other. */
     const cls = cls0 === "shorts-far" && o.face === "front" ? "shorts" : cls0;
-    const w = cls === "vest" && o.face === "front" ? 32 : w0;
+    /* Face on, the vest is exactly as wide as the two legs of the shorts are
+       together, so the body is one column from the shoulders to the hem
+       instead of a torso balanced on a wider pair of shorts. Taken from the
+       pose rather than typed, or the two drift apart the moment the spread
+       changes. */
+    const w = cls === "vest" && o.face === "front"
+      ? 2 * (frames[0].pose.spread || 0) + 24 : w0;
     /* Shorts stop half way down the thigh, so they are that bone cut short. */
     const cut = cls === "shorts" ? 0.62 : 1;
     const p = (f, k) => {

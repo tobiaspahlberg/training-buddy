@@ -182,8 +182,12 @@ drawing is changed by editing a pose and regenerating it, never by editing the
 lists by hand. `tools/README.md` says how, and lists the movements this rig has been tried on and cannot draw – anything that turns out of the page, anything lateral, and anything where the hands and the feet end up in the same place.
 
 **The figure beside the app's name is the same person as the drawings.** He is
-`data-demo="mascot"` in the same block, made by the same rig, standing and
-breathing; tapping him opens the Colours screen. `--vest`, `--shorts`, `--hair`
+`data-demo="mascot"` in the same block, made by the same rig, leaning on the
+left edge of his own button; tapping him opens the Colours screen. He wears
+the same plate and border as the two icon buttons opposite, so the header is
+three buttons and a name rather than a picture and two buttons, and the plate
+takes its width from him instead of being given one – a fixed width is a
+second number to keep in step with the drawing. `--vest`, `--shorts`, `--hair`
 and `--shoe` are therefore the reader's rather than the app's: `KIT` is what
 can be picked, `applyKit()` writes the four variables onto the root element,
 and `tb.kit` remembers. `--shoe-far` is worked out from `--shoe` by `dim()`

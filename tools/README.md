@@ -74,6 +74,24 @@ the other way round.
   because it travels out to the side, and that is the one direction a
   two-dimensional rig has not got.
 
+## Face on
+
+A pose can ask for `spread`, the half-width across the torso. The legs hang
+from a hip each and the arms from a shoulder each, set half again as wide, so
+the width comes from the body rather than from splaying the joints out of one
+point. Nothing asks for it side on, where the two sides stand behind one
+another and one point is the truth – which is why every drawing in the app is
+unchanged to the byte by it.
+
+With a spread, `face: "front"` also draws two eyes instead of a nose, gives the
+shorts their far leg in the same colour as the near one, and makes the vest
+exactly as wide as the two legs of the shorts together, taken from the pose
+rather than typed.
+
+The elbow rule above does not apply face on and is not checked there: which way
+an elbow may bend depends on which side of the body the arm is on, and a rule
+stated wrongly flags good poses.
+
 ## What this rig cannot draw
 
 Some movements have been tried and taken out again. They are listed so nobody

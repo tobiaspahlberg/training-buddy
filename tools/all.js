@@ -439,21 +439,11 @@ const goblet = {
 };
 
 /* ===================== the mascot =====================
-   Not a movement: the figure that stands beside the app's name, breathing.
-   He is here rather than drawn by hand because he has to be the same person as
-   the ones in the sessions - same rig, same clothes, same colours. */
-const ms = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
-             ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
-             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
-const msUp   = P(ms, { hipX: 94, hipY: 118, torso: -90, head: -88,
-                       upperA: 96, foreA: 92, upperB: 92, foreB: 88 });
-const msDown = P(ms, { hipX: 94, hipY: 122, torso: -89, head: -87,
-                       upperA: 100, foreA: 97, upperB: 96, foreB: 93 });
-
-const mascot = {
-  ground: 190, dur: "4s", frames: 20,
-  keys: [{ t: 0, pose: msUp }, { t: .5, pose: msDown }, { t: 1, pose: msUp }]
-};
+   Not a movement: the figure that stands beside the app's name. He is here
+   rather than drawn by hand because he has to be the same person as the ones
+   in the sessions - same rig, same clothes, same colours - and he is defined
+   further down, as `lean8`, because he is one of the poses that were drawn to
+   choose between. */
 
 /* ---- the same figure, doing something ----
    Candidates for the header. He is on screen the whole time home is, so
@@ -544,7 +534,7 @@ const SIDE = { smile: true, band: true };
    is `spread` that sets them apart, one from each hip, which is what a person
    has. Splaying both thighs from a single hip was what made him look like he
    was standing sideways with one leg. */
-const upright = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
+const upright = { spread: 12, footA: 0, footB: 180, bendA: 1, bendB: -1,
                   thighA: 90, shinA: 90, thighB: 90, shinB: 90 };
 const U = o => P(upright, o);
 const breath = (a, b, o) => Object.assign({ ground: 190, dur: "4s", frames: 18 }, o, {
@@ -600,7 +590,7 @@ const poseStretch = Object.assign(breath(stretchDn, stretchUp, HEAD),
        jump this rig can do, and only because he has turned to face you */
 const starIn  = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
                     upperA: 84, foreA: 82, upperB: 96, foreB: 98 });
-const starOut = { spread: 9, footA: 30, footB: 150, bendA: 1, bendB: -1,
+const starOut = { spread: 12, footA: 30, footB: 150, bendA: 1, bendB: -1,
                   hipX: 94, hipY: 112, torso: -90, head: -90,
                   thighA: 62, shinA: 60, thighB: 118, shinB: 120,
                   upperA: -38, foreA: -32, upperB: -142, foreB: -148 };
@@ -664,7 +654,7 @@ const lean2 = Object.assign({}, lean1,
   { props: drawnWall, include: [[WALL - 9, 30], [WALL, 190]] });
 
 /* 3 - the other photograph: back to the wall, arms folded, face on */
-const foldCross = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
+const foldCross = { spread: 12, footA: 0, footB: 180, bendA: 1, bendB: -1,
                     thighA: 108, shinA: 112, thighB: 92, shinB: 88,
                     hipX: 94, hipY: 120, torso: -90, head: -90,
                     upperA: 60, foreA: 175, upperB: 120, foreB: 5 };
@@ -694,7 +684,13 @@ const lowA = P(crossed, { handBX: WALL + 2, handBY: 118, armB: 1,
 const lean7 = sway(lowA, P(lowA, { hipY: 130, torso: -95 }), LEAN);
 
 /* 8 - back to it, hands at the hips, face on */
-const hipsCross = P(foldCross, { upperA: 55, foreA: 125, upperB: 125, foreB: 55 });
+/* Flipped: it is the other leg that comes across now, so his weight is on the
+   side the wall is on. Mirroring a face-on pose is the two sides swapped and
+   every angle taken from 180 - here that leaves the arms alone, because they
+   were already mirror images of each other. */
+const hipsCross = P(foldCross, { upperA: 55, foreA: 125, upperB: 125, foreB: 55,
+                                 thighA: 88, shinA: 92, thighB: 72, shinB: 68,
+                                 footA: 180, footB: 0, bendA: -1, bendB: 1 });
 const lean8 = sway(hipsCross, P(hipsCross, { hipY: 123 }), LEANF);
 
 /* 9 - a foot flat against it behind him, arms folded, side on */
@@ -719,7 +715,7 @@ const ALL = [
   ["lean-5", "5. A shoulder against it, arms folded", lean5, "Leaning."],
   ["lean-6", "6. A forearm along it, head near the hand", lean6, "Leaning."],
   ["lean-7", "7. A hand on it at hip height", lean7, "Leaning."],
-  ["lean-8", "8. Back to it, hands at the hips", lean8, "Leaning."],
+  ["mascot", "The mascot", lean8, "Leaning on the edge of his own button."],
   ["lean-9", "9. A foot flat against it behind him", lean9, "Leaning."],
   ["lean-10", "10. One hand on it, one behind his head", lean10, "Leaning."],
   ["pose-fold", "1. Arms folded, face on", poseFold, "A header candidate."],
@@ -735,7 +731,6 @@ const ALL = [
   ["mascot-run", "Mascot, running on the spot", mascotRun, "A header candidate."],
   ["mascot-squat", "Mascot, squatting", mascotSquat, "A header candidate."],
   ["mascot-hop", "Mascot, skipping", mascotHop, "A header candidate."],
-  ["mascot", "The mascot", mascot, "Not a movement: the figure beside the app\u2019s name."],
   ["squat", "Air squat", squat, "In the app already."],
   ["snatch", "Dumbbell snatch", snatch, "In the app already."],
   ["pushup", "Push-up", pushup, "Six lines call for this one, more than anything else."],
