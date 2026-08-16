@@ -154,41 +154,50 @@ const boxjump = {
 };
 
 /* ===================== burpee =====================
-   Stand, hands down, feet back, chest to the floor, feet in, jump. The hands
-   are pinned the whole way through: on the floor they stay put while the feet
-   move, and standing a pinned hand hangs where it would have hung anyway. */
-const bp = { footA: 30, footB: 30, bendA: -1, bendB: -1, armA: 1, armB: 1,
+   Five places, and it is the press-up with three more around it: the hands go
+   down in front and stay there while the feet shoot back, and the shape at the
+   bottom is the bottom of a press-up, because that is what it is.
+
+   The hands are pinned the whole way through. On the floor that is the point -
+   they stay while everything else moves - and standing, a hand pinned where it
+   would have hung anyway draws the same arm. */
+const bp = { footA: 0, footB: 0, bendA: -1, bendB: -1, armA: 1, armB: 1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
-const bpStand = P(bp, { hipX: 92, hipY: 120, torso: -90, head: -88,
-                        ankleAX: 100, ankleAY: 182, ankleBX: 86, ankleBY: 184,
-                        handAX: 90, handAY: 120, handBX: 82, handBY: 122 });
-const bpDown  = P(bp, { hipX: 110, hipY: 158, torso: -150, head: -170,
-                        ankleAX: 130, ankleAY: 182, ankleBX: 118, ankleBY: 184,
-                        handAX: 70, handAY: 182, handBX: 62, handBY: 184 });
-const bpPlank = P(bp, { hipX: 117, hipY: 152, torso: 200, head: 205,
-                        ankleAX: 177, ankleAY: 174, ankleBX: 169, ankleBY: 178,
-                        handAX: 70, handAY: 182, handBX: 62, handBY: 184 });
-const bpChest = P(bp, { hipX: 114, hipY: 166, torso: 187, head: 192,
-                        ankleAX: 177, ankleAY: 174, ankleBX: 169, ankleBY: 178,
-                        handAX: 70, handAY: 182, handBX: 62, handBY: 184 });
-const bpJump  = P(bp, { hipX: 92, hipY: 100, torso: -90, head: -88,
-                        ankleAX: 100, ankleAY: 168, ankleBX: 86, ankleBY: 170,
-                        handAX: 94, handAY: 12, handBX: 84, handBY: 16 });
+
+/* 1. stood up straight */
+const bpStand = P(bp, { hipX: 146, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                        handAX: 144, handAY: 121, handBX: 136, handBY: 123 });
+/* 2. down on the knees with the hands on the floor, in front */
+const bpDown  = P(bp, { hipX: 128, hipY: 163, torso: -30, head: -12,
+                        ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                        handAX: 180, handAY: 182, handBX: 188, handBY: 184,
+                        footA: 20, footB: 20 });
+/* 3. feet jumped back, and the shape is the bottom of a press-up */
+const bpLow   = P(bp, { hipX: 136, hipY: 166, torso: -7, head: -12,
+                        ankleAX: 73, ankleAY: 174, ankleBX: 81, ankleBY: 178,
+                        handAX: 180, handAY: 182, handBX: 188, handBY: 184,
+                        footA: 115, footB: 115 });
+/* 5. up and off the floor, hands clapped over the head */
+const bpJump  = P(bp, { hipX: 146, hipY: 94, torso: -90, head: -88,
+                        ankleAX: 150, ankleAY: 156, ankleBX: 138, ankleBY: 158,
+                        handAX: 148, handAY: 3, handBX: 144, handBY: 6,
+                        footA: 55, footB: 55 });
 
 const burpee = {
-  /* Facing left throughout, which is where the hands go down and where the
-     face has to point while the chest is on the floor. */
-  ground: 190, dur: "5s", frames: 40, facing: -1,
+  ground: 190, dur: "4.6s", frames: 38,
   keys: [
     { t: 0,   pose: bpStand },
-    { t: .13, flow: true, pose: bpDown },
-    { t: .26, pose: bpPlank },
-    { t: .36, pose: bpChest },
-    { t: .46, pose: bpPlank },
-    { t: .58, flow: true, pose: bpDown },
-    { t: .72, pose: bpStand },
-    { t: .82, pose: bpJump },
+    { t: .13, pose: bpDown },
+    { t: .28, pose: bpLow },
+    { t: .38, pose: bpLow },
+    { t: .52, pose: bpDown },
+    /* standing is passed through on the way up, not stood in: the last of it
+       is a jump, and stopping first makes it two movements */
+    { t: .62, flow: true, pose: bpStand },
+    { t: .72, pose: bpJump },
+    { t: .84, pose: bpStand },
     { t: 1,   pose: bpStand }
   ]
 };
