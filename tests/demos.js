@@ -8,8 +8,10 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length >= 2, "the app carries " + held.length + " drawings: " +
+ok(held.length === 11, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
+ok(!held.some(s => s.dataset.demo === "burpee"),
+   "the burpee is drawn but not shipped, because it has not been approved");
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
 ok(held.every(s => s.getAttribute("viewBox")), "each has a view box, so it scales to its row");
@@ -60,15 +62,41 @@ ok(!has("100 snatches, kettlebell or dumbbell") && !has("Snatches"),
    "but a board that only says 'snatches' has not said with what, and a " +
    "kettlebell snatch is not this drawing");
 
+// the erg: the distance is not part of the movement
+const key = l => ev("demoKey(" + JSON.stringify(l) + ")");
+ok(key("1000 m row") === "row" && key("50 cal row") === "row" && key("400 m row") === "row",
+   "a row is a row however far it is: " + key("1000 m row"));
+ok(!has("1000 m row / ski erg") && !has("100 cal row / ski erg"),
+   "a line offering two machines is not one of them, and choosing is the app " +
+   "deciding for you");
+ok(!has("50 renegade rows") && !has("10 gorilla rows"),
+   "and a row you do with a dumbbell on the floor is not the machine");
+
+// the near misses, which are the whole point of a table
+ok(has("50 push-ups") && has("Push ups") && !has("50 push press"),
+   "a push-up and a push press are two different movements");
+ok(has("90 box jumps") && !has("90 box jump overs"),
+   "and jumping onto a box is not jumping over it");
+ok(has("50 walking lunges") && !has("50 overhead lunges") && !has("20 reverse lunges"),
+   "a lunge forwards is not a lunge backwards, nor one with a weight overhead");
+ok(has("100 strict press") && has("50 wall balls") && has("80 kettlebell swings") &&
+   has("20 pull-ups") && has("50 sit-ups"),
+   "the rest of what the built-in workouts actually call for");
+ok(!has("60 burpees"), "and burpees get nothing, because that drawing is not in yet");
+
 // ---- and where it turns up ----
 w.openProgram("wod-total-training-25");
 const rows = [...$("sheet-steps").querySelectorAll("div.sub")];
 const drawn = rows.filter(r => r.querySelector("svg"));
 ok(rows.length === 11, "the workout lists eleven movements: " + rows.length);
 const said = r => r.querySelector("span").textContent;
-ok(drawn.length === 1 && said(drawn[0]) === "100 air squats",
-   "one of them carries a drawing, and it is the one the app has: " +
-   drawn.map(said).join(", "));
+const which = drawn.map(r => r.querySelector("svg").dataset.demo);
+ok(new Set(which).size === which.length,
+   "no drawing turns up twice in one session: " + which.join(", "));
+ok(drawn.some(r => said(r) === "100 air squats") && drawn.some(r => said(r) === "50 push-ups"),
+   "each movement the app knows gets its own: " + drawn.map(said).join(", "));
+ok(rows.length - drawn.length === 7,
+   "and the seven it does not know get nothing: " + (rows.length - drawn.length));
 ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");
@@ -105,8 +133,9 @@ ok(!$("sheet-eye").classList.contains("there"),
 
 // the other workout that calls for them
 w.openProgram("wod-team-chipper");
-ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
-   "the chipper's air squats are drawn too");
+const chip = [...$("sheet-steps").querySelectorAll("div.sub svg")].map(s => s.dataset.demo);
+ok(chip.includes("squat") && new Set(chip).size === chip.length,
+   "the chipper's air squats are drawn too, once each: " + chip.join(", "));
 
 // ---- once per session, on the first line that names it ----
 w.openProgram("wod-db-snatch-21-15-9");

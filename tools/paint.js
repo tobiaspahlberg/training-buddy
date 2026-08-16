@@ -50,9 +50,13 @@ const HOLDS = { dumbbell: 16, kettle: 30, ball: 16, bar: 14, seat: 16 };
 function dressed(o){
   const frames = sample(o.keys, o.frames || 26);
   const dur = o.dur || "3s";
-  const moves = j => new Set(frames.map(f => r(f[j].x) + "," + r(f[j].y))).size > 1;
   const vals = fn => frames.map(fn).concat([fn(frames[0])]).join(";");
+  /* A joint that does not move over the whole loop is written once as an
+     attribute rather than as a list of the same number forty times. Half of
+     what a drawing weighs is a pinned foot repeating itself. */
+  const same = fn => frames.every(f => fn(f) === fn(frames[0]));
   const anim = (attr, fn, type) =>
+    same(fn) ? "" :
     "<animate" + (type ? "Transform" : "") + ' attributeName="' + attr + '"' +
     (type ? ' type="' + type + '"' : "") + ' values="' + vals(fn) +
     '" dur="' + dur + '" repeatCount="indefinite"/>';
@@ -71,10 +75,9 @@ function dressed(o){
       const q = { x1: A.x, y1: A.y, x2: A.x + (B.x - A.x) * cut, y2: A.y + (B.y - A.y) * cut };
       return q[k];
     };
-    const still = !moves(a) && !moves(b);
     out += '<line class="' + cls + '" stroke-width="' + w + '"' +
       ["x1", "y1", "x2", "y2"].map(k => ' ' + k + '="' + r(p(frames[0], k)) + '"').join("") + ">" +
-      (still ? "" : ["x1", "y1", "x2", "y2"].map(k => anim(k, f => r(p(f, k)))).join("")) +
+      ["x1", "y1", "x2", "y2"].map(k => anim(k, f => r(p(f, k)))).join("") +
       "</line>";
   };
   /* Something held can be painted between the two sides of the body, which is
@@ -82,9 +85,15 @@ function dressed(o){
      one and behind the near one. */
   const held = c => {
     const j = c.at || "handA";
-    out += '<g class="' + (c.cls || "load") + '"><g>' +
-      anim("transform", f => r(f[j].x) + " " + r(f[j].y), "translate") + "<g>" +
-      anim("transform", f => r(c.spin ? f.pose[c.spin] || 0 : 0), "rotate") +
+    const move = f => r(f[j].x) + " " + r(f[j].y);
+    const spin = f => r(c.spin ? f.pose[c.spin] || 0 : 0);
+    /* An animate that was dropped for standing still leaves the group with no
+       transform at all, so a constant one is written out as an attribute. */
+    const fixed = (fn, kind) => anim("transform", fn, kind) ? "" :
+      ' transform="' + kind + "(" + fn(frames[0]) + ')"';
+    out += '<g class="' + (c.cls || "load") + '"><g' + fixed(move, "translate") + ">" +
+      anim("transform", move, "translate") + "<g" + fixed(spin, "rotate") + ">" +
+      anim("transform", spin, "rotate") +
       HELD[c.what] + "</g></g></g>";
   };
 

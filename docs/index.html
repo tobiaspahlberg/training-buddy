@@ -40,6 +40,7 @@
     --shoe:#F2F7F4;
     --shoe-far:#B9C6BE;
     --hair:#43301F;
+    --kit:#7C8A99;      /* a box, a bar, a rowing machine – a thing, not a body */
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
   html,body{height:100%}
@@ -277,7 +278,14 @@
   .demo .hair{fill:var(--hair)}
   .demo .nose{fill:var(--skin-far)}
   .demo .shadow{fill:rgba(255,255,255,.055)}
-  .demo .load rect{fill:var(--warm)}
+  .demo .load rect,.demo .load circle,.demo .load path{fill:var(--warm);stroke:var(--warm)}
+  /* Equipment: the box under a jump, the bar over a pull-up, the rowing
+     machine. Grey, because it is furniture and the body is the point. */
+  .demo .kit-fill{fill:var(--kit);stroke:none}
+  .demo .chain{stroke:var(--kit)}
+  .demo .kitload rect,.demo .kitload circle{fill:var(--kit)}
+  /* The far dumbbell of a two-handed lift, turned down like the far leg. */
+  .demo .far-load rect{fill:#B98C1B}
 
   /* ---- Work list ----
      Some workouts are a single block of time with a list of movements in it.
@@ -758,7 +766,7 @@
 <ellipse class="shadow" cx="92" cy="190" rx="26" ry="5"/>
 <line class="far" stroke-width="13" x1="96" y1="126" x2="95" y2="160"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="11" x1="95" y1="160" x2="84" y2="190"><animate attributeName="x1" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84;84" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190" dur="3.2s" repeatCount="indefinite"/>
+<line class="far" stroke-width="11" x1="95" y1="160" x2="84" y2="190"><animate attributeName="x1" values="95;95;97;100;104;107;109;110;110;110;110;110;110;110;110;110;110;110;110;109;107;105;102;99;96;95;95" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;161;163;165;168;170;171;171;171;171;171;171;171;171;171;171;171;171;170;168;166;163;162;161;160;160" dur="3.2s" repeatCount="indefinite"/>
 </line>
 <line class="shoe-far" stroke-width="9" x1="84" y1="190" x2="97" y2="190">
 </line>
@@ -770,7 +778,7 @@
 </line>
 <line class="skin" stroke-width="15" x1="96" y1="126" x2="106" y2="159"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="106;106;107;110;112;115;115;114;113;112;112;112;112;112;112;112;112;113;114;115;115;113;110;108;107;106;106" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="159;159;159;159;160;161;162;161;161;160;160;160;160;160;160;160;160;161;161;162;161;161;160;159;159;159;159" dur="3.2s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="12" x1="106" y1="159" x2="100" y2="190"><animate attributeName="x1" values="106;106;107;110;112;115;115;114;113;112;112;112;112;112;112;112;112;113;114;115;115;113;110;108;107;106;106" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="159;159;159;159;160;161;162;161;161;160;160;160;160;160;160;160;160;161;161;162;161;161;160;159;159;159;159" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100;100" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190;190" dur="3.2s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="12" x1="106" y1="159" x2="100" y2="190"><animate attributeName="x1" values="106;106;107;110;112;115;115;114;113;112;112;112;112;112;112;112;112;113;114;115;115;113;110;108;107;106;106" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="159;159;159;159;160;161;162;161;161;160;160;160;160;160;160;160;160;161;161;162;161;161;160;159;159;159;159" dur="3.2s" repeatCount="indefinite"/>
 </line>
 <line class="shorts" stroke-width="24" x1="96" y1="126" x2="102" y2="146"><animate attributeName="x1" values="96;96;95;94;92;88;83;81;79;78;78;78;78;78;78;78;79;80;81;84;88;91;94;95;96;96;96" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;127;129;133;140;148;154;156;158;158;158;158;158;158;158;157;155;152;147;140;134;130;128;127;126;126" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="102;102;103;104;105;104;103;101;100;99;99;99;99;99;99;99;100;100;102;103;104;105;104;103;103;102;102" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="146;146;147;148;150;153;157;158;159;159;159;159;159;159;159;159;159;159;158;156;153;151;149;147;146;146;146" dur="3.2s" repeatCount="indefinite"/>
 </line>
@@ -791,7 +799,7 @@
 <ellipse class="shadow" cx="100" cy="190" rx="26" ry="5"/>
 <line class="far" stroke-width="13" x1="70" y1="152" x2="104" y2="154"><animate attributeName="x1" values="70;70;70;71;72;75;80;83;85;88;90;91;91;92;92;92;92;92;92;92;92;92;92;92;92;91;90;89;86;84;82;76;73;71;70;70;70" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;151;150;146;141;132;129;127;126;125;125;124;124;124;124;124;124;124;124;124;124;124;124;124;124;125;125;126;128;130;139;145;149;151;152;152" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="104;104;104;105;105;106;106;105;105;105;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;105;105;105;105;106;105;105;104;104;104" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;154;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;154;154;154" dur="4.2s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="11" x1="104" y1="154" x2="92" y2="184"><animate attributeName="x1" values="104;104;104;105;105;106;106;105;105;105;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;105;105;105;105;106;105;105;104;104;104" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;154;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;154;154;154" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92;92" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184;184" dur="4.2s" repeatCount="indefinite"/>
+<line class="far" stroke-width="11" x1="104" y1="154" x2="92" y2="184"><animate attributeName="x1" values="104;104;104;105;105;106;106;105;105;105;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;106;105;105;105;105;106;105;105;104;104;104" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;154;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;155;154;154;154" dur="4.2s" repeatCount="indefinite"/>
 </line>
 <line class="shoe-far" stroke-width="9" x1="92" y1="184" x2="105" y2="184">
 </line>
@@ -801,9 +809,9 @@
 </line>
 <line class="vest" stroke-width="25" x1="70" y1="152" x2="109" y2="128"><animate attributeName="x1" values="70;70;70;71;72;75;80;83;85;88;90;91;91;92;92;92;92;92;92;92;92;92;92;92;92;91;90;89;86;84;82;76;73;71;70;70;70" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;151;150;146;141;132;129;127;126;125;125;124;124;124;124;124;124;124;124;124;124;124;124;124;124;125;125;126;128;130;139;145;149;151;152;152" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="109;109;109;109;108;106;100;97;95;94;93;93;92;92;92;92;92;92;92;92;92;92;92;92;92;92;93;93;94;96;98;106;108;109;109;109;109" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="128;127;126;123;117;107;91;85;81;80;79;79;78;78;78;78;78;78;78;78;78;78;78;78;78;78;79;80;81;83;87;104;115;122;126;127;128" dur="4.2s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="15" x1="70" y1="152" x2="104" y2="150"><animate attributeName="x1" values="70;70;70;71;72;75;80;83;85;88;90;91;91;92;92;92;92;92;92;92;92;92;92;92;92;91;90;89;86;84;82;76;73;71;70;70;70" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;151;150;146;141;132;129;127;126;125;125;124;124;124;124;124;124;124;124;124;124;124;124;124;124;125;125;126;128;130;139;145;149;151;152;152" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="104;104;104;105;106;108;109;110;110;111;112;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;112;110;110;109;108;107;105;104;104;104" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150" dur="4.2s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="15" x1="70" y1="152" x2="104" y2="150"><animate attributeName="x1" values="70;70;70;71;72;75;80;83;85;88;90;91;91;92;92;92;92;92;92;92;92;92;92;92;92;91;90;89;86;84;82;76;73;71;70;70;70" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;151;150;146;141;132;129;127;126;125;125;124;124;124;124;124;124;124;124;124;124;124;124;124;124;125;125;126;128;130;139;145;149;151;152;152" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="104;104;104;105;106;108;109;110;110;111;112;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;112;110;110;109;108;107;105;104;104;104" dur="4.2s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="12" x1="104" y1="150" x2="108" y2="182"><animate attributeName="x1" values="104;104;104;105;106;108;109;110;110;111;112;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;112;110;110;109;108;107;105;104;104;104" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108;108" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182;182" dur="4.2s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="12" x1="104" y1="150" x2="108" y2="182"><animate attributeName="x1" values="104;104;104;105;106;108;109;110;110;111;112;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;113;112;110;110;109;108;107;105;104;104;104" dur="4.2s" repeatCount="indefinite"/>
 </line>
 <line class="shorts" stroke-width="24" x1="70" y1="152" x2="91" y2="151"><animate attributeName="x1" values="70;70;70;71;72;75;80;83;85;88;90;91;91;92;92;92;92;92;92;92;92;92;92;92;92;91;90;89;86;84;82;76;73;71;70;70;70" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;151;150;146;141;132;129;127;126;125;125;124;124;124;124;124;124;124;124;124;124;124;124;124;124;125;125;126;128;130;139;145;149;151;152;152" dur="4.2s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;91;92;93;95;98;100;101;102;104;105;105;105;105;105;105;105;105;105;105;105;105;105;105;105;104;103;101;100;99;96;94;92;91;91;91" dur="4.2s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;150;149;146;143;142;141;141;141;141;140;140;140;140;140;140;140;140;140;140;140;140;140;141;141;141;141;142;142;146;148;150;151;151;151" dur="4.2s" repeatCount="indefinite"/>
 </line>
@@ -829,11 +837,368 @@
 </g>
 </g>
 </svg>
+<svg class="demo" data-demo="pushup" width="160" height="88" viewBox="60 110 160 88">
+<line class="far" stroke-width="13" x1="133" y1="152" x2="113" y2="179"><animate attributeName="x1" values="133;133;133;133;134;134;135;136;136;136;136;136;136;136;136;136;136;136;135;135;134;134;133;133;133;133;133" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;152;153;155;158;162;164;165;166;166;166;166;166;166;166;165;164;163;160;158;155;154;153;152;152;152" dur="3s" repeatCount="indefinite"/><animate attributeName="x2" values="113;113;113;113;113;112;112;111;111;111;111;111;111;111;111;111;111;111;112;112;112;113;113;113;113;113;113" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="179;180;180;181;182;184;187;188;189;189;189;189;189;189;189;189;189;188;187;186;184;182;181;180;180;179;179" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="113" y1="179" x2="81" y2="178"><animate attributeName="x1" values="113;113;113;113;113;112;112;111;111;111;111;111;111;111;111;111;111;111;112;112;112;113;113;113;113;113;113" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="179;180;180;181;182;184;187;188;189;189;189;189;189;189;189;189;189;188;187;186;184;182;181;180;180;179;179" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="81" y1="178" x2="76" y2="190">
+</line>
+<line class="far" stroke-width="10" x1="176" y1="136" x2="182" y2="161"><animate attributeName="x1" values="176;176;176;177;178;179;180;181;181;182;182;182;182;182;182;182;181;181;181;180;179;178;177;177;176;176;176" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="136;136;137;139;142;147;153;157;159;160;160;160;160;160;160;160;159;158;155;151;146;142;139;137;137;136;136" dur="3s" repeatCount="indefinite"/><animate attributeName="x2" values="182;182;182;177;173;170;167;166;166;165;165;165;165;165;165;166;166;166;167;168;170;173;177;181;182;182;182" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="161;161;161;164;166;170;174;177;179;179;179;179;179;179;179;179;179;177;176;173;169;166;164;162;161;161;161" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="182" y1="161" x2="188" y2="184"><animate attributeName="x1" values="182;182;182;177;173;170;167;166;166;165;165;165;165;165;165;166;166;166;167;168;170;173;177;181;182;182;182" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="161;161;161;164;166;170;174;177;179;179;179;179;179;179;179;179;179;177;176;173;169;166;164;162;161;161;161" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="133" y1="152" x2="176" y2="136"><animate attributeName="x1" values="133;133;133;133;134;134;135;136;136;136;136;136;136;136;136;136;136;136;135;135;134;134;133;133;133;133;133" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;152;153;155;158;162;164;165;166;166;166;166;166;166;166;165;164;163;160;158;155;154;153;152;152;152" dur="3s" repeatCount="indefinite"/><animate attributeName="x2" values="176;176;176;177;178;179;180;181;181;182;182;182;182;182;182;182;181;181;181;180;179;178;177;177;176;176;176" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="136;136;137;139;142;147;153;157;159;160;160;160;160;160;160;160;159;158;155;151;146;142;139;137;137;136;136" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="133" y1="152" x2="105" y2="171"><animate attributeName="x1" values="133;133;133;133;134;134;135;136;136;136;136;136;136;136;136;136;136;136;135;135;134;134;133;133;133;133;133" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;152;153;155;158;162;164;165;166;166;166;166;166;166;166;165;164;163;160;158;155;154;153;152;152;152" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="171;171;171;172;173;175;177;178;179;179;179;179;179;179;179;179;179;178;178;177;175;173;172;172;171;171;171" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="105" y1="171" x2="73" y2="174"><animate attributeName="y1" values="171;171;171;172;173;175;177;178;179;179;179;179;179;179;179;179;179;178;178;177;175;173;172;172;171;171;171" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="133" y1="152" x2="116" y2="164"><animate attributeName="x1" values="133;133;133;133;134;134;135;136;136;136;136;136;136;136;136;136;136;136;135;135;134;134;133;133;133;133;133" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="152;152;152;153;155;158;162;164;165;166;166;166;166;166;166;166;165;164;163;160;158;155;154;153;152;152;152" dur="3s" repeatCount="indefinite"/><animate attributeName="x2" values="116;116;116;116;116;116;116;116;117;117;117;117;117;117;117;117;117;116;116;116;116;116;116;116;116;116;116" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="164;164;164;165;167;169;171;173;174;174;174;174;174;174;174;174;174;173;172;170;168;167;165;164;164;164;164" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="73" y1="174" x2="68" y2="186">
+</line>
+<circle class="hair" r="12" cx="193" cy="124"><animate attributeName="cx" values="193;193;193;194;195;197;198;199;200;200;200;200;200;200;200;200;200;199;199;198;196;195;194;193;193;193;193" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="124;124;125;127;131;137;144;149;151;153;153;153;153;153;153;152;151;149;146;141;135;131;127;125;124;124;124" dur="3s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="196" cy="127"><animate attributeName="cx" values="196;196;196;197;198;200;201;202;203;203;203;203;203;203;203;203;203;202;202;201;199;198;197;196;196;196;196" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="127;127;128;130;134;140;147;152;154;156;156;156;156;156;156;155;154;152;149;144;138;134;130;128;127;127;127" dur="3s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="205" cy="128"><animate attributeName="cx" values="205;205;205;206;207;209;210;211;212;212;212;212;212;212;212;212;212;211;211;210;208;207;206;205;205;205;205" dur="3s" repeatCount="indefinite"/><animate attributeName="cy" values="128;128;129;131;135;141;148;153;155;157;157;157;157;157;157;156;155;153;150;145;139;135;131;129;128;128;128" dur="3s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="176" y1="136" x2="171" y2="161"><animate attributeName="x1" values="176;176;176;177;178;179;180;181;181;182;182;182;182;182;182;182;181;181;181;180;179;178;177;177;176;176;176" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="136;136;137;139;142;147;153;157;159;160;160;160;160;160;160;160;159;158;155;151;146;142;139;137;137;136;136" dur="3s" repeatCount="indefinite"/><animate attributeName="x2" values="171;171;170;168;166;163;161;160;160;159;159;159;159;159;159;159;160;160;161;162;164;166;168;170;171;171;171" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="161;161;161;162;164;166;169;171;171;172;172;172;172;172;172;172;171;171;170;168;166;164;162;161;161;161;161" dur="3s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="171" y1="161" x2="180" y2="182"><animate attributeName="x1" values="171;171;170;168;166;163;161;160;160;159;159;159;159;159;159;159;160;160;161;162;164;166;168;170;171;171;171" dur="3s" repeatCount="indefinite"/><animate attributeName="y1" values="161;161;161;162;164;166;169;171;171;172;172;172;172;172;172;172;171;171;170;168;166;164;162;161;161;161;161" dur="3s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="pullup" width="128" height="186" viewBox="32 19 128 186">
+<rect class="kit-fill" x="34" y="26" width="124" height="8" rx="4"/>
+<line class="far" stroke-width="13" x1="92" y1="126" x2="91" y2="160"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;124;121;117;111;108;105;104;104;104;104;104;104;104;104;105;106;108;111;115;119;122;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;91;91;90;90;89;89;88;88;88;88;88;88;88;88;88;88;88;89;89;89;90;90;91;91;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;159;158;155;151;145;141;139;138;138;137;137;137;137;138;138;138;140;142;145;149;153;156;158;159;160;160;160" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="91" y1="160" x2="91" y2="192"><animate attributeName="x1" values="91;91;91;91;90;90;89;89;88;88;88;88;88;88;88;88;88;88;88;89;89;89;90;90;91;91;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;159;158;155;151;145;141;139;138;138;137;137;137;137;138;138;138;140;142;145;149;153;156;158;159;160;160;160" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;90;89;86;82;77;73;71;70;70;70;70;70;70;70;70;71;72;74;76;80;84;87;89;90;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;191;190;187;182;175;169;166;165;164;164;164;164;164;164;164;165;167;170;174;179;184;188;190;191;192;192;192" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="91" y1="192" x2="103" y2="197"><animate attributeName="x1" values="91;91;90;89;86;82;77;73;71;70;70;70;70;70;70;70;70;71;72;74;76;80;84;87;89;90;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;191;190;187;182;175;169;166;165;164;164;164;164;164;164;164;165;167;170;174;179;184;188;190;191;192;192;192" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;102;101;98;94;88;85;83;82;82;82;82;82;82;82;82;83;84;85;88;92;96;99;101;102;102;103;103" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;195;192;187;180;175;172;170;170;170;170;170;170;170;170;171;173;175;180;185;190;193;195;197;197;197;197" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="10" x1="92" y1="80" x2="78" y2="59"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="80;80;79;78;75;71;65;62;59;58;58;58;58;58;58;58;58;59;60;62;65;69;73;76;78;79;80;80;80" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="78;78;78;76;74;71;70;69;69;69;69;69;69;69;69;69;69;69;69;69;70;71;72;74;76;77;78;78;78" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="59;59;59;59;59;58;57;57;57;57;57;57;57;57;57;57;57;57;57;57;57;58;58;59;59;59;59;59;59" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="78" y1="59" x2="78" y2="36"><animate attributeName="x1" values="78;78;78;76;74;71;70;69;69;69;69;69;69;69;69;69;69;69;69;69;70;71;72;74;76;77;78;78;78" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="59;59;59;59;59;58;57;57;57;57;57;57;57;57;57;57;57;57;57;57;57;58;58;59;59;59;59;59;59" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="92" y1="126" x2="92" y2="80"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;124;121;117;111;108;105;104;104;104;104;104;104;104;104;105;106;108;111;115;119;122;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="80;80;79;78;75;71;65;62;59;58;58;58;58;58;58;58;58;59;60;62;65;69;73;76;78;79;80;80;80" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="92" y1="126" x2="88" y2="160"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;124;121;117;111;108;105;104;104;104;104;104;104;104;104;105;106;108;111;115;119;122;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="88;88;88;88;88;87;87;86;86;86;86;86;86;86;86;86;86;86;86;86;87;87;88;88;88;88;88;88;88" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;159;158;155;150;145;141;138;137;137;137;137;137;137;137;137;138;139;141;144;148;153;156;158;159;160;160;160" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="88" y1="160" x2="86" y2="192"><animate attributeName="x1" values="88;88;88;88;88;87;87;86;86;86;86;86;86;86;86;86;86;86;86;86;87;87;88;88;88;88;88;88;88" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="160;160;159;158;155;150;145;141;138;137;137;137;137;137;137;137;137;138;139;141;144;148;153;156;158;159;160;160;160" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="86;86;86;84;82;77;72;69;67;66;66;66;66;66;66;66;66;67;68;69;72;76;79;82;84;85;86;86;86" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="192;192;191;190;186;181;173;168;164;163;162;162;162;162;162;162;163;164;165;168;173;178;184;187;189;191;191;192;192" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="92" y1="126" x2="90" y2="147"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;124;121;117;111;108;105;104;104;104;104;104;104;104;104;105;106;108;111;115;119;122;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;90;90;89;89;89;89;89;89;89;89;89;89;89;89;89;89;89;89;89;90;90;90;90;90;90;90" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="147;147;146;145;142;138;132;128;126;125;124;124;124;124;124;124;125;125;127;129;132;136;140;143;145;146;147;147;147" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="86" y1="192" x2="98" y2="197"><animate attributeName="x1" values="86;86;86;84;82;77;72;69;67;66;66;66;66;66;66;66;66;67;68;69;72;76;79;82;84;85;86;86;86" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="192;192;191;190;186;181;173;168;164;163;162;162;162;162;162;162;163;164;165;168;173;178;184;187;189;191;191;192;192" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="98;98;97;96;93;89;84;81;79;78;78;78;78;78;78;78;78;79;80;81;84;87;91;94;96;97;98;98;98" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="197;197;197;195;192;186;179;173;170;168;168;168;168;168;168;168;168;169;171;174;178;184;189;193;195;196;197;197;197" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<circle class="hair" r="12" cx="90" cy="55"><animate attributeName="cx" values="90;90;90;90;90;91;91;91;92;92;92;92;92;92;92;92;92;92;92;91;91;91;90;90;90;90;90;90;90" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="55;55;55;53;51;46;41;37;35;34;33;33;33;33;33;33;33;34;35;37;40;44;48;51;53;54;55;55;55" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="93" cy="58"><animate attributeName="cx" values="93;93;93;93;93;94;94;94;95;95;95;95;95;95;95;95;95;95;95;94;94;94;93;93;93;93;93;93;93" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="58;58;58;56;54;49;44;40;38;37;36;36;36;36;36;36;36;37;38;40;43;47;51;54;56;57;58;58;58" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="102" cy="59"><animate attributeName="cx" values="102;102;102;102;102;103;103;103;104;104;104;104;104;104;104;104;104;104;104;103;103;103;102;102;102;102;102;102;102" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="59;59;59;57;55;50;45;41;39;38;37;37;37;37;37;37;37;38;39;41;44;48;52;55;57;58;59;59;59" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="92" y1="80" x2="100" y2="56"><animate attributeName="x1" values="92;92;92;92;92;93;93;94;94;94;94;94;94;94;94;94;94;94;94;94;93;93;93;92;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="80;80;79;78;75;71;65;62;59;58;58;58;58;58;58;58;58;59;60;62;65;69;73;76;78;79;80;80;80" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="100;100;100;105;109;113;116;118;118;119;119;119;119;119;119;119;119;119;118;118;116;114;112;109;106;102;100;100;100" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="56;56;56;57;57;56;55;55;55;54;54;54;54;54;54;54;54;54;55;55;55;56;57;57;57;56;56;56;56" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="100" y1="56" x2="108" y2="34"><animate attributeName="x1" values="100;100;100;105;109;113;116;118;118;119;119;119;119;119;119;119;119;119;118;118;116;114;112;109;106;102;100;100;100" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="56;56;56;57;57;56;55;55;55;54;54;54;54;54;54;54;54;54;55;55;55;56;57;57;57;56;56;56;56" dur="3.4s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="boxjump" width="171" height="221" viewBox="51 -1 171 221">
+<rect class="kit-fill" x="132" y="146" width="62" height="46" rx="4"/>
+<ellipse class="shadow" cx="87" cy="192" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="86" y1="120" x2="90" y2="154"><animate attributeName="x1" values="86;86;84;79;75;74;74;75;81;94;120;139;148;150;150;150;152;154;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;124;132;139;142;142;140;133;114;100;108;111;112;112;109;98;87;84;84;84;84;84;84;84;85;87;93;104;113;118;120;120" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="90;91;95;100;102;102;102;104;110;126;152;168;175;176;176;176;171;163;159;158;158;158;158;158;158;157;152;141;121;103;94;91;90" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;156;159;161;161;161;159;150;126;111;126;132;133;133;132;126;120;118;118;118;118;118;118;118;118;121;127;138;147;152;153;154" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="90" y1="154" x2="80" y2="184"><animate attributeName="x1" values="90;91;95;100;102;102;102;104;110;126;152;168;175;176;176;176;171;163;159;158;158;158;158;158;158;157;152;141;121;103;94;91;90" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;156;159;161;161;161;159;150;126;111;126;132;133;133;132;126;120;118;118;118;118;118;118;118;118;121;127;138;147;152;153;154" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="80;80;80;80;80;80;80;81;88;104;128;141;147;148;148;148;148;148;148;148;148;148;148;148;148;147;142;131;110;93;84;80;80" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="184;184;184;184;184;184;184;182;172;149;132;142;147;148;148;148;148;148;148;148;148;148;148;148;148;149;151;157;168;177;182;184;184" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="80" y1="184" x2="93" y2="184"><animate attributeName="x1" values="80;80;80;80;80;80;80;81;88;104;128;141;147;148;148;148;148;148;148;148;148;148;148;148;148;147;142;131;110;93;84;80;80" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="184;184;184;184;184;184;184;182;172;149;132;142;147;148;148;148;148;148;148;148;148;148;148;148;148;149;151;157;168;177;182;184;184" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="93;93;93;93;93;93;93;94;101;117;141;154;160;161;161;161;161;161;161;161;161;161;161;161;161;160;155;144;123;106;97;93;93" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="184;184;184;184;184;184;184;182;172;149;132;142;147;148;148;148;148;148;148;148;148;148;148;148;148;149;151;157;168;177;182;184;184" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="10" x1="86" y1="74" x2="85" y2="99"><animate attributeName="x1" values="86;86;88;93;97;98;98;99;102;110;132;156;166;169;169;167;162;156;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;78;89;99;103;103;101;92;71;56;65;69;70;70;66;53;41;38;38;38;38;38;38;38;39;41;47;58;67;72;74;74" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="85;85;83;80;78;77;77;79;92;127;157;181;191;193;193;190;177;159;153;153;153;153;153;153;153;152;147;136;115;98;89;86;85" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;102;109;115;116;116;116;115;89;51;67;73;75;75;75;73;66;63;63;63;63;63;63;63;64;66;72;83;92;97;99;99" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="85" y1="99" x2="86" y2="122"><animate attributeName="x1" values="85;85;83;80;78;77;77;79;92;127;157;181;191;193;193;190;177;159;153;153;153;153;153;153;153;152;147;136;115;98;89;86;85" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;102;109;115;116;116;116;115;89;51;67;73;75;75;75;73;66;63;63;63;63;63;63;63;64;66;72;83;92;97;99;99" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="86;85;81;70;63;61;61;64;87;146;179;203;213;215;215;211;190;163;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="122;122;125;130;132;132;132;134;137;103;45;69;80;83;83;86;91;89;86;86;86;86;86;86;86;87;89;95;106;115;120;122;122" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="86" y1="120" x2="86" y2="74"><animate attributeName="x1" values="86;86;84;79;75;74;74;75;81;94;120;139;148;150;150;150;152;154;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;124;132;139;142;142;140;133;114;100;108;111;112;112;109;98;87;84;84;84;84;84;84;84;85;87;93;104;113;118;120;120" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="86;86;88;93;97;98;98;99;102;110;132;156;166;169;169;167;162;156;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;78;89;99;103;103;101;92;71;56;65;69;70;70;66;53;41;38;38;38;38;38;38;38;39;41;47;58;67;72;74;74" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="86" y1="120" x2="101" y2="151"><animate attributeName="x1" values="86;86;84;79;75;74;74;75;81;94;120;139;148;150;150;150;152;154;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;124;132;139;142;142;140;133;114;100;108;111;112;112;109;98;87;84;84;84;84;84;84;84;85;87;93;104;113;118;120;120" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="101;101;104;107;107;106;106;108;114;128;154;173;181;183;183;182;179;172;169;169;169;169;169;169;169;168;163;151;131;113;104;101;101" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;153;153;152;152;150;141;116;100;114;120;121;122;121;119;116;115;115;115;115;115;115;115;115;118;124;135;144;149;150;151" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="101" y1="151" x2="94" y2="182"><animate attributeName="x1" values="101;101;104;107;107;106;106;108;114;128;154;173;181;183;183;182;179;172;169;169;169;169;169;169;169;168;163;151;131;113;104;101;101" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;151;153;153;152;152;150;141;116;100;114;120;121;122;121;119;116;115;115;115;115;115;115;115;115;118;124;135;144;149;150;151" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;94;94;94;94;95;102;117;140;154;160;162;162;162;162;162;162;162;162;162;162;162;162;161;156;145;124;107;98;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;182;182;182;180;170;146;129;140;145;146;146;146;146;146;146;146;146;146;146;146;146;147;149;155;166;175;180;182;182" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="86" y1="120" x2="95" y2="139"><animate attributeName="x1" values="86;86;84;79;75;74;74;75;81;94;120;139;148;150;150;150;152;154;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;124;132;139;142;142;140;133;114;100;108;111;112;112;109;98;87;84;84;84;84;84;84;84;85;87;93;104;113;118;120;120" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;96;96;95;94;94;95;101;115;141;160;168;170;170;170;169;165;163;163;163;163;163;163;163;162;157;146;125;108;99;96;95" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;141;145;148;148;148;147;138;115;100;111;117;118;118;116;111;105;103;103;103;103;103;103;103;104;106;112;123;132;137;139;139" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="94" y1="182" x2="107" y2="182"><animate attributeName="x1" values="94;94;94;94;94;94;94;95;102;117;140;154;160;162;162;162;162;162;162;162;162;162;162;162;162;161;156;145;124;107;98;94;94" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="182;182;182;182;182;182;182;180;170;146;129;140;145;146;146;146;146;146;146;146;146;146;146;146;146;147;149;155;166;175;180;182;182" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="107;107;107;107;107;107;107;108;115;130;153;167;173;175;175;175;175;175;175;175;175;175;175;175;175;174;169;158;137;120;111;107;107" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;182;182;182;180;170;146;129;140;145;146;146;146;146;146;146;146;146;146;146;146;146;147;149;155;166;175;180;182;182" dur="4s" repeatCount="indefinite"/>
+</line>
+<circle class="hair" r="12" cx="84" cy="49"><animate attributeName="cx" values="84;84;88;99;107;109;109;110;112;118;138;163;174;177;177;175;165;155;152;152;152;152;152;152;152;151;146;134;114;97;88;84;84" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="49;50;53;66;78;83;83;81;72;49;33;43;47;48;48;44;29;17;13;13;13;13;13;13;13;14;16;22;33;42;47;49;49" dur="4s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="87" cy="52"><animate attributeName="cx" values="87;87;91;102;110;112;112;113;115;121;141;166;177;180;180;178;168;158;155;155;155;155;155;155;155;154;149;137;117;100;91;87;87" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="52;53;56;69;81;86;86;84;75;52;36;46;50;51;51;47;32;20;16;16;16;16;16;16;16;17;19;25;36;45;50;52;52" dur="4s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="96" cy="53"><animate attributeName="cx" values="96;96;100;111;119;121;121;122;124;130;150;175;186;189;189;187;177;167;164;164;164;164;164;164;164;163;158;146;126;109;100;96;96" dur="4s" repeatCount="indefinite"/><animate attributeName="cy" values="53;54;57;70;82;87;87;85;76;53;37;47;51;52;52;48;33;21;17;17;17;17;17;17;17;18;20;26;37;46;51;53;53" dur="4s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="86" y1="74" x2="84" y2="99"><animate attributeName="x1" values="86;86;88;93;97;98;98;99;102;110;132;156;166;169;169;167;162;156;154;154;154;154;154;154;154;153;148;137;116;99;90;86;86" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;78;89;99;103;103;101;92;71;56;65;69;70;70;66;53;41;38;38;38;38;38;38;38;39;41;47;58;67;72;74;74" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="84;84;82;78;77;76;76;78;91;127;156;181;191;193;193;191;177;158;152;152;152;152;152;152;152;151;146;135;114;97;88;84;84" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;102;109;113;115;115;115;115;89;50;65;72;73;73;74;73;66;63;63;63;63;63;63;63;63;66;72;83;92;97;99;99" dur="4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="84" y1="99" x2="83" y2="122"><animate attributeName="x1" values="84;84;82;78;77;76;76;78;91;127;156;181;191;193;193;191;177;158;152;152;152;152;152;152;152;151;146;135;114;97;88;84;84" dur="4s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;102;109;113;115;115;115;115;89;50;65;72;73;73;74;73;66;63;63;63;63;63;63;63;63;66;72;83;92;97;99;99" dur="4s" repeatCount="indefinite"/><animate attributeName="x2" values="83;82;78;67;60;59;59;62;85;146;178;204;213;216;215;212;191;160;151;151;151;151;151;151;151;150;145;134;113;96;87;83;83" dur="4s" repeatCount="indefinite"/><animate attributeName="y2" values="122;122;125;129;130;130;130;132;137;103;42;66;77;80;80;83;91;89;86;86;86;86;86;86;86;86;89;95;106;115;120;122;122" dur="4s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="wallball" width="91" height="208" viewBox="61 10 91 208">
+<ellipse class="shadow" cx="94" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="94" y1="120" x2="97" y2="154"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="97;97;99;102;106;109;110;110;109;109;109;109;109;109;110;106;98;90;90;90;90;90;90;90;90;93;95;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;155;156;159;162;163;162;162;162;162;162;162;162;163;159;154;152;152;152;152;152;152;152;152;153;153;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="97" y1="154" x2="86" y2="184"><animate attributeName="x1" values="97;97;99;102;106;109;110;110;109;109;109;109;109;109;110;106;98;90;90;90;90;90;90;90;90;93;95;96;97;97;97" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;155;156;159;162;163;162;162;162;162;162;162;162;163;159;154;152;152;152;152;152;152;152;152;153;153;154;154;154;154" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="86" y1="184" x2="99" y2="184">
+</line>
+<line class="far" stroke-width="10" x1="94" y1="74" x2="90" y2="99"><animate attributeName="x1" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;91;92;95;96;97;98;98;98;98;98;99;110;122;112;108;108;108;108;108;108;110;115;119;112;100;93;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;100;103;109;120;130;136;139;140;140;140;140;139;128;84;57;51;51;51;51;51;51;53;59;72;91;98;99;99;99" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="90" y1="99" x2="110" y2="87"><animate attributeName="x1" values="90;90;90;91;92;95;96;97;98;98;98;98;98;99;110;122;112;108;108;108;108;108;108;110;115;119;112;100;93;90;90" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;100;103;109;120;130;136;139;140;140;140;140;139;128;84;57;51;51;51;51;51;51;53;59;72;91;98;99;99;99" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="110;110;110;111;112;114;116;116;117;117;117;117;117;118;127;135;122;117;117;117;117;117;118;120;126;133;129;118;112;110;110" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="87;87;88;91;97;108;117;123;126;127;127;127;127;126;113;66;36;30;30;30;30;30;31;32;39;54;75;85;87;87;87" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="94" y1="120" x2="94" y2="74"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="94" y1="120" x2="109" y2="151"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="109;109;110;112;114;115;113;111;110;110;110;110;110;110;113;114;108;105;105;105;105;105;105;105;106;107;108;108;108;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;152;152;153;152;151;151;151;151;151;151;151;152;152;151;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="109" y1="151" x2="102" y2="182"><animate attributeName="x1" values="109;109;110;112;114;115;113;111;110;110;110;110;110;110;113;114;108;105;105;105;105;105;105;105;106;107;108;108;108;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;151;152;152;153;152;151;151;151;151;151;151;151;152;152;151;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="94" y1="120" x2="103" y2="139"><animate attributeName="x1" values="94;94;93;92;89;84;80;77;76;76;76;76;76;76;80;88;93;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;124;130;139;147;151;153;154;154;154;154;153;147;131;121;118;118;118;118;118;118;118;118;119;119;120;120;120;120" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;104;104;105;103;101;99;97;97;97;97;97;98;100;104;102;101;101;101;101;101;101;101;101;102;102;103;103;103;103" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;140;141;144;148;150;151;152;152;152;152;152;152;150;144;139;138;138;138;138;138;138;138;138;138;139;139;139;139;139" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="102" y1="182" x2="115" y2="182">
+</line>
+<circle class="hair" r="12" cx="92" cy="49"><animate attributeName="cx" values="92;92;93;94;98;104;108;110;111;111;111;111;111;111;108;100;95;93;93;93;93;93;93;93;93;93;92;92;92;92;92" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="49;49;50;54;60;72;84;91;94;95;95;95;95;94;84;62;50;47;47;47;47;47;47;47;48;48;49;49;49;49;49" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="95" cy="52"><animate attributeName="cx" values="95;95;96;97;101;107;111;113;114;114;114;114;114;114;111;103;98;96;96;96;96;96;96;96;96;96;95;95;95;95;95" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="52;52;53;57;63;75;87;94;97;98;98;98;98;97;87;65;53;50;50;50;50;50;50;50;51;51;52;52;52;52;52" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="104" cy="53"><animate attributeName="cx" values="104;104;105;106;110;116;120;122;123;123;123;123;123;123;120;112;107;105;105;105;105;105;105;105;105;105;104;104;104;104;104" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="53;53;54;58;64;76;88;95;98;99;99;99;99;98;88;66;54;51;51;51;51;51;51;51;52;52;53;53;53;53;53" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="94" y1="74" x2="88" y2="98"><animate attributeName="x1" values="94;94;94;95;96;98;99;100;100;100;100;100;100;100;99;97;95;94;94;94;94;94;94;94;94;94;94;94;94;94;94" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;78;84;95;105;111;114;115;115;115;115;114;105;86;75;72;72;72;72;72;72;72;72;73;73;74;74;74;74" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="88;88;88;89;90;93;95;96;96;96;96;96;96;98;109;122;111;107;107;107;107;107;107;109;114;119;111;98;91;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="98;98;99;102;109;120;130;136;139;140;140;140;140;139;128;84;56;50;50;50;50;50;51;52;58;72;92;98;99;98;98" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="88" y1="98" x2="108" y2="88"><animate attributeName="x1" values="88;88;88;89;90;93;95;96;96;96;96;96;96;98;109;122;111;107;107;107;107;107;107;109;114;119;111;98;91;88;88" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="98;98;99;102;109;120;130;136;139;140;140;140;140;139;128;84;56;50;50;50;50;50;51;52;58;72;92;98;99;98;98" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="108;108;109;109;111;113;115;116;116;116;116;116;116;117;127;134;120;115;114;114;114;114;115;118;125;132;128;118;111;109;108" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="88;89;90;93;98;109;119;124;127;128;128;128;128;127;114;65;35;29;29;29;29;29;29;31;37;53;77;86;88;88;88" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<g class="kitload">
+<g><animateTransform attributeName="transform" type="translate" values="108 88;108 89;109 90;109 93;111 98;113 109;115 119;116 124;116 127;116 128;116 128;116 128;116 128;117 127;127 114;134 65;120 35;115 29;114 29;114 29;114 29;114 29;115 29;118 31;125 37;132 53;128 77;118 86;111 88;109 88;108 88" dur="3.6s" repeatCount="indefinite"/>
+<g transform="rotate(0)">
+<circle cx="0" cy="0" r="15"/>
+</g>
+</g>
+</g>
+</svg>
+<svg class="demo" data-demo="swing" width="134" height="183" viewBox="46 35 134 183">
+<ellipse class="shadow" cx="104" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="72" y1="148" x2="106" y2="153"><animate attributeName="x1" values="72;72;73;75;78;84;90;94;97;99;100;100;100;100;100;99;99;97;95;92;89;85;81;78;76;74;73;72;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="148;148;147;146;142;136;130;126;123;121;120;120;120;120;120;121;121;123;125;128;131;135;139;142;144;146;147;148;148;148;148" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="106;106;106;107;109;111;112;111;109;107;106;106;106;106;106;107;108;109;110;111;112;112;111;109;108;107;106;106;106;106;106" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="153;153;154;154;155;156;156;156;155;154;154;154;154;154;154;154;154;155;155;156;156;156;156;155;154;154;154;154;153;153;153" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="106" y1="153" x2="96" y2="184"><animate attributeName="x1" values="106;106;106;107;109;111;112;111;109;107;106;106;106;106;106;107;108;109;110;111;112;112;111;109;108;107;106;106;106;106;106" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="153;153;154;154;155;156;156;156;155;154;154;154;154;154;154;154;154;155;155;156;156;156;156;155;154;154;154;154;153;153;153" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="96" y1="184" x2="109" y2="184">
+</line>
+<line class="far" stroke-width="10" x1="113" y1="126" x2="95" y2="144"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="95;95;96;99;105;116;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;118;111;105;101;98;97;95;95;95;95" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="144;144;143;141;136;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;131;136;139;141;143;143;144;144;144" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="95" y1="144" x2="79" y2="160"><animate attributeName="x1" values="95;95;96;99;105;116;124;126;126;125;125;125;125;125;125;125;125;126;126;125;123;118;111;105;101;98;97;95;95;95;95" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="144;144;143;141;136;125;107;95;86;81;79;78;78;78;78;80;82;86;92;100;111;122;131;136;139;141;143;143;144;144;144" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="79;79;81;87;99;120;139;146;148;148;148;148;148;148;148;148;148;148;146;143;136;124;110;99;91;86;82;80;79;79;79" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="160;160;161;160;158;147;124;107;94;86;82;81;81;81;82;83;87;93;102;115;130;144;154;158;160;161;161;160;160;160;160" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<g class="load">
+<g><animateTransform attributeName="transform" type="translate" values="79 160;79 160;81 161;87 160;99 158;120 147;139 124;146 107;148 94;148 86;148 82;148 81;148 81;148 81;148 82;148 83;148 87;148 93;146 102;143 115;136 130;124 144;110 154;99 158;91 160;86 161;82 161;80 160;79 160;79 160;79 160" dur="3.4s" repeatCount="indefinite"/>
+<g><animateTransform attributeName="transform" type="rotate" values="40;40;36;28;11;-16;-45;-63;-75;-82;-85;-87;-87;-87;-86;-84;-81;-75;-67;-55;-39;-21;-3;11;22;30;35;38;39;40;40" dur="3.4s" repeatCount="indefinite"/>
+<path d="M-7 4a7 7 0 0 1 14 0z" fill="none" stroke-width="4"/>
+<circle cx="0" cy="17" r="11"/>
+<rect x="-9" y="8" width="18" height="8" rx="2"/>
+</g>
+</g>
+</g>
+<line class="vest" stroke-width="25" x1="72" y1="148" x2="113" y2="126"><animate attributeName="x1" values="72;72;73;75;78;84;90;94;97;99;100;100;100;100;100;99;99;97;95;92;89;85;81;78;76;74;73;72;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="148;148;147;146;142;136;130;126;123;121;120;120;120;120;120;121;121;123;125;128;131;135;139;142;144;146;147;148;148;148;148" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="72" y1="148" x2="106" y2="151"><animate attributeName="x1" values="72;72;73;75;78;84;90;94;97;99;100;100;100;100;100;99;99;97;95;92;89;85;81;78;76;74;73;72;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="148;148;147;146;142;136;130;126;123;121;120;120;120;120;120;121;121;123;125;128;131;135;139;142;144;146;147;148;148;148;148" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="106;106;107;108;111;115;117;118;117;116;116;116;116;116;116;116;117;117;117;118;117;115;113;111;109;108;107;106;106;106;106" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="106" y1="151" x2="112" y2="182"><animate attributeName="x1" values="106;106;107;108;111;115;117;118;117;116;116;116;116;116;116;116;117;117;117;118;117;115;113;111;109;108;107;106;106;106;106" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;150;151;151;151;151" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="72" y1="148" x2="93" y2="150"><animate attributeName="x1" values="72;72;73;75;78;84;90;94;97;99;100;100;100;100;100;99;99;97;95;92;89;85;81;78;76;74;73;72;72;72;72" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="148;148;147;146;142;136;130;126;123;121;120;120;120;120;120;121;121;123;125;128;131;135;139;142;144;146;147;148;148;148;148" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="93;93;94;95;98;103;107;109;109;110;110;110;110;110;110;110;110;110;109;108;106;104;101;98;97;95;94;93;93;93;93" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="150;150;149;148;147;145;143;141;140;139;139;139;139;139;139;139;139;140;141;142;143;145;146;147;148;149;149;149;150;150;150" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="112" y1="182" x2="125" y2="182">
+</line>
+<circle class="hair" r="12" cx="131" cy="118"><animate attributeName="cx" values="131;131;131;130;129;125;117;110;104;101;99;99;99;99;99;100;101;104;108;113;120;124;127;129;130;131;131;131;131;131;131" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="118;118;116;110;99;83;67;58;53;51;50;49;49;49;49;50;51;53;56;62;70;80;90;99;106;111;114;117;118;118;118" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="134" cy="121"><animate attributeName="cx" values="134;134;134;133;132;128;120;113;107;104;102;102;102;102;102;103;104;107;111;116;123;127;130;132;133;134;134;134;134;134;134" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="121;121;119;113;102;86;70;61;56;54;53;52;52;52;52;53;54;56;59;65;73;83;93;102;109;114;117;120;121;121;121" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="143" cy="122"><animate attributeName="cx" values="143;143;143;142;141;137;129;122;116;113;111;111;111;111;111;112;113;116;120;125;132;136;139;141;142;143;143;143;143;143;143" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="122;122;120;114;103;87;71;62;57;55;54;53;53;53;53;54;55;57;60;66;74;84;94;103;110;115;118;121;122;122;122" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="113" y1="126" x2="96" y2="145"><animate attributeName="x1" values="113;113;113;113;113;112;108;105;103;101;100;100;100;100;100;101;101;102;104;106;109;111;112;113;113;113;113;113;113;113;113" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="126;126;125;120;112;100;88;81;77;75;74;74;74;74;74;75;76;77;80;84;90;98;106;112;117;121;124;125;126;126;126" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="96;96;97;100;107;117;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;119;113;107;103;100;98;97;96;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="145;145;144;142;136;124;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;121;131;136;140;142;144;144;145;145;145" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="96" y1="145" x2="81" y2="163"><animate attributeName="x1" values="96;96;97;100;107;117;125;127;126;126;125;125;125;125;125;125;126;126;127;126;124;119;113;107;103;100;98;97;96;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="145;145;144;142;136;124;106;93;85;80;77;76;76;76;77;78;80;84;90;99;110;121;131;136;140;142;144;144;145;145;145" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="81;81;84;90;102;124;142;147;149;148;148;148;148;148;148;148;149;149;148;145;139;127;114;103;94;88;85;83;82;81;81" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="163;163;163;162;159;146;122;104;91;83;79;78;77;77;78;80;84;90;99;112;128;143;154;159;161;162;163;163;163;163;163" dur="3.4s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="lunge" width="92" height="183" viewBox="54 35 92 183">
+<ellipse class="shadow" cx="93" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="92" y1="120" x2="96" y2="154"><animate attributeName="x1" values="92;92;92;92;93;94;95;96;96;96;96;96;96;96;96;96;96;96;96;95;95;94;93;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;123;127;135;142;147;149;150;150;150;150;150;150;150;149;148;146;143;139;133;128;125;122;121;120;120;120" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="96;97;98;101;104;104;100;96;93;92;92;92;92;92;92;92;93;94;96;99;102;105;104;103;100;98;97;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;154;156;160;167;176;181;183;184;184;184;184;184;184;184;183;182;180;177;172;166;161;157;156;154;154;154;154" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="96" y1="154" x2="86" y2="184"><animate attributeName="x1" values="96;97;98;101;104;104;100;96;93;92;92;92;92;92;92;92;93;94;96;99;102;105;104;103;100;98;97;96;96" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="154;154;154;156;160;167;176;181;183;184;184;184;184;184;184;184;183;182;180;177;172;166;161;157;156;154;154;154;154" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="86;86;85;83;80;74;68;65;63;62;62;62;62;62;62;62;63;63;65;67;71;75;79;82;84;85;86;86;86" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="184;184;184;183;181;178;175;173;172;172;172;172;172;172;172;172;172;173;173;175;176;179;181;182;183;184;184;184;184" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="86" y1="184" x2="99" y2="184"><animate attributeName="x1" values="86;86;85;83;80;74;68;65;63;62;62;62;62;62;62;62;63;63;65;67;71;75;79;82;84;85;86;86;86" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="184;184;184;183;181;178;175;173;172;172;172;172;172;172;172;172;172;173;173;175;176;179;181;182;183;184;184;184;184" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="99;99;98;96;93;86;78;73;71;70;69;69;69;69;69;70;70;71;74;77;81;87;92;95;97;98;99;99;99" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="184;184;184;184;184;184;184;183;183;183;183;183;183;183;183;183;183;183;183;183;184;184;184;184;184;184;184;184;184" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="10" x1="92" y1="74" x2="91" y2="99"><animate attributeName="x1" values="92;92;92;93;93;95;96;97;97;98;98;98;98;98;98;98;97;97;97;96;96;94;94;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;77;82;89;96;101;103;104;104;104;104;104;104;104;103;102;100;97;93;87;82;79;76;75;74;74;74" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="91;91;91;92;93;95;97;98;98;98;98;98;98;98;98;98;98;98;98;97;96;94;93;92;92;91;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;100;102;106;114;121;126;128;129;129;129;129;129;129;129;128;127;125;122;118;112;107;104;101;100;99;99;99" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="91" y1="99" x2="92" y2="122"><animate attributeName="x1" values="91;91;91;92;93;95;97;98;98;98;98;98;98;98;98;98;98;98;98;97;96;94;93;92;92;91;91;91;91" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;100;102;106;114;121;126;128;129;129;129;129;129;129;129;128;127;125;122;118;112;107;104;101;100;99;99;99" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="92;92;92;93;94;96;99;100;101;101;101;101;101;101;101;101;101;100;100;99;98;96;94;93;93;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="122;122;123;125;129;137;144;148;151;152;152;152;152;152;152;152;151;150;148;145;141;135;130;127;124;123;122;122;122" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="92" y1="120" x2="92" y2="74"><animate attributeName="x1" values="92;92;92;92;93;94;95;96;96;96;96;96;96;96;96;96;96;96;96;95;95;94;93;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;123;127;135;142;147;149;150;150;150;150;150;150;150;149;148;146;143;139;133;128;125;122;121;120;120;120" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="92;92;92;93;93;95;96;97;97;98;98;98;98;98;98;98;97;97;97;96;96;94;94;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;75;77;82;89;96;101;103;104;104;104;104;104;104;104;103;102;100;97;93;87;82;79;76;75;74;74;74" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="92" y1="120" x2="107" y2="151"><animate attributeName="x1" values="92;92;92;92;93;94;95;96;96;96;96;96;96;96;96;96;96;96;96;95;95;94;93;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;123;127;135;142;147;149;150;150;150;150;150;150;150;149;148;146;143;139;133;128;125;122;121;120;120;120" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="107;107;108;112;117;123;128;129;130;130;130;130;130;130;130;130;130;130;129;128;126;122;118;114;111;108;107;107;107" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="151;151;151;151;152;152;151;151;150;150;150;150;150;150;150;150;150;150;151;151;151;152;152;151;151;151;151;151;151" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="107" y1="151" x2="100" y2="182"><animate attributeName="x1" values="107;107;108;112;117;123;128;129;130;130;130;130;130;130;130;130;130;130;129;128;126;122;118;114;111;108;107;107;107" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="151;151;151;151;152;152;151;151;150;150;150;150;150;150;150;150;150;150;151;151;151;152;152;151;151;151;151;151;151" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="100;100;101;103;106;113;119;123;125;126;126;126;126;126;126;126;125;124;123;120;116;112;107;104;102;101;100;100;100" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="92" y1="120" x2="101" y2="139"><animate attributeName="x1" values="92;92;92;92;93;94;95;96;96;96;96;96;96;96;96;96;96;96;96;95;95;94;93;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="120;120;121;123;127;135;142;147;149;150;150;150;150;150;150;150;149;148;146;143;139;133;128;125;122;121;120;120;120" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="101;101;102;104;108;112;115;116;117;117;117;117;117;117;117;117;117;117;116;116;114;111;108;106;104;102;101;101;101" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="139;139;139;141;143;145;148;149;150;150;150;150;150;150;150;150;150;150;149;148;147;145;143;141;140;140;139;139;139" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="100" y1="182" x2="113" y2="182"><animate attributeName="x1" values="100;100;101;103;106;113;119;123;125;126;126;126;126;126;126;126;125;124;123;120;116;112;107;104;102;101;100;100;100" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="113;113;114;116;119;126;132;136;138;139;139;139;139;139;139;139;138;137;136;133;129;125;120;117;115;114;113;113;113" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<circle class="hair" r="12" cx="90" cy="49"><animate attributeName="cx" values="90;90;90;91;92;93;95;96;97;97;97;97;97;97;97;97;97;96;96;95;94;93;92;91;90;90;90;90;90" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="49;49;50;52;57;64;71;76;78;79;79;79;79;79;79;79;79;78;76;73;68;63;58;54;52;50;50;49;49" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="93" cy="52"><animate attributeName="cx" values="93;93;93;94;95;96;98;99;100;100;100;100;100;100;100;100;100;99;99;98;97;96;95;94;93;93;93;93;93" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="52;52;53;55;60;67;74;79;81;82;82;82;82;82;82;82;82;81;79;76;71;66;61;57;55;53;53;52;52" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="102" cy="53"><animate attributeName="cx" values="102;102;102;103;104;105;107;108;109;109;109;109;109;109;109;109;109;108;108;107;106;105;104;103;102;102;102;102;102" dur="3.4s" repeatCount="indefinite"/><animate attributeName="cy" values="53;53;54;56;61;68;75;80;82;83;83;83;83;83;83;83;83;82;80;77;72;67;62;58;56;54;54;53;53" dur="3.4s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="92" y1="74" x2="90" y2="99"><animate attributeName="x1" values="92;92;92;93;93;95;96;97;97;98;98;98;98;98;98;98;97;97;97;96;96;94;94;93;92;92;92;92;92" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="74;74;75;77;82;89;96;101;103;104;104;104;104;104;104;104;103;102;100;97;93;87;82;79;76;75;74;74;74" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="90;90;90;90;91;91;92;93;93;93;93;93;93;93;93;93;93;93;93;92;92;91;91;90;90;90;90;90;90" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;100;102;106;113;121;125;128;129;129;129;129;129;129;129;128;127;125;122;118;112;107;104;101;100;99;99;99" dur="3.4s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="90" y1="99" x2="89" y2="122"><animate attributeName="x1" values="90;90;90;90;91;91;92;93;93;93;93;93;93;93;93;93;93;93;93;92;92;91;91;90;90;90;90;90;90" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;100;102;106;113;121;125;128;129;129;129;129;129;129;129;128;127;125;122;118;112;107;104;101;100;99;99;99" dur="3.4s" repeatCount="indefinite"/><animate attributeName="x2" values="89;89;89;89;89;90;90;91;91;91;91;91;91;91;91;91;91;91;91;90;90;90;90;89;89;89;89;89;89" dur="3.4s" repeatCount="indefinite"/><animate attributeName="y2" values="122;122;123;125;129;136;144;148;150;151;152;152;152;152;152;151;151;150;148;145;141;135;130;127;124;123;122;122;122" dur="3.4s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="press" width="79" height="210" viewBox="63 8 79 210">
+<ellipse class="shadow" cx="91" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="92" y1="120" x2="95" y2="154">
+</line>
+<line class="far" stroke-width="11" x1="95" y1="154" x2="84" y2="184">
+</line>
+<line class="shoe-far" stroke-width="9" x1="84" y1="184" x2="97" y2="184">
+</line>
+<line class="far" stroke-width="10" x1="92" y1="74" x2="94" y2="99"><animate attributeName="x2" values="94;94;97;102;111;117;109;100;95;93;93;93;93;93;93;93;95;99;106;114;117;111;104;98;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;99;97;90;72;56;50;49;49;49;49;49;49;49;49;49;50;53;62;78;90;96;98;99;99;99" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="94" y1="99" x2="104" y2="78"><animate attributeName="x1" values="94;94;97;102;111;117;109;100;95;93;93;93;93;93;93;93;95;99;106;114;117;111;104;98;95;94;94" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;99;97;90;72;56;50;49;49;49;49;49;49;49;49;49;50;53;62;78;90;96;98;99;99;99" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="104;104;106;111;118;121;111;100;94;92;92;92;92;92;92;93;95;99;107;117;122;118;112;107;105;104;104" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="78;78;78;75;68;49;33;27;26;26;26;26;26;26;26;26;26;27;30;39;55;68;75;77;78;78;78" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="92" y1="120" x2="92" y2="74">
+</line>
+<line class="skin" stroke-width="15" x1="92" y1="120" x2="106" y2="151">
+</line>
+<line class="skin" stroke-width="12" x1="106" y1="151" x2="98" y2="182">
+</line>
+<line class="shorts" stroke-width="24" x1="92" y1="120" x2="101" y2="139">
+</line>
+<line class="shoe" stroke-width="10" x1="98" y1="182" x2="111" y2="182">
+</line>
+<circle class="hair" r="12" cx="90" cy="49">
+</circle>
+<circle class="skin-fill" r="11" cx="93" cy="52">
+</circle>
+<circle class="nose" r="2.6" cx="102" cy="53">
+</circle>
+<line class="skin" stroke-width="11" x1="92" y1="74" x2="90" y2="99"><animate attributeName="x2" values="90;90;92;99;109;117;111;102;96;94;94;94;94;94;94;95;97;101;107;115;116;109;100;94;91;90;90" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="99;99;99;98;92;75;57;51;49;49;49;49;49;49;49;49;49;51;54;64;80;93;98;99;99;99;99" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="90" y1="99" x2="103" y2="80"><animate attributeName="x1" values="90;90;92;99;109;117;111;102;96;94;94;94;94;94;94;95;97;101;107;115;116;109;100;94;91;90;90" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="99;99;99;98;92;75;57;51;49;49;49;49;49;49;49;49;49;51;54;64;80;93;98;99;99;99;99" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="103;103;105;110;119;124;114;103;97;94;94;94;94;94;94;95;97;102;110;120;124;119;112;107;104;103;103" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="80;80;80;78;72;53;35;28;26;26;26;26;26;26;26;26;26;28;32;41;59;72;78;80;80;80;80" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<g class="load far-load">
+<g><animateTransform attributeName="transform" type="translate" values="104 78;104 78;106 78;111 75;118 68;121 49;111 33;100 27;94 26;92 26;92 26;92 26;92 26;92 26;92 26;93 26;95 26;99 27;107 30;117 39;122 55;118 68;112 75;107 77;105 78;104 78;104 78" dur="3.2s" repeatCount="indefinite"/>
+<g transform="rotate(0)">
+<rect x="-12" y="-3.5" width="24" height="7" rx="2"/>
+<rect x="-15" y="-9" width="7.5" height="18" rx="2.5"/>
+<rect x="7.5" y="-9" width="7.5" height="18" rx="2.5"/>
+</g>
+</g>
+</g>
+<g class="load">
+<g><animateTransform attributeName="transform" type="translate" values="103 80;103 80;105 80;110 78;119 72;124 53;114 35;103 28;97 26;94 26;94 26;94 26;94 26;94 26;94 26;95 26;97 26;102 28;110 32;120 41;124 59;119 72;112 78;107 80;104 80;103 80;103 80" dur="3.2s" repeatCount="indefinite"/>
+<g transform="rotate(0)">
+<rect x="-12" y="-3.5" width="24" height="7" rx="2"/>
+<rect x="-15" y="-9" width="7.5" height="18" rx="2.5"/>
+<rect x="7.5" y="-9" width="7.5" height="18" rx="2.5"/>
+</g>
+</g>
+</g>
+</svg>
+<svg class="demo" data-demo="situp" width="148" height="127" viewBox="15 91 148 127">
+<ellipse class="shadow" cx="135" cy="190" rx="26" ry="5"/>
+<line class="far" stroke-width="13" x1="100" y1="176" x2="125" y2="152">
+</line>
+<line class="far" stroke-width="11" x1="125" y1="152" x2="130" y2="184">
+</line>
+<line class="shoe-far" stroke-width="9" x1="130" y1="184" x2="143" y2="184">
+</line>
+<line class="far" stroke-width="10" x1="54" y1="178" x2="78" y2="171"><animate attributeName="x1" values="54;54;54;55;59;72;94;110;119;122;123;123;123;123;123;122;120;115;106;91;72;60;55;54;54;54;54" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="178;177;175;168;156;140;130;131;134;136;136;136;136;136;136;136;135;133;130;131;140;153;165;172;176;177;178" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="78;78;78;80;83;92;104;112;115;117;117;117;117;117;117;117;116;114;110;102;92;84;80;79;78;78;78" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="171;171;169;166;161;155;153;156;159;160;160;160;160;160;160;160;159;158;155;153;155;160;165;168;170;171;171" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="78" y1="171" x2="65" y2="152"><animate attributeName="x1" values="78;78;78;80;83;92;104;112;115;117;117;117;117;117;117;117;116;114;110;102;92;84;80;79;78;78;78" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="171;171;169;166;161;155;153;156;159;160;160;160;160;160;160;160;159;158;155;153;155;160;165;168;170;171;171" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="65;65;66;70;81;100;123;134;138;140;140;140;140;140;140;140;139;137;131;120;100;83;73;68;65;65;65" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="152;152;150;145;138;133;140;151;158;161;162;162;162;162;162;161;159;155;147;138;133;137;143;148;151;152;152" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="100" y1="176" x2="54" y2="178"><animate attributeName="x2" values="54;54;54;55;59;72;94;110;119;122;123;123;123;123;123;122;120;115;106;91;72;60;55;54;54;54;54" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="178;177;175;168;156;140;130;131;134;136;136;136;136;136;136;136;135;133;130;131;140;153;165;172;176;177;178" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="100" y1="176" x2="125" y2="153">
+</line>
+<line class="skin" stroke-width="12" x1="125" y1="153" x2="140" y2="182">
+</line>
+<line class="shorts" stroke-width="24" x1="100" y1="176" x2="116" y2="162">
+</line>
+<line class="shoe" stroke-width="10" x1="140" y1="182" x2="153" y2="182">
+</line>
+<circle class="hair" r="12" cx="29" cy="176"><animate attributeName="cx" values="29;29;29;30;36;56;90;114;126;131;132;133;133;133;132;132;128;121;107;85;56;38;31;29;29;29;29" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="176;176;172;162;144;119;106;107;112;115;115;115;115;115;115;115;113;110;106;106;119;140;157;168;174;176;176" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="32" cy="179"><animate attributeName="cx" values="32;32;32;33;39;59;93;117;129;134;135;136;136;136;135;135;131;124;110;88;59;41;34;32;32;32;32" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="179;179;175;165;147;122;109;110;115;118;118;118;118;118;118;118;116;113;109;109;122;143;160;171;177;179;179" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="41" cy="180"><animate attributeName="cx" values="41;41;41;42;48;68;102;126;138;143;144;145;145;145;144;144;140;133;119;97;68;50;43;41;41;41;41" dur="3.2s" repeatCount="indefinite"/><animate attributeName="cy" values="180;180;176;166;148;123;110;111;116;119;119;119;119;119;119;119;117;114;110;110;123;144;161;172;178;180;180" dur="3.2s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="54" y1="178" x2="79" y2="173"><animate attributeName="x1" values="54;54;54;55;59;72;94;110;119;122;123;123;123;123;123;122;120;115;106;91;72;60;55;54;54;54;54" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="178;177;175;168;156;140;130;131;134;136;136;136;136;136;136;136;135;133;130;131;140;153;165;172;176;177;178" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="79;79;79;80;82;90;101;109;113;114;114;114;114;114;114;114;113;111;107;100;90;83;80;79;79;79;79" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="173;173;172;169;163;157;154;156;158;159;160;160;160;160;160;159;159;157;155;154;157;162;167;171;173;173;173" dur="3.2s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="79" y1="173" x2="67" y2="153"><animate attributeName="x1" values="79;79;79;80;82;90;101;109;113;114;114;114;114;114;114;114;113;111;107;100;90;83;80;79;79;79;79" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y1" values="173;173;172;169;163;157;154;156;158;159;160;160;160;160;160;159;159;157;155;154;157;162;167;171;173;173;173" dur="3.2s" repeatCount="indefinite"/><animate attributeName="x2" values="67;67;69;73;82;101;122;132;136;137;137;137;137;137;137;137;136;134;129;119;101;85;75;70;68;67;67" dur="3.2s" repeatCount="indefinite"/><animate attributeName="y2" values="153;153;151;147;140;136;143;153;160;163;164;164;164;164;164;163;161;157;150;141;136;139;145;150;152;153;153" dur="3.2s" repeatCount="indefinite"/>
+</line>
+</svg>
+<svg class="demo" data-demo="row" width="182" height="107" viewBox="28 67 182 107">
+<rect class="kit-fill" x="30" y="164" width="160" height="8" rx="4"/>
+<rect class="kit-fill" x="182" y="96" width="26" height="76" rx="8"/>
+<rect class="kit-fill" x="150" y="126" width="10" height="26" rx="3"/>
+<line class="far" stroke-width="13" x1="128" y1="152" x2="125" y2="118"><animate attributeName="x1" values="128;128;127;126;123;118;110;102;97;94;93;92;92;92;92;92;92;92;93;94;96;100;105;111;118;122;125;127;128;128;128" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="125;125;125;125;125;124;122;120;119;118;117;117;117;117;117;117;117;117;117;117;118;119;121;123;124;125;125;125;125;125;125" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="118;118;118;118;118;119;120;123;125;127;128;129;129;129;129;129;129;129;128;128;126;124;122;120;119;118;118;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="11" x1="125" y1="118" x2="146" y2="142"><animate attributeName="x1" values="125;125;125;125;125;124;122;120;119;118;117;117;117;117;117;117;117;117;117;117;118;119;121;123;124;125;125;125;125;125;125" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="118;118;118;118;118;119;120;123;125;127;128;129;129;129;129;129;129;129;128;128;126;124;122;120;119;118;118;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shoe-far" stroke-width="9" x1="146" y1="142" x2="157" y2="136">
+</line>
+<line class="far" stroke-width="10" x1="144" y1="109" x2="156" y2="131"><animate attributeName="x1" values="144;144;142;139;134;124;109;95;85;79;76;75;75;75;75;75;75;75;76;78;82;89;99;112;124;132;138;141;143;144;144" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="109;109;109;108;107;106;106;107;108;109;109;109;109;109;109;109;109;109;109;109;108;107;106;106;106;107;108;108;109;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="156;155;154;151;144;132;116;100;89;83;79;78;78;78;78;78;78;78;79;82;86;94;104;119;132;142;149;153;155;156;156" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="131;131;131;131;130;130;130;131;132;133;134;134;134;134;134;134;134;134;134;133;133;132;131;130;130;130;130;131;131;131;131" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="far" stroke-width="9" x1="156" y1="131" x2="176" y2="120"><animate attributeName="x1" values="156;155;154;151;144;132;116;100;89;83;79;78;78;78;78;78;78;78;79;82;86;94;104;119;132;142;149;153;155;156;156" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="131;131;131;131;130;130;130;131;132;133;134;134;134;134;134;134;134;134;134;133;133;132;131;130;130;130;130;131;131;131;131" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="176;176;175;171;165;154;138;122;111;105;101;100;100;100;100;100;100;100;101;104;109;116;127;141;154;163;169;173;175;176;176" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="120;120;120;121;121;122;124;126;127;128;128;128;128;128;128;128;128;128;128;128;127;126;125;124;122;121;121;120;120;120;120" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="vest" stroke-width="25" x1="128" y1="152" x2="144" y2="109"><animate attributeName="x1" values="128;128;127;126;123;118;110;102;97;94;93;92;92;92;92;92;92;92;93;94;96;100;105;111;118;122;125;127;128;128;128" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="144;144;142;139;134;124;109;95;85;79;76;75;75;75;75;75;75;75;76;78;82;89;99;112;124;132;138;141;143;144;144" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="109;109;109;108;107;106;106;107;108;109;109;109;109;109;109;109;109;109;109;109;108;107;106;106;106;107;108;108;109;109;109" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="15" x1="128" y1="152" x2="129" y2="118"><animate attributeName="x1" values="128;128;127;126;123;118;110;102;97;94;93;92;92;92;92;92;92;92;93;94;96;100;105;111;118;122;125;127;128;128;128" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="129;129;129;129;129;128;126;124;123;122;122;122;122;122;122;122;122;122;122;122;123;124;125;127;128;129;129;129;129;129;129" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="118;118;118;118;119;120;122;126;130;133;135;136;136;136;136;136;136;136;135;133;131;128;125;122;120;119;118;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="12" x1="129" y1="118" x2="154" y2="138"><animate attributeName="x1" values="129;129;129;129;129;128;126;124;123;122;122;122;122;122;122;122;122;122;122;122;123;124;125;127;128;129;129;129;129;129;129" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="118;118;118;118;119;120;122;126;130;133;135;136;136;136;136;136;136;136;135;133;131;128;125;122;120;119;118;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shorts" stroke-width="24" x1="128" y1="152" x2="129" y2="131"><animate attributeName="x1" values="128;128;127;126;123;118;110;102;97;94;93;92;92;92;92;92;92;92;93;94;96;100;105;111;118;122;125;127;128;128;128" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="129;129;128;128;126;124;120;116;113;112;111;111;111;111;111;111;111;111;111;112;113;114;117;121;124;126;127;128;128;129;129" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="131;131;131;131;131;132;133;136;138;140;141;142;142;142;142;142;142;142;141;140;139;137;135;133;132;131;131;131;131;131;131" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="shoe" stroke-width="10" x1="154" y1="138" x2="165" y2="132">
+</line>
+<line class="chain" stroke-width="3" x1="190" y1="118" x2="182" y2="118"><animate attributeName="x2" values="182;182;181;177;171;160;144;128;117;111;107;106;106;106;106;106;106;106;107;110;115;122;133;147;160;169;175;179;181;182;182" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="118;118;118;119;119;120;122;124;125;126;126;126;126;126;126;126;126;126;126;126;125;124;123;122;120;119;119;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<circle class="hair" r="12" cx="152" cy="87"><animate attributeName="cx" values="152;152;151;147;140;128;110;92;80;73;70;68;68;68;68;68;68;68;70;72;78;86;98;114;128;138;145;149;151;152;152" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="87;87;87;86;85;83;82;82;83;84;85;85;85;85;85;85;85;85;85;84;83;82;82;82;83;84;86;87;87;87;87" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<circle class="skin-fill" r="11" cx="155" cy="90"><animate attributeName="cx" values="155;155;154;150;143;131;113;95;83;76;73;71;71;71;71;71;71;71;73;75;81;89;101;117;131;141;148;152;154;155;155" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="90;90;90;89;88;86;85;85;86;87;88;88;88;88;88;88;88;88;88;87;86;85;85;85;86;87;89;90;90;90;90" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<circle class="nose" r="2.6" cx="164" cy="91"><animate attributeName="cx" values="164;164;163;159;152;140;122;104;92;85;82;80;80;80;80;80;80;80;82;84;90;98;110;126;140;150;157;161;163;164;164" dur="3.6s" repeatCount="indefinite"/><animate attributeName="cy" values="91;91;91;90;89;87;86;86;87;88;89;89;89;89;89;89;89;89;89;88;87;86;86;86;87;88;90;91;91;91;91" dur="3.6s" repeatCount="indefinite"/>
+</circle>
+<line class="skin" stroke-width="11" x1="144" y1="109" x2="161" y2="127"><animate attributeName="x1" values="144;144;142;139;134;124;109;95;85;79;76;75;75;75;75;75;75;75;76;78;82;89;99;112;124;132;138;141;143;144;144" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="109;109;109;108;107;106;106;107;108;109;109;109;109;109;109;109;109;109;109;109;108;107;106;106;106;107;108;108;109;109;109" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="161;161;159;156;149;138;122;106;95;89;85;84;84;84;84;84;84;84;85;88;92;100;110;125;138;148;154;158;160;161;161" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="127;127;127;127;127;127;128;129;131;132;132;133;133;133;133;133;133;133;132;132;131;130;129;127;127;127;127;127;127;127;127" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<line class="skin" stroke-width="10" x1="161" y1="127" x2="182" y2="118"><animate attributeName="x1" values="161;161;159;156;149;138;122;106;95;89;85;84;84;84;84;84;84;84;85;88;92;100;110;125;138;148;154;158;160;161;161" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y1" values="127;127;127;127;127;127;128;129;131;132;132;133;133;133;133;133;133;133;132;132;131;130;129;127;127;127;127;127;127;127;127" dur="3.6s" repeatCount="indefinite"/><animate attributeName="x2" values="182;182;181;177;171;160;144;128;117;111;107;106;106;106;106;106;106;106;107;110;115;122;133;147;160;169;175;179;181;182;182" dur="3.6s" repeatCount="indefinite"/><animate attributeName="y2" values="118;118;118;119;119;120;122;124;125;126;126;126;126;126;126;126;126;126;126;126;125;124;123;122;120;119;119;118;118;118;118" dur="3.6s" repeatCount="indefinite"/>
+</line>
+<g class="kitload">
+<g><animateTransform attributeName="transform" type="translate" values="128 152;128 152;127 152;126 152;123 152;118 152;110 152;102 152;97 152;94 152;93 152;92 152;92 152;92 152;92 152;92 152;92 152;92 152;93 152;94 152;96 152;100 152;105 152;111 152;118 152;122 152;125 152;127 152;128 152;128 152;128 152" dur="3.6s" repeatCount="indefinite"/>
+<g transform="rotate(0)">
+<rect x="-13" y="6" width="26" height="9" rx="4"/>
+</g>
+</g>
+</g>
+<g class="kitload">
+<g><animateTransform attributeName="transform" type="translate" values="182 118;182 118;181 118;177 119;171 119;160 120;144 122;128 124;117 125;111 126;107 126;106 126;106 126;106 126;106 126;106 126;106 126;106 126;107 126;110 126;115 125;122 124;133 123;147 122;160 120;169 119;175 119;179 118;181 118;182 118;182 118" dur="3.6s" repeatCount="indefinite"/>
+<g transform="rotate(0)">
+<rect x="-13" y="-4" width="26" height="8" rx="4"/>
+</g>
+</g>
+</g>
+</svg>
 </div>
 
 <!-- Changelog. Newest entry first, and it must match APP_VERSION below. -->
 <script type="application/json" id="changelog">
 [
+  {
+    "version": "0.28.0",
+    "date": "2026-08-16",
+    "changes": [
+      "Nine more drawings: push-up, pull-up, box jump, wall ball, kettlebell swing, walking lunge, strict press, sit-up and the rowing machine",
+      "\"1000 m row\" and \"50 cal row\" now find the same drawing – the distance is not part of the movement"
+    ]
+  },
   {
     "version": "0.27.1",
     "date": "2026-08-16",
@@ -1286,7 +1651,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.27.1";
+const APP_VERSION = "0.28.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3225,9 +3590,21 @@ let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayI
 const DEMOS = {
   "air squat":"squat", "bodyweight squat":"squat",
   "dumbbell snatch":"snatch", "alternating dumbbell snatch":"snatch",
-  "db snatch":"snatch"
-  /* "snatches" on its own is not one of these: the board that says it has
-     not said with what, and a kettlebell snatch is not this drawing. */
+  "db snatch":"snatch",
+  "push-up":"pushup", "push up":"pushup", "pushup":"pushup",
+  "pull-up":"pullup", "pull up":"pullup", "pullup":"pullup",
+  "sit-up":"situp", "sit up":"situp", "situp":"situp",
+  "box jump":"boxjump",
+  "wall ball":"wallball",
+  "kettlebell swing":"swing", "kb swing":"swing",
+  "walking lunge":"lunge", "lunge":"lunge",
+  "strict press":"press",
+  "row":"row"
+  /* What is deliberately not here is as much of the table as what is. A board
+     that says only "snatches" has not said with what. "Box jump overs" go over
+     the box, not onto it. A push press has a leg drive in it and a reverse
+     lunge steps the other way. "100 cal row / ski erg" offers two machines and
+     picking one of them is the app deciding for you. */
 };
 
 /* A session opens with them off. A drawing answers "what is that", which is a
@@ -3254,7 +3631,10 @@ function toggleDemos(){
 
 function demoName(line){
   return String(line).toLowerCase()
-    .replace(/^[\s\d]+/, "").replace(/,.*$/, "").replace(/[.;:!]+$/, "").trim();
+    .replace(/^[\s\d]+/, "")            // "100 air squats"  -> "air squats"
+    .replace(/^(m|km|cal)s?\s+/, "")     // "1000 m row"      -> "row"
+    .replace(/,.*$/, "")                 // "snatches, arm 1" -> "snatches"
+    .replace(/[.;:!]+$/, "").trim();
 }
 function demoKey(line){
   const n = demoName(line);

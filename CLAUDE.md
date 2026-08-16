@@ -157,8 +157,15 @@ whiteboard that says only "snatches" has not said with what. **No drawing is the
 everything the app has not been drawn for**, which is most of it, and adding
 one means drawing it rather than widening the match.
 
+A movement seen from the side is done **to the right** unless there is a reason
+not to. Mirroring a pose is 180 minus every angle and every bend sign the other
+way round, which is what turning the press-up round came to.
+
 The drawings themselves live in `<div id="demos" hidden>` and are copied to
-where they are needed. Each is a person made of thick round strokes, animated
+where they are needed. `tools/into-app.js` writes that whole block; its
+`SHIPPED` list is what goes in, and it is deliberately not every drawing
+`tools/all.js` can make – one goes in when it has been looked at and approved,
+not when it renders. Each is a person made of thick round strokes, animated
 by SMIL: a pose is the set of *angles* at the joints, so nothing stretches as it
 moves, and the frames are worked out ahead of time and written into the file as
 lists of positions. **The numbers are output, not source** – the rig and the

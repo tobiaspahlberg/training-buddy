@@ -80,18 +80,19 @@ const snatch = {
 /* ===================== push-up =====================
    Hands on the floor and toes on the floor: the two ends are pinned and
    everything between them is worked out, which is what a press-up is. */
-const pu = { handAX: 70, handAY: 182, handBX: 62, handBY: 184, armA: -1, armB: -1,
-             ankleAX: 177, ankleAY: 174, footA: 65, bendA: 1,
-             ankleBX: 169, ankleBY: 178, footB: 65, bendB: 1,
+const pu = { handAX: 180, handAY: 182, handBX: 188, handBY: 184, armA: 1, armB: 1,
+             ankleAX: 73, ankleAY: 174, footA: 115, bendA: -1,
+             ankleBX: 81, ankleBY: 178, footB: 115, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
-const puTop = P(pu, { hipX: 117, hipY: 152, torso: 200, head: 205 });
-const puLow = P(pu, { hipX: 114, hipY: 166, torso: 187, head: 192 });
+const puTop = P(pu, { hipX: 133, hipY: 152, torso: -20, head: -25 });
+const puLow = P(pu, { hipX: 136, hipY: 166, torso: -7, head: -12 });
 
 const pushup = {
-  /* Head at the left end and the belly down, so the face points left: with the
-     nose the other way the drawing is somebody lying on their back. */
-  dur: "3s", frames: 26, facing: -1,
+  /* Head at the right end, like everything else here: a movement seen from
+     the side is done to the right unless there is a reason. Mirroring a pose
+     is 180 minus every angle, and every bend sign the other way round. */
+  dur: "3s", frames: 26,
   keys: [{ t: 0, pose: puTop }, { t: .40, pose: puLow },
          { t: .50, pose: puLow }, { t: 1, pose: puTop }]
 };
@@ -99,7 +100,10 @@ const pushup = {
 /* ===================== pull-up =====================
    The hands are the only thing that does not move. */
 const bar = '<rect class="kit-fill" x="34" y="26" width="124" height="8" rx="4"/>';
-const pl = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: 1, armB: 1,
+/* The two arms take opposite bends, because the hands are on opposite sides of
+   the shoulder: which solution of the two an elbow should take depends on
+   which side of the body its hand is, not on which arm it is. */
+const pl = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: 1, armB: -1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
              footA: 25, footB: 25, bendA: 1, bendB: 1 };
 const plHang = P(pl, { hipX: 92, hipY: 126, torso: -90, head: -88,

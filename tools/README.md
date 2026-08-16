@@ -10,9 +10,21 @@ node tools/page.js /tmp/all.html          # every drawing, to look at in a brows
 node tools/stills.js /tmp/s.html burpee   # one movement, pose by pose
 ```
 
-`page.js` also writes each drawing on its own to `/tmp/svg-<name>.svg`, which is
-what goes into `<div id="demos" hidden>`. Nothing here is loaded by the app and
-nothing here is shipped: it is a workshop, not a build step.
+```bash
+node tools/into-app.js                    # write them into docs/index.html
+```
+
+`into-app.js` replaces the whole of `<div id="demos" hidden>`. Its `SHIPPED`
+list is what goes in, and it is deliberately not everything `all.js` can make:
+a drawing goes into the app when it has been looked at and approved, not when
+it renders. Nothing here is loaded by the app and nothing here is shipped: it
+is a workshop, not a build step.
+
+## Which way round
+
+A movement seen from the side is done **to the right** unless there is a reason
+not to. Mirroring a pose is 180 minus every angle, and every `bend`/`arm` sign
+the other way round.
 
 ## How a figure is made
 
@@ -50,6 +62,11 @@ nothing here is shipped: it is a workshop, not a build step.
   `foreA - upperA` belongs between about −155° (shut) and 0° (straight).
   Anything above 0 is a joint bending backwards, which reads as wrong without
   being easy to name. `page.js` checks every pose and says so.
+
+  Which of the two solutions a *pinned* limb takes is the `bendA`/`armB` signs,
+  and it depends on which side of the root the pinned end is, not on which limb
+  it is: a pull-up's two hands sit either side of the shoulders and so take
+  opposite signs.
 
   A high elbow held over the hand – what a snatch looks like from the side – is
   a shape this rig cannot make, because getting the elbow up there in the plane
