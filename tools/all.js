@@ -333,6 +333,96 @@ const row = {
   ]
 };
 
+/* ===================== thruster =====================
+   A front squat and a press, and it is drawn as exactly that: the two are one
+   movement, so standing is passed through on the way up rather than stood in. */
+const feetAB = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
+                 ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
+                 thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const rackArms = { upperA: 95, foreA: -55, upperB: 85, foreB: -65 };
+const overArms = { upperA: -85, foreA: -90, upperB: -88, foreB: -92 };
+
+const thRack = P(feetAB, Object.assign({ hipX: 94, hipY: 120, torso: -90, head: -88 }, rackArms));
+const thLow  = P(feetAB, Object.assign({ hipX: 78, hipY: 152, torso: -58, head: -50 }, rackArms));
+const thTop  = P(feetAB, Object.assign({ hipX: 94, hipY: 118, torso: -90, head: -88 }, overArms));
+
+const twoBells = [{ what: "dumbbell", at: "handB", cls: "load far-load" },
+                  { what: "dumbbell", at: "handA" }];
+
+const thruster = {
+  ground: 190, dur: "3.8s", frames: 32, carry: twoBells,
+  keys: [
+    { t: 0,   pose: thRack },
+    { t: .26, pose: thLow },
+    { t: .34, pose: thLow },
+    { t: .46, flow: true, pose: thRack },
+    { t: .58, pose: thTop },
+    { t: .74, pose: thTop },
+    { t: 1,   pose: thRack }
+  ]
+};
+
+/* ===================== push press =====================
+   The strict press with a dip in it, which is the whole difference between
+   them: a short bend at the knees, and the legs start the weight. */
+const ppDip = P(feetAB, Object.assign({ hipX: 94, hipY: 134, torso: -90, head: -88 }, rackArms));
+
+const pushpress = {
+  ground: 190, dur: "3.4s", frames: 28, carry: twoBells,
+  keys: [
+    { t: 0,   pose: thRack },
+    { t: .20, pose: ppDip },
+    { t: .30, flow: true, pose: thRack },
+    { t: .44, pose: thTop },
+    { t: .62, pose: thTop },
+    { t: 1,   pose: thRack }
+  ]
+};
+
+/* ===================== hanging knee raise =====================
+   The pull-up's bar and the pull-up's hang, with the knees doing the work
+   instead of the arms. */
+const hk = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: 1, armB: -1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             footA: 25, footB: 25, bendA: 1, bendB: 1, hipX: 92, hipY: 126 };
+const hkHang = P(hk, { torso: -90, head: -88,
+                       thighA: 96, shinA: 94, thighB: 92, shinB: 90 });
+const hkUp   = P(hk, { torso: -96, head: -94,
+                       thighA: -8, shinA: 58, thighB: -12, shinB: 54 });
+
+const kneeraise = {
+  dur: "3.2s", frames: 26, props: bar, include: [[34, 26], [158, 34]],
+  keys: [{ t: 0, pose: hkHang }, { t: .36, pose: hkUp },
+         { t: .48, pose: hkUp }, { t: 1, pose: hkHang }]
+};
+
+/* ===================== deadlift ===================== */
+const dl = { ankleAX: 104, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 88, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             upperA: 92, foreA: 90, upperB: 88, foreB: 86 };
+const dlFloor = P(dl, { hipX: 70, hipY: 146, torso: -34, head: -14 });
+const dlStand = P(dl, { hipX: 92, hipY: 122, torso: -90, head: -88 });
+
+const deadlift = {
+  ground: 190, dur: "3.4s", frames: 28, carry: [{ what: "plate" }],
+  keys: [{ t: 0, pose: dlFloor }, { t: .36, pose: dlStand },
+         { t: .50, pose: dlStand }, { t: 1, pose: dlFloor }]
+};
+
+/* ===================== goblet squat =====================
+   The air squat with a bell held at the chest, which is the only difference
+   and the reason it is a different line on the board. */
+const gbArms = { upperA: 100, foreA: -30, upperB: 92, foreB: -38 };
+const gbStand = P(feetAB, Object.assign({ hipX: 94, hipY: 120, torso: -90, head: -88 }, gbArms));
+const gbLow   = P(feetAB, Object.assign({ hipX: 78, hipY: 152, torso: -58, head: -50 }, gbArms));
+
+const goblet = {
+  ground: 190, dur: "3.2s", frames: 26, carry: [{ what: "kettle" }],
+  keys: [{ t: 0, pose: gbStand }, { t: .36, pose: gbLow },
+         { t: .48, pose: gbLow }, { t: 1, pose: gbStand }]
+};
+
 const ALL = [
   ["squat", "Air squat", squat, "In the app already."],
   ["snatch", "Dumbbell snatch", snatch, "In the app already."],
@@ -345,6 +435,11 @@ const ALL = [
   ["lunge", "Walking lunge", lunge, "Back heel up, front knee over the foot."],
   ["press", "Strict press", press, "No leg drive – the hips do not move."],
   ["situp", "Sit-up", situp, "Feet down, torso up."],
+  ["thruster", "Thruster", thruster, "A front squat and a press, in one movement."],
+  ["pushpress", "Push press", pushpress, "The strict press with a dip in it, which is the difference."],
+  ["kneeraise", "Hanging knee raise", kneeraise, "The pull-up's bar, with the knees doing the work."],
+  ["deadlift", "Deadlift", deadlift, "What you see of a barbell from the side is the plate."],
+  ["goblet", "Goblet squat", goblet, "The air squat with a bell at the chest."],
   ["row", "Row", row, "Mostly machine: &ldquo;1000 m row&rdquo; means the erg."]
 ];
 

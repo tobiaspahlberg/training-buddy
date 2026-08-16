@@ -10,7 +10,8 @@ const fs = require("fs"), path = require("path");
 const { ALL, dressed } = require("./all.js");
 
 const SHIPPED = ["squat", "snatch", "pushup", "pullup", "boxjump", "burpee",
-                 "wallball", "swing", "lunge", "press", "situp", "row"];
+                 "wallball", "swing", "lunge", "press", "pushpress", "thruster",
+                 "kneeraise", "deadlift", "goblet", "situp", "row"];
 
 if(process.argv.includes("--list")){
   console.log(SHIPPED.join(" "));

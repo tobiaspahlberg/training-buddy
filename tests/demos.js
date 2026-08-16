@@ -8,7 +8,7 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 12, "the app carries " + held.length + " drawings: " +
+ok(held.length === 17, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
@@ -68,12 +68,13 @@ ok(Math.min(...spin) <= -175 && Math.max(...spin) >= 0,
 
 // ---- which lines get one ----
 const has = line => ev("demoFor(" + JSON.stringify(line) + ")") !== "";
+const key = line => ev("demoKey(" + JSON.stringify(line) + ")");
 ok(has("100 air squats"), "the line as a whiteboard writes it: 100 air squats");
 ok(has("Air squat") && has("air squats") && has("20 bodyweight squats"),
    "a count, a capital and a plural are all the same movement");
-ok(!has("50 goblet squats, kettlebell"),
-   "but a goblet squat is a different movement and gets no drawing");
-ok(!has("5 bow bend squats"), "and so is a bow bend squat");
+ok(key("50 goblet squats, kettlebell") === "goblet" && key("100 air squats") === "squat",
+   "a goblet squat is a squat with a bell in it, and gets its own drawing");
+ok(!has("5 bow bend squats"), "a bow bend squat gets none, having never been drawn");
 ok(!has("50 C-crunches") && !has("Run 400 m") && !has(""),
    "everything the app has not been drawn for gets nothing, which is honest");
 
@@ -85,7 +86,6 @@ ok(!has("100 snatches, kettlebell or dumbbell") && !has("Snatches"),
    "kettlebell snatch is not this drawing");
 
 // the erg: the distance is not part of the movement
-const key = l => ev("demoKey(" + JSON.stringify(l) + ")");
 ok(key("1000 m row") === "row" && key("50 cal row") === "row" && key("400 m row") === "row",
    "a row is a row however far it is: " + key("1000 m row"));
 ok(!has("1000 m row / ski erg") && !has("100 cal row / ski erg"),
@@ -95,8 +95,12 @@ ok(!has("50 renegade rows") && !has("10 gorilla rows"),
    "and a row you do with a dumbbell on the floor is not the machine");
 
 // the near misses, which are the whole point of a table
-ok(has("50 push-ups") && has("Push ups") && !has("50 push press"),
-   "a push-up and a push press are two different movements");
+ok(key("50 push-ups") === "pushup" && key("50 push press") === "pushpress" &&
+   key("100 strict press") === "press",
+   "a push-up, a push press and a strict press are three movements and three " +
+   "drawings, not one stretched over all of them");
+ok(key("Hearts – thrusters") === "thruster",
+   "a card suit says which cards, not which movement, so it is set aside too");
 ok(has("90 box jumps") && !has("90 box jump overs"),
    "and jumping onto a box is not jumping over it");
 ok(has("50 walking lunges") && !has("50 overhead lunges") && !has("20 reverse lunges"),
@@ -118,8 +122,8 @@ ok(new Set(which).size === which.length,
    "no drawing turns up twice in one session: " + which.join(", "));
 ok(drawn.some(r => said(r) === "100 air squats") && drawn.some(r => said(r) === "50 push-ups"),
    "each movement the app knows gets its own: " + drawn.map(said).join(", "));
-ok(rows.length - drawn.length === 6,
-   "and the six it does not know get nothing: " + (rows.length - drawn.length));
+ok(rows.length - drawn.length === 5,
+   "and the five it does not know get nothing: " + (rows.length - drawn.length));
 ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");
@@ -150,7 +154,7 @@ w.toggleDemos();
 ok($("sheet-steps").classList.contains("nodemos"), "and off again");
 
 // a session with nothing drawn in it is not offered a switch with nothing behind it
-w.openProgram("wod-deck-of-cards");
+w.openProgram("rehab-core-hip-stability");
 ok(!$("sheet-eye").classList.contains("there"),
    "a session the app has no drawing for does not show the eye at all");
 

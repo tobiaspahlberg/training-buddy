@@ -42,13 +42,15 @@ const HELD = {
   kettle:   '<path d="M-7 4a7 7 0 0 1 14 0z" fill="none" stroke-width="4"/>' +
             '<circle cx="0" cy="17" r="11"/><rect x="-9" y="8" width="18" height="8" rx="2"/>',
   ball:     '<circle cx="0" cy="0" r="15"/>',
+  /* A loaded barbell, end on: what you see from the side is the plate. */
+  plate:    '<circle cx="0" cy="0" r="15" fill="none" stroke-width="9"/>',
   /* An erg handle, end on, and the seat under the hip. */
   bar:      '<rect x="-13" y="-4" width="26" height="8" rx="4"/>',
   seat:     '<rect x="-13" y="6" width="26" height="9" rx="4"/>'
 };
 
 /* How far a held thing reaches from the hand, for the crop. */
-const HOLDS = { dumbbell: 16, kettle: 30, ball: 16, bar: 14, seat: 16 };
+const HOLDS = { dumbbell: 16, kettle: 30, ball: 16, bar: 14, seat: 16, plate: 21 };
 
 function dressed(o){
   const frames = sample(o.keys, o.frames || 26);

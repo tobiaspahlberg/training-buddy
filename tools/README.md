@@ -73,3 +73,25 @@ the other way round.
   of the drawing means folding the joint past shut. The elbow is high in life
   because it travels out to the side, and that is the one direction a
   two-dimensional rig has not got.
+
+## What this rig cannot draw
+
+Some movements have been tried and taken out again. They are listed so nobody
+works out the same thing twice.
+
+- **The clamshell** and anything else that turns out of the page. A pose here
+  is angles in one plane; a knee opening towards the viewer has nowhere to go.
+
+- **The gorilla row.** Bent over a bell in each hand, the hands, the bells and
+  the feet all end up within twenty units of each other, because that is where
+  they are. Full size it is a person; in a list row it is a yellow smudge with
+  a head.
+
+- **Anything lateral.** A burpee that goes sideways over a dumbbell, a lateral
+  jump: the movement is towards the viewer, and the drawing is from the side.
+
+- **A high elbow held over the hand**, as in a snatch or a sumo deadlift high
+  pull. Getting the elbow there in the plane of the drawing means folding the
+  joint past shut.
+
+The answer in each case is no drawing, not a drawing of something else.

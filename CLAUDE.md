@@ -178,7 +178,7 @@ moves, and the frames are worked out ahead of time and written into the file as
 lists of positions. **The numbers are output, not source** – the rig and the
 key poses live in `tools/`, outside the app and shipped with nothing, so a
 drawing is changed by editing a pose and regenerating it, never by editing the
-lists by hand. `tools/README.md` says how.
+lists by hand. `tools/README.md` says how, and lists the movements this rig has been tried on and cannot draw – anything that turns out of the page, anything lateral, and anything where the hands and the feet end up in the same place.
 
 **Recent** is the first thing on home: the last `RECENT_MAX` sessions actually
 finished, each once however often it has been run. A history entry holds only
