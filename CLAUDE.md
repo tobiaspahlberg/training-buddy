@@ -161,6 +161,13 @@ A movement seen from the side is done **to the right** unless there is a reason
 not to. Mirroring a pose is 180 minus every angle and every bend sign the other
 way round, which is what turning the press-up round came to.
 
+**Every drawing is at one scale**, so a person is the same size in all of them.
+Each `<svg>` carries its own width and height in pixels while its view box is
+in the units the poses are written in; the ratio between the two is that one
+scale, and the CSS sets no size at all. Forcing them all to the same height
+instead made a press-up – a person lying down, so a short wide drawing –
+twice the size of everybody else.
+
 The drawings themselves live in `<div id="demos" hidden>` and are copied to
 where they are needed. `tools/into-app.js` writes that whole block; its
 `SHIPPED` list is what goes in, and it is deliberately not every drawing

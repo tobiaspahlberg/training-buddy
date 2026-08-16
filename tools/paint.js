@@ -8,6 +8,9 @@
 const { sample } = require("./rig.js");
 const r = Math.round;
 
+/* Pixels to the unit, for every drawing alike. */
+const SCALE = 0.55;
+
 /* The far side of the body, which everything else lies over. */
 const FAR = [
   ["hip", "kneeB", "far", 13], ["kneeB", "ankleB", "far", 11],
@@ -128,17 +131,27 @@ function dressed(o){
      uses about half of it. Strokes are measured from their edge, not their
      centre line, or the drawing is trimmed into. */
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-  const box = (x, y, rad) => { x0 = Math.min(x0, x - rad); x1 = Math.max(x1, x + rad);
-                               y0 = Math.min(y0, y - rad); y1 = Math.max(y1, y + rad); };
+  const box = (x, y, rx, ry) => { x0 = Math.min(x0, x - rx); x1 = Math.max(x1, x + rx);
+                                  y0 = Math.min(y0, y - (ry === undefined ? rx : ry));
+                                  y1 = Math.max(y1, y + (ry === undefined ? rx : ry)); };
   frames.forEach(f => {
     PAINT.concat(OVER).forEach(([a, b, cls, w]) => { box(f[a].x, f[a].y, w / 2); box(f[b].x, f[b].y, w / 2); });
     box(f.head.x, f.head.y, 15);
     (o.carry || []).forEach(c => box(f[c.at || "handA"].x, f[c.at || "handA"].y, HOLDS[c.what]));
   });
-  if(o.ground) box((frames[0].ankleA.x + frames[0].ankleB.x) / 2, o.ground, 26);
+  /* The shadow is wide and flat, and boxing it as a circle put twenty units of
+     empty floor under every standing figure. */
+  if(o.ground) box((frames[0].ankleA.x + frames[0].ankleB.x) / 2, o.ground, 26, 5);
   (o.include || []).forEach(p => box(p[0], p[1], 0));
   const pad = 2, W = Math.ceil(x1 - x0 + pad * 2), H = Math.ceil(y1 - y0 + pad * 2);
-  return '<svg class="demo" width="' + W + '" height="' + H + '" viewBox="' +
+  /* Every drawing is authored in the same units - a person is about 150 tall -
+     so one scale for all of them is what makes the figures the same size. The
+     width and height are pixels, the view box is units, and the difference
+     between them is the whole of it: a drawing whose box happens to be short
+     and wide, which is what a press-up is, must come out small and wide rather
+     than being stretched to the height of a standing one. */
+  return '<svg class="demo" width="' + Math.round(W * SCALE) +
+    '" height="' + Math.round(H * SCALE) + '" viewBox="' +
     Math.floor(x0 - pad) + " " + Math.floor(y0 - pad) + " " + W + " " + H + '">' + out + "</svg>";
 }
 

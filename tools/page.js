@@ -34,7 +34,9 @@ const page = `<!doctype html><meta charset="utf-8"><title>The drawings</title>
   .name{font-size:18px;font-weight:650}
   .sub{font-size:14.5px;color:var(--dim);margin-top:4px;line-height:1.5}
   ${CSS}
-  .demo{height:180px;width:auto}
+  /* No size here: each drawing carries its own, and that is the point.
+     The whole picture is zoomed so it can be looked at. */
+  .fig{zoom:1.7}
   .steplist{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:26px}
   .steplist div{display:flex;justify-content:space-between;gap:12px;align-items:center;
     padding:4px 15px 4px 28px;font-size:17px;color:var(--dim);border-bottom:1px solid var(--line)}

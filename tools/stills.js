@@ -27,7 +27,7 @@ fs.writeFileSync(process.argv[2] || "/tmp/stills.html", `<!doctype html><meta ch
   .strip>div{border:1px solid var(--line);border-radius:8px;padding:2px;text-align:center}
   .strip b{display:block;font-size:10px;color:var(--dim);font-weight:400}
   ${CSS}
-  .demo{height:150px;width:auto}
+  .strip>div{zoom:1.5}
   .kitload circle,.kitload rect{fill:var(--kit)}
   .far-load rect{fill:#B98C1B}
 </style>` + rows);

@@ -14,7 +14,31 @@ ok(!held.some(s => s.dataset.demo === "burpee"),
    "the burpee is drawn but not shipped, because it has not been approved");
 ok($("demos").hasAttribute("hidden"),
    "kept out of sight, because a drawing is copied to where it is needed");
-ok(held.every(s => s.getAttribute("viewBox")), "each has a view box, so it scales to its row");
+ok(held.every(s => s.getAttribute("viewBox")), "each has a view box");
+
+/* The one that matters: a person is the same size in every drawing. The view
+   box is in the units the poses are written in, the width and height are
+   pixels, and the ratio between them is the scale. A press-up's box is short
+   and wide; sized to the height of a standing figure it was a giant. */
+const scale = s => {
+  const [, , w] = s.getAttribute("viewBox").split(/\s+/).map(Number);
+  return +s.getAttribute("width") / w;
+};
+const scales = held.map(scale);
+ok(Math.max(...scales) - Math.min(...scales) < 0.02,
+   "all eleven are drawn at one scale, within rounding: " +
+   scales.map(x => x.toFixed(3)).join(" "));
+ok(held.every(s => {
+     const [, , w, h] = s.getAttribute("viewBox").split(/\s+/).map(Number);
+     return Math.abs(+s.getAttribute("width") / +s.getAttribute("height") - w / h) < 0.03;
+   }), "and none of them is stretched: the pixels keep the shape of the units");
+const tall = held.find(s => s.dataset.demo === "squat");
+const flat = held.find(s => s.dataset.demo === "pushup");
+ok(+flat.getAttribute("height") < +tall.getAttribute("height") * 0.7,
+   "so the press-up is shorter than the squat, because a person lying down is: " +
+   flat.getAttribute("height") + " against " + tall.getAttribute("height"));
+ok(+flat.getAttribute("width") > +tall.getAttribute("width"),
+   "and wider, for the same reason");
 const names = new Set(Object.keys(ev("DEMOS")).map(k => ev("DEMOS")[JSON.stringify(k) && k]));
 ok([...names].every(n => held.some(s => s.dataset.demo === n)),
    "and every name the table can return is one that is actually here: " + [...names].join(", "));
