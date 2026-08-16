@@ -195,22 +195,30 @@ ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
 
 // ---- what he wears ----
 const root = () => d.documentElement.style;
-ok(root().getPropertyValue("--vest") === "#38BDF8",
+ok(root().getPropertyValue("--vest") === ev("KIT_DEFAULT.vest"),
    "the colours are set on the page, not baked into each drawing: " +
    root().getPropertyValue("--vest"));
+ok(ev("KIT.every(k => k.colors.includes(KIT_DEFAULT[k.part]))"),
+   "and what he wears to begin with is one of the colours actually on offer");
+ok(ev(`KIT.every(k => k.colors.length === 6)`), "six of each, one row apiece");
 ok(root().getPropertyValue("--shoe-far") && root().getPropertyValue("--shoe-far") !==
    root().getPropertyValue("--shoe"),
    "the far shoe is the near one turned down, worked out rather than chosen: " +
    root().getPropertyValue("--shoe-far"));
 ok(!!$("mascot").querySelector("svg"), "and he stands beside the app's name");
 
-w.pickKit("vest", "#4ADE80");
-ok(root().getPropertyValue("--vest") === "#4ADE80", "picking a colour writes the variable");
-ok(JSON.parse(w.localStorage.getItem("tb.kit")).vest === "#4ADE80",
+/* Pick from what is on offer rather than from a colour written here: a
+   hard-coded one goes stale the moment the palette is thought better of, and
+   nothing would be ringed. */
+const second = part => ev("KIT.find(k => k.part === " + JSON.stringify(part) + ").colors[1]");
+w.pickKit("vest", second("vest"));
+ok(root().getPropertyValue("--vest") === second("vest"),
+   "picking a colour writes the variable: " + second("vest"));
+ok(JSON.parse(w.localStorage.getItem("tb.kit")).vest === second("vest"),
    "and the phone remembers it: " + w.localStorage.getItem("tb.kit"));
-w.pickKit("shoe", "#1F2937");
+w.pickKit("shoe", second("shoe"));
 const far = root().getPropertyValue("--shoe-far");
-ok(far !== "#1F2937" && /^#[0-9a-f]{6}$/.test(far),
+ok(far !== second("shoe") && /^#[0-9a-f]{6}$/.test(far),
    "a new shoe brings its own far side with it: " + far);
 ok([...$("kit-rows").querySelectorAll(".swatch.on")].length === 4,
    "one colour is ringed in each of the four rows");
@@ -223,5 +231,5 @@ const dom2 = new JSDOM(fs.readFileSync(require("path").join(__dirname, "..", "do
     beforeParse(win){ win.localStorage.setItem("tb.kit", '{"hair":"#C2410C"}'); } });
 ok(dom2.window.document.documentElement.style.getPropertyValue("--hair") === "#C2410C",
    "a colour chosen last time is worn from the start");
-ok(dom2.window.document.documentElement.style.getPropertyValue("--vest") === "#38BDF8",
+ok(dom2.window.document.documentElement.style.getPropertyValue("--vest") === "#3F6098",
    "and the ones never chosen keep their defaults, rather than going blank");

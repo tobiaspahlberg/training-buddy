@@ -35,11 +35,11 @@
        drawing read as three-quarters rather than as a diagram. */
     --skin:#F2C9A0;
     --skin-far:#C79A74;
-    --vest:#38BDF8;
-    --shorts:#F43F5E;
-    --shoe:#F2F7F4;
-    --shoe-far:#B9C6BE;
-    --hair:#43301F;
+    --vest:#3F6098;
+    --shorts:#6E7A82;
+    --shoe:#EDEFEC;
+    --shoe-far:#AAB0AE;
+    --hair:#3E2C1E;
     --kit:#7C8A99;      /* a box, a bar, a rowing machine – a thing, not a body */
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -1516,6 +1516,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.31.1",
+    "date": "2026-08-16",
+    "changes": [
+      "His clothes are things people actually wear now, and his hair is a colour hair comes in"
+    ]
+  },
+  {
     "version": "0.31.0",
     "date": "2026-08-16",
     "changes": [
@@ -2007,7 +2014,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.31.0";
+const APP_VERSION = "0.31.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3941,15 +3948,15 @@ let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayI
 const KEY_KIT = "tb.kit";
 const KIT = [
   { part:"vest",   label:"Vest",
-    colors:["#38BDF8","#4ADE80","#FBBF24","#F472B6","#A78BFA","#F2F7F4"] },
+    colors:["#3F6098","#7E8891","#E8EDEA","#3D7358","#9E4740","#33383D"] },
   { part:"shorts", label:"Shorts",
-    colors:["#F43F5E","#2DD4BF","#A78BFA","#FBBF24","#4ADE80","#E2E8F0"] },
+    colors:["#6E7A82","#2F353A","#33496E","#5C6642","#7A3F46","#DDE3E0"] },
   { part:"hair",   label:"Hair",
-    colors:["#43301F","#1C1917","#C2410C","#E7C46B","#94A3B8","#7C3AED"] },
+    colors:["#3E2C1E","#241C18","#6E4A2E","#8C4A28","#C6A56E","#A9AEB2"] },
   { part:"shoe",   label:"Shoes",
-    colors:["#F2F7F4","#1F2937","#F43F5E","#38BDF8","#4ADE80","#FBBF24"] }
+    colors:["#EDEFEC","#2B3136","#7C858B","#33496E","#9E4740","#C7B69B"] }
 ];
-const KIT_DEFAULT = { vest:"#38BDF8", shorts:"#F43F5E", hair:"#43301F", shoe:"#F2F7F4" };
+const KIT_DEFAULT = { vest:"#3F6098", shorts:"#6E7A82", hair:"#3E2C1E", shoe:"#EDEFEC" };
 let kit = Object.assign({}, KIT_DEFAULT, load(KEY_KIT, {}));
 
 /* Turned down towards the background, which is what distance does to a colour
