@@ -89,7 +89,9 @@ const puTop = P(pu, { hipX: 117, hipY: 152, torso: 200, head: 205 });
 const puLow = P(pu, { hipX: 114, hipY: 166, torso: 187, head: 192 });
 
 const pushup = {
-  dur: "3s", frames: 26,
+  /* Head at the left end and the belly down, so the face points left: with the
+     nose the other way the drawing is somebody lying on their back. */
+  dur: "3s", frames: 26, facing: -1,
   keys: [{ t: 0, pose: puTop }, { t: .40, pose: puLow },
          { t: .50, pose: puLow }, { t: 1, pose: puTop }]
 };
@@ -97,7 +99,7 @@ const pushup = {
 /* ===================== pull-up =====================
    The hands are the only thing that does not move. */
 const bar = '<rect class="kit-fill" x="34" y="26" width="124" height="8" rx="4"/>';
-const pl = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: -1, armB: -1,
+const pl = { handAX: 108, handAY: 34, handBX: 78, handBY: 36, armA: 1, armB: 1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
              footA: 25, footB: 25, bendA: 1, bendB: 1 };
 const plHang = P(pl, { hipX: 92, hipY: 126, torso: -90, head: -88,
@@ -171,7 +173,9 @@ const bpJump  = P(bp, { hipX: 92, hipY: 100, torso: -90, head: -88,
                         handAX: 94, handAY: 12, handBX: 84, handBY: 16 });
 
 const burpee = {
-  ground: 190, dur: "5s", frames: 40,
+  /* Facing left throughout, which is where the hands go down and where the
+     face has to point while the chest is on the floor. */
+  ground: 190, dur: "5s", frames: 40, facing: -1,
   keys: [
     { t: 0,   pose: bpStand },
     { t: .13, flow: true, pose: bpDown },
@@ -222,7 +226,10 @@ const kbTop  = P(kb, { hipX: 100, hipY: 120, torso: -90, head: -86,
                        upperA: 5, foreA: 3, upperB: 9, foreB: 7, kbA: -87 });
 
 const swing = {
-  ground: 190, dur: "3.4s", frames: 30, carry: [{ what: "kettle", spin: "kbA" }],
+  ground: 190, dur: "3.4s", frames: 30,
+  /* The far hand, and painted between the two sides of the body: from the side
+     the bell goes between the legs, which means behind the near one. */
+  carry: [{ what: "kettle", at: "handB", spin: "kbA", behind: true }],
   keys: [
     { t: 0,   pose: kbBack },
     { t: .16, flow: true, pose: kbMid },

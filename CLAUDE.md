@@ -138,7 +138,11 @@ sheet and on the run screen, and typed as lines in the editor.
 **A drawing is offered where the name is not enough.** A movement the app has
 been drawn for shows a looping figure at the end of its line in the session
 details – `subRow()` puts it there, for a work list and for a circuit's
-stations alike, after the words, so a list still reads down its left edge.
+stations alike, after the words, so a list still reads down its left edge. It
+is offered **once per session**, against the first line that names it: a
+workout counting 21-15-9 down one arm and back up the other names the same
+movement six times, and six copies of one figure is one explanation and five
+things moving in front of the words.
 A session opens with them **off**: a drawing answers "what is that", which is
 a question you ask once, and after that it is a moving thing in front of the
 list you came to read. The eye beside the session's name turns them on and is

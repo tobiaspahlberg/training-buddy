@@ -8,16 +8,19 @@
 const { sample } = require("./rig.js");
 const r = Math.round;
 
-const PAINT = [
+/* The far side of the body, which everything else lies over. */
+const FAR = [
   ["hip", "kneeB", "far", 13], ["kneeB", "ankleB", "far", 11],
   ["ankleB", "toeB", "shoe-far", 9],
-  ["shoulder", "elbowB", "far", 10], ["elbowB", "handB", "far", 9],
-
+  ["shoulder", "elbowB", "far", 10], ["elbowB", "handB", "far", 9]
+];
+const NEAR = [
   ["hip", "shoulder", "vest", 25],
   ["hip", "kneeA", "skin", 15], ["kneeA", "ankleA", "skin", 12],
   ["hip", "kneeA", "shorts", 24],
   ["ankleA", "toeA", "shoe", 10]
 ];
+const PAINT = FAR.concat(NEAR);
 
 /* The near arm is painted after the head, because it is the arm that goes
    overhead and it went behind the face when it got there. */
@@ -74,7 +77,20 @@ function dressed(o){
       (still ? "" : ["x1", "y1", "x2", "y2"].map(k => anim(k, f => r(p(f, k)))).join("")) +
       "</line>";
   };
-  PAINT.forEach(paint);
+  /* Something held can be painted between the two sides of the body, which is
+     the only way a kettlebell is ever between the legs: in front of the far
+     one and behind the near one. */
+  const held = c => {
+    const j = c.at || "handA";
+    out += '<g class="' + (c.cls || "load") + '"><g>' +
+      anim("transform", f => r(f[j].x) + " " + r(f[j].y), "translate") + "<g>" +
+      anim("transform", f => r(c.spin ? f.pose[c.spin] || 0 : 0), "rotate") +
+      HELD[c.what] + "</g></g></g>";
+  };
+
+  FAR.forEach(paint);
+  (o.carry || []).filter(c => c.behind).forEach(held);
+  NEAR.forEach(paint);
 
   /* A tether: a line from a fixed point to something that moves, which is a
      chain on a rowing machine and nothing else so far. */
@@ -96,13 +112,7 @@ function dressed(o){
   out += spot("nose", 2.6, 9 * face, 1);
   OVER.forEach(paint);
 
-  (o.carry || []).forEach(c => {
-    const j = c.at || "handA";
-    out += '<g class="' + (c.cls || "load") + '"><g>' +
-      anim("transform", f => r(f[j].x) + " " + r(f[j].y), "translate") + "<g>" +
-      anim("transform", f => r(c.spin ? f.pose[c.spin] || 0 : 0), "rotate") +
-      HELD[c.what] + "</g></g></g>";
-  });
+  (o.carry || []).filter(c => !c.behind).forEach(held);
 
   /* Crop to what is actually drawn, over every frame of it: the poses are
      written in a big square because that is easy to think in, and the figure

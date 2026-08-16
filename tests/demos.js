@@ -108,6 +108,18 @@ w.openProgram("wod-team-chipper");
 ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
    "the chipper's air squats are drawn too");
 
+// ---- once per session, on the first line that names it ----
+w.openProgram("wod-db-snatch-21-15-9");
+const snRows = [...$("sheet-steps").querySelectorAll("div.sub")];
+const snDrawn = snRows.filter(r => r.querySelector("svg"));
+ok(snRows.filter(r => /snatch/.test(r.textContent)).length === 6,
+   "21-15-9 down one arm and back up the other names snatches six times");
+ok(snDrawn.length === 1, "and is drawn once: " + snDrawn.length);
+ok(snDrawn[0] === snRows.find(r => /snatch/.test(r.textContent)),
+   "on the first of them, which is the one you read first");
+ok(!snRows.slice(1).some(r => r.classList.contains("drawn")),
+   "the rest are ordinary lines again, indent and all");
+
 // a session of your own, typed by hand
 ev(`programs.push({ id:"mine", name:"Mine", category:"crossfn",
   blocks:[{ type:"step", text:"AMRAP", kind:"run", sec:600, list:["30 air squats","10 pull-ups"] }] });`);

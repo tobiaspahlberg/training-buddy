@@ -835,6 +835,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.27.1",
+    "date": "2026-08-16",
+    "changes": [
+      "A drawing is now shown once per session, against the first line that names the movement. A workout that counts 21-15-9 down one arm and back up the other was showing the same figure six times"
+    ]
+  },
+  {
     "version": "0.27.0",
     "date": "2026-08-15",
     "changes": [
@@ -1279,7 +1286,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.27.0";
+const APP_VERSION = "0.27.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3249,24 +3256,37 @@ function demoName(line){
   return String(line).toLowerCase()
     .replace(/^[\s\d]+/, "").replace(/,.*$/, "").replace(/[.;:!]+$/, "").trim();
 }
-function demoFor(line){
+function demoKey(line){
   const n = demoName(line);
-  const key = DEMOS[n] || DEMOS[n.replace(/es$/, "")] || DEMOS[n.replace(/s$/, "")];
+  return DEMOS[n] || DEMOS[n.replace(/es$/, "")] || DEMOS[n.replace(/s$/, "")] || "";
+}
+function demoSvg(key){
   const el = key && document.querySelector('#demos [data-demo="' + key + '"]');
   return el ? el.outerHTML : "";
 }
+function demoFor(line){ return demoSvg(demoKey(line)); }
 
-/* A line of a work list, with its drawing if the app has one of it. The
-   drawing comes after the words, so a list still reads down its left edge. */
-function subRow(text){
-  const d = demoFor(text);
+/* A line of a work list, with its drawing if the app has one of it and has not
+   used it yet. The drawing comes after the words, so a list still reads down
+   its left edge. */
+function subRow(text, shown){
+  const key = demoKey(text);
+  const d = key && !shown[key] ? demoSvg(key) : "";
+  if(key) shown[key] = true;
   return '<div class="sub' + (d ? " drawn" : "") + '">' +
     "<span>" + esc(text) + "</span>" + d + "</div>";
 }
 
 /* The block list as it is shown in the sheet. A work list has no timing of
-   its own, so its lines hang under the step they belong to. */
+   its own, so its lines hang under the step they belong to.
+
+   A drawing is offered once per session, against the first line that names it.
+   A workout that counts 21-15-9 down one arm and back up the other names the
+   same movement six times, and six copies of one figure moving is not six
+   explanations: it is one explanation and five things in front of the words. */
 function blockRows(blocks){
+  const shown = {};
+  const sub = text => subRow(text, shown);
   return blocks.map(b => {
     if(b.type === "repeat")
       return "<div><span>" + esc(b.reps + " × " + b.a.text + " : " + b.b.text) + "</span><span>" +
@@ -3277,10 +3297,10 @@ function blockRows(blocks){
          the way a work list is – the header only says how it is run. */
       return "<div><span>" + esc(b.rounds + " × " + count(names.length, "station")) +
         "</span><span>" + fmt(b.workSec) + " : " + fmt(b.restSec) + "</span></div>" +
-        names.map(subRow).join("");
+        names.map(sub).join("");
     }
     return "<div><span>" + esc(b.text) + "</span><span>" + fmt(b.sec) + "</span></div>" +
-      (b.list ? b.list.map(subRow).join("") : "");
+      (b.list ? b.list.map(sub).join("") : "");
   }).join("");
 }
 
