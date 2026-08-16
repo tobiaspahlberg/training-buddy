@@ -31,6 +31,15 @@ function skeleton(P, B){
   const L = Object.assign({}, BODY, B || {});
   const hip = { x: P.hipX, y: P.hipY };
   const shoulder = step(hip, P.torso, L.torso);
+  /* A person seen from the front is two hips and two shoulders apart, not one
+     of each. `spread` is that half-width, measured across the torso: nothing
+     side on, where the two sides stand behind one another and one point is the
+     truth, and a real width face on, where hanging both legs off the same spot
+     is what makes a figure look like it is standing sideways. */
+  const w = P.spread || 0;
+  const across = (p, d) => step(p, P.torso + 90, d);
+  const hipA = across(hip, w), hipB = across(hip, -w);
+  const shA = across(shoulder, w * 1.2), shB = across(shoulder, -w * 1.2);
   const neck = step(shoulder, P.torso, L.neck * 0.4);
   const head = step(shoulder, P.head === undefined ? P.torso : P.head, L.neck + L.head * 0.8);
 
@@ -48,38 +57,39 @@ function skeleton(P, B){
              y: root.y + Math.sin(base + off) * first };
   };
 
-  const arm = (up, fo, pin, bend) => {
+  const arm = (root, up, fo, pin, bend) => {
     if(pin){
-      const elbow = reach(shoulder, pin.x, pin.y, L.upper, L.fore, bend);
+      const elbow = reach(root, pin.x, pin.y, L.upper, L.fore, bend);
       return { elbow: elbow, hand: pin };
     }
-    const elbow = step(shoulder, up, L.upper);
+    const elbow = step(root, up, L.upper);
     return { elbow: elbow, hand: step(elbow, fo, L.fore) };
   };
   /* Two ways to place a leg. Either the joints are given as angles, or the
      ankle is pinned where it stands and the knee is worked out - which is
      what a foot on the floor is, and what feet held together are. Without
      this a clamshell drags its own foot across the mat. */
-  const leg = (th, sh, ft, pin, bend) => {
+  const leg = (root, th, sh, ft, pin, bend) => {
     if(pin){
-      const knee = reach(hip, pin.x, pin.y, L.thigh, L.shin, bend);
+      const knee = reach(root, pin.x, pin.y, L.thigh, L.shin, bend);
       return { knee: knee, ankle: pin, toe: step(pin, ft, L.foot) };
     }
-    const knee = step(hip, th, L.thigh);
+    const knee = step(root, th, L.thigh);
     const ankle = step(knee, sh, L.shin);
     return { knee: knee, ankle: ankle, toe: step(ankle, ft, L.foot) };
   };
 
   const grip = s => P["hand" + s + "X"] === undefined ? null
                     : { x: P["hand" + s + "X"], y: P["hand" + s + "Y"] };
-  const near = arm(P.upperA, P.foreA, grip("A"), P.armA === undefined ? 1 : P.armA);
-  const far  = arm(P.upperB, P.foreB, grip("B"), P.armB === undefined ? 1 : P.armB);
+  const near = arm(shA, P.upperA, P.foreA, grip("A"), P.armA === undefined ? 1 : P.armA);
+  const far  = arm(shB, P.upperB, P.foreB, grip("B"), P.armB === undefined ? 1 : P.armB);
   const pinA = P.ankleAX === undefined ? null : { x: P.ankleAX, y: P.ankleAY };
   const pinB = P.ankleBX === undefined ? null : { x: P.ankleBX, y: P.ankleBY };
-  const nearLeg = leg(P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA);
-  const farLeg  = leg(P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB);
+  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA);
+  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB);
   return {
     hip: hip, shoulder: shoulder, neck: neck, head: head,
+    hipA: hipA, hipB: hipB, shoulderA: shA, shoulderB: shB,
     elbowA: near.elbow, handA: near.hand, elbowB: far.elbow, handB: far.hand,
     kneeA: nearLeg.knee, ankleA: nearLeg.ankle, toeA: nearLeg.toe,
     kneeB: farLeg.knee, ankleB: farLeg.ankle, toeB: farLeg.toe

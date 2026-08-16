@@ -540,18 +540,21 @@ const mascotHop = {
 const HEAD = { face: "front", smile: true, band: true };
 const SIDE = { smile: true, band: true };
 
-/* the feet of a figure standing face on: toes out, a little apart */
-const upright = { footA: 0, footB: 180, bendA: 1, bendB: -1,
-                  thighA: 84, shinA: 87, thighB: 96, shinB: 93 };
+/* The feet of a figure standing face on. The legs hang straight down now: it
+   is `spread` that sets them apart, one from each hip, which is what a person
+   has. Splaying both thighs from a single hip was what made him look like he
+   was standing sideways with one leg. */
+const upright = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
+                  thighA: 90, shinA: 90, thighB: 90, shinB: 90 };
 const U = o => P(upright, o);
 const breath = (a, b, o) => Object.assign({ ground: 190, dur: "4s", frames: 18 }, o, {
   keys: [{ t: 0, pose: a }, { t: .5, pose: b }, { t: 1, pose: a }] });
 
 /* 1 - arms folded, face on */
 const foldUp = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
-                   upperA: 118, foreA: 20, upperB: 62, foreB: 160 });
+                   upperA: 60, foreA: 175, upperB: 120, foreB: 5 });
 const foldDn = U({ hipX: 94, hipY: 121, torso: -89, head: -89,
-                   upperA: 120, foreA: 22, upperB: 60, foreB: 158 });
+                   upperA: 62, foreA: 177, upperB: 118, foreB: 3 });
 const poseFold = breath(foldUp, foldDn, HEAD);
 
 /* 2 - leaning on the wall to his left, ankles crossed */
@@ -567,41 +570,40 @@ const poseLean = breath(P(leanA, {}),
 
 /* 3 - hands on hips, face on */
 const hipsUp = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
-                   upperA: 118, foreA: 42, upperB: 62, foreB: 138 });
+                   upperA: 55, foreA: 125, upperB: 125, foreB: 55 });
 const poseHips = breath(hipsUp, U({ hipX: 94, hipY: 121, torso: -89, head: -89,
-                   upperA: 120, foreA: 44, upperB: 60, foreB: 136 }), HEAD);
+                   upperA: 57, foreA: 127, upperB: 123, foreB: 53 }), HEAD);
 
 /* 4 - flexing, face on: one arm curled up, the other down */
 const flexIn  = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
-                    upperA: 106, foreA: 100, upperB: 10, foreB: -78 });
+                    upperA: 20, foreA: -78, upperB: 96, foreB: 92 });
 const flexOut = U({ hipX: 94, hipY: 118, torso: -90, head: -90,
-                    upperA: 106, foreA: 100, upperB: 12, foreB: -96 });
+                    upperA: 22, foreA: -98, upperB: 96, foreB: 92 });
 const poseFlex = Object.assign(breath(flexIn, flexOut, HEAD), { dur: "2.4s" });
 
 /* 5 - waving, face on */
 const waveA = U({ hipX: 94, hipY: 119, torso: -90, head: -90,
-                  upperA: -104, foreA: -76, upperB: 74, foreB: 80 });
+                  upperA: -70, foreA: -58, upperB: 96, foreB: 92 });
 const waveB = U({ hipX: 94, hipY: 119, torso: -90, head: -90,
-                  upperA: -104, foreA: -122, upperB: 74, foreB: 80 });
+                  upperA: -70, foreA: -104, upperB: 96, foreB: 92 });
 const poseWave = Object.assign(breath(waveA, waveB, HEAD), { dur: "1.6s" });
 
 /* 6 - a long stretch, arms overhead, face on */
 const stretchDn = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
-                      upperA: 108, foreA: 100, upperB: 72, foreB: 80 });
+                      upperA: 88, foreA: 86, upperB: 92, foreB: 94 });
 const stretchUp = U({ hipX: 94, hipY: 116, torso: -90, head: -92,
-                      upperA: -100, foreA: -104, upperB: -80, foreB: -76 });
+                      upperA: -78, foreA: -82, upperB: -102, foreB: -98 });
 const poseStretch = Object.assign(breath(stretchDn, stretchUp, HEAD),
   { dur: "5s", frames: 26 });
 
 /* 7 - star jumps, face on: in the plane of the drawing, which is the one
        jump this rig can do, and only because he has turned to face you */
 const starIn  = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
-                    thighA: 86, shinA: 88, thighB: 94, shinB: 92,
-                    upperA: 100, foreA: 96, upperB: 80, foreB: 84 });
-const starOut = { footA: 30, footB: 150, bendA: 1, bendB: -1,
+                    upperA: 84, foreA: 82, upperB: 96, foreB: 98 });
+const starOut = { spread: 9, footA: 30, footB: 150, bendA: 1, bendB: -1,
                   hipX: 94, hipY: 112, torso: -90, head: -90,
-                  thighA: 58, shinA: 56, thighB: 122, shinB: 124,
-                  upperA: -142, foreA: -148, upperB: -38, foreB: -32 };
+                  thighA: 62, shinA: 60, thighB: 118, shinB: 120,
+                  upperA: -38, foreA: -32, upperB: -142, foreB: -148 };
 const poseStar = Object.assign({}, HEAD, { ground: 190, dur: "1.5s", frames: 16,
   keys: [{ t: 0, pose: starIn }, { t: .42, pose: starOut },
          { t: .58, flow: true, pose: starOut }, { t: 1, pose: starIn }] });
@@ -662,15 +664,15 @@ const lean2 = Object.assign({}, lean1,
   { props: drawnWall, include: [[WALL - 9, 30], [WALL, 190]] });
 
 /* 3 - the other photograph: back to the wall, arms folded, face on */
-const foldCross = { footA: 0, footB: 180, bendA: 1, bendB: -1,
-                    thighA: 78, shinA: 102, thighB: 102, shinB: 78,
-                    hipX: 84, hipY: 120, torso: -90, head: -90,
-                    upperA: 118, foreA: 20, upperB: 62, foreB: 160 };
+const foldCross = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
+                    thighA: 108, shinA: 112, thighB: 92, shinB: 88,
+                    hipX: 94, hipY: 120, torso: -90, head: -90,
+                    upperA: 60, foreA: 175, upperB: 120, foreB: 5 };
 const lean3 = sway(foldCross, P(foldCross, { hipY: 123, head: -89 }), LEANF);
 
 /* 4 - the same, tilted: he is resting on one shoulder, not standing to
        attention against a wall */
-const foldTilt = P(foldCross, { hipX: 88, torso: -97, head: -95 });
+const foldTilt = P(foldCross, { hipX: 96, torso: -97, head: -95 });
 const lean4 = sway(foldTilt, P(foldTilt, { hipY: 123, torso: -96 }), LEANF);
 
 /* 5 - a shoulder against it, side on, arms folded */
@@ -692,7 +694,7 @@ const lowA = P(crossed, { handBX: WALL + 2, handBY: 118, armB: 1,
 const lean7 = sway(lowA, P(lowA, { hipY: 130, torso: -95 }), LEAN);
 
 /* 8 - back to it, hands at the hips, face on */
-const hipsCross = P(foldCross, { upperA: 118, foreA: 42, upperB: 62, foreB: 138 });
+const hipsCross = P(foldCross, { upperA: 55, foreA: 125, upperB: 125, foreB: 55 });
 const lean8 = sway(hipsCross, P(hipsCross, { hipY: 123 }), LEANF);
 
 /* 9 - a foot flat against it behind him, arms folded, side on */

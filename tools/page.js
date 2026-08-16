@@ -26,7 +26,7 @@ ALL.forEach(([id, name, o]) => { svg[id] = dressed(o); });
 const page = `<!doctype html><meta charset="utf-8"><title>The drawings</title>
 <style>
   :root{--bg:#0E1712;--surface:#17241D;--line:#2C4438;--text:#F2F7F4;--dim:#8CA79A;
-        --skin:#F2C9A0;--skin-far:#C79A74;--vest:#3F6098;--shorts:#6E7A82;
+        --skin:#F2C9A0;--skin-far:#C79A74;--vest:#3F6098;--shorts:#6E7A82;--shorts-far:#4E5760;
         --shoe:#EDEFEC;--shoe-far:#AAB0AE;--hair:#3E2C1E;--warm:#FBBF24;--kit:#7C8A99}
   body{margin:0;background:var(--bg);color:var(--text);padding:24px 16px 80px;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}

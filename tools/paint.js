@@ -13,14 +13,15 @@ const SCALE = 0.55;
 
 /* The far side of the body, which everything else lies over. */
 const FAR = [
-  ["hip", "kneeB", "far", 13], ["kneeB", "ankleB", "far", 11],
+  ["hipB", "kneeB", "far", 13], ["kneeB", "ankleB", "far", 11],
   ["ankleB", "toeB", "shoe-far", 9],
-  ["shoulder", "elbowB", "far", 10], ["elbowB", "handB", "far", 9]
+  ["hipB", "kneeB", "shorts-far", 24],
+  ["shoulderB", "elbowB", "far", 10], ["elbowB", "handB", "far", 9]
 ];
 const NEAR = [
   ["hip", "shoulder", "vest", 25],   /* wider face on - see `front` below */
-  ["hip", "kneeA", "skin", 15], ["kneeA", "ankleA", "skin", 12],
-  ["hip", "kneeA", "shorts", 24],
+  ["hipA", "kneeA", "skin", 15], ["kneeA", "ankleA", "skin", 12],
+  ["hipA", "kneeA", "shorts", 24],
   ["ankleA", "toeA", "shoe", 10]
 ];
 const PAINT = FAR.concat(NEAR);
@@ -28,7 +29,7 @@ const PAINT = FAR.concat(NEAR);
 /* The near arm is painted after the head, because it is the arm that goes
    overhead and it went behind the face when it got there. */
 const OVER = [
-  ["shoulder", "elbowA", "skin", 11], ["elbowA", "handA", "skin", 10]
+  ["shoulderA", "elbowA", "skin", 11], ["elbowA", "handA", "skin", 10]
 ];
 
 /* Something held: a shape drawn about nothing, carried to a hand, and turned
@@ -74,7 +75,18 @@ function dressed(o){
 
   /* Turned to face you a person is wider, and the vest is the whole of his
      width. Everything else is a limb and stays as it is. */
-  const paint = ([a, b, cls, w0]) => {
+  /* The far leg only wears shorts when there are two legs to see. Side on it
+     is behind the near one, and painting it puts a red smear through the
+     middle of him. What is not painted is not measured either, or the crop
+     grows around a stroke nobody can see. */
+  const drawn = ([, , cls]) => cls !== "shorts-far" || o.face === "front";
+  const paint = ([a, b, cls0, w0]) => {
+    /* Shorts are one garment. The far leg of them is turned down side on,
+       where it is behind the near leg and wants telling apart, but face on
+       both legs are the same cloth in the same light and a two-tone pair of
+       shorts is just wrong. The far arm keeps its darker tone either way,
+       because face on the arms are what cross each other. */
+    const cls = cls0 === "shorts-far" && o.face === "front" ? "shorts" : cls0;
     const w = cls === "vest" && o.face === "front" ? 32 : w0;
     /* Shorts stop half way down the thigh, so they are that bone cut short. */
     const cut = cls === "shorts" ? 0.62 : 1;
@@ -109,9 +121,9 @@ function dressed(o){
       HELD[c.what] + "</g></g></g>";
   };
 
-  FAR.forEach(paint);
+  FAR.filter(drawn).forEach(paint);
   (o.carry || []).filter(c => c.behind).forEach(held);
-  NEAR.forEach(paint);
+  NEAR.filter(drawn).forEach(paint);
 
   /* A tether: a line from a fixed point to something that moves, which is a
      chain on a rowing machine and nothing else so far. */
@@ -158,7 +170,8 @@ function dressed(o){
                                   y0 = Math.min(y0, y - (ry === undefined ? rx : ry));
                                   y1 = Math.max(y1, y + (ry === undefined ? rx : ry)); };
   frames.forEach(f => {
-    PAINT.concat(OVER).forEach(([a, b, cls, w]) => { box(f[a].x, f[a].y, w / 2); box(f[b].x, f[b].y, w / 2); });
+    PAINT.concat(OVER).filter(drawn).forEach(([a, b, cls, w]) => {
+      box(f[a].x, f[a].y, w / 2); box(f[b].x, f[b].y, w / 2); });
     box(f.head.x, f.head.y, 15);
     /* `crop:false` keeps a thing out of the box: a ball thrown out of the top
        of the picture is meant to be out of the picture, and growing the box to
@@ -191,6 +204,7 @@ const CSS = `
   .demo .far{stroke:var(--skin-far)}
   .demo .vest{stroke:var(--vest)}
   .demo .shorts{stroke:var(--shorts)}
+  .demo .shorts-far{stroke:var(--shorts-far)}
   .demo .shoe{stroke:var(--shoe)}
   .demo .shoe-far{stroke:var(--shoe-far)}
   .demo .skin-fill{fill:var(--skin)}
