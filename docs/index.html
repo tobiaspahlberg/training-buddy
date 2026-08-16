@@ -62,9 +62,15 @@
   }
   header h1{font-size:19px;font-weight:700;letter-spacing:.2px;flex:1;min-width:0;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  /* The way in to the app says its name properly, once. */
-  header.big{padding:20px 16px 18px}
-  header.big h1{font-size:29px;font-weight:800;letter-spacing:-.4px}
+  /* The way in to the app says its name properly, once. It is two words on two
+     lines beside the figure, and one number sets both: the type and his height
+     are the same thing said twice, so they cannot drift apart. Two lines come
+     to 2 x 1.084 of the size, which is what the figure is scaled to. */
+  header.big{padding:14px 16px;align-items:center;--title:36px}
+  header.big h1{font-size:var(--title);font-weight:800;letter-spacing:-.6px;
+    line-height:1.084;white-space:normal}
+  /* A phone narrow enough to break "Training" in half gets a smaller one. */
+  @media (max-width:359px){ header.big{--title:31px} }
   header .sub{font-size:12px;color:var(--dim);font-weight:500}
   .iconbtn{
     background:var(--surface-2);border:1px solid var(--line);color:var(--text);
@@ -281,7 +287,7 @@
      of them and leaving the other alone letterboxes him inside a taller box
      rather than making him bigger. `width:auto` takes the other from the
      shape. */
-  .mascot .demo{height:58px;width:auto;max-width:none}
+  .mascot .demo{height:calc(var(--title) * 2.168);width:auto;max-width:none}
   /* Bigger on the screen that is about him. */
   .kit-him{display:flex;justify-content:center;padding:6px 0 22px}
   .kit-him .demo{height:200px;width:auto;max-width:none}
@@ -516,7 +522,7 @@
 <div class="screen active" id="home">
   <header class="big">
     <button class="mascot" id="mascot" onclick="showScreen('kit')" title="Colours"></button>
-    <h1>Training Buddy</h1>
+    <h1>Training<br>Buddy</h1>
     <button class="iconbtn" id="search-btn" onclick="openSearch()" title="Search"></button>
     <button class="iconbtn" id="about-btn" onclick="showScreen('about')" title="About"></button>
   </header>
@@ -1516,6 +1522,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.31.2",
+    "date": "2026-08-16",
+    "changes": [
+      "Fixed: the app's own name did not fit on the home screen and was cut off. It stands on two lines beside the figure now, the same height as he is"
+    ]
+  },
+  {
     "version": "0.31.1",
     "date": "2026-08-16",
     "changes": [
@@ -2014,7 +2027,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.31.1";
+const APP_VERSION = "0.31.2";
 
 /* =====================================================================
    BUILT-IN PLANS

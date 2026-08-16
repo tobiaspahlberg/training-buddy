@@ -41,6 +41,16 @@ node shot.js 'openCategory("cardio"); newProgram("cardio");' /tmp/x.html
 chromium --headless=new --window-size=500,1200 --screenshot=/tmp/x.png file:///tmp/x.html
 ```
 
+**Headless lays out at 500 px however small the window is.** A screenshot at
+`--window-size=360` is a 500 px page cropped to 360, which looks exactly like a
+layout that overflows and is not one. To see a real phone width, put the app in
+an iframe of that width inside a wider page – an iframe gets its own viewport –
+and measure or photograph that:
+
+```html
+<iframe src="../docs/index.html" width="360"></iframe>
+```
+
 ## Adding one
 
 Copy the top four lines of any suite, write assertions, and add the file's name
