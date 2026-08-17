@@ -534,7 +534,7 @@ const SIDE = { smile: true, band: true };
    is `spread` that sets them apart, one from each hip, which is what a person
    has. Splaying both thighs from a single hip was what made him look like he
    was standing sideways with one leg. */
-const upright = { spread: 12, footA: 0, footB: 180, bendA: 1, bendB: -1,
+const upright = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
                   thighA: 90, shinA: 90, thighB: 90, shinB: 90 };
 const U = o => P(upright, o);
 const breath = (a, b, o) => Object.assign({ ground: 190, dur: "4s", frames: 18 }, o, {
@@ -590,7 +590,7 @@ const poseStretch = Object.assign(breath(stretchDn, stretchUp, HEAD),
        jump this rig can do, and only because he has turned to face you */
 const starIn  = U({ hipX: 94, hipY: 120, torso: -90, head: -90,
                     upperA: 84, foreA: 82, upperB: 96, foreB: 98 });
-const starOut = { spread: 12, footA: 30, footB: 150, bendA: 1, bendB: -1,
+const starOut = { spread: 9, footA: 30, footB: 150, bendA: 1, bendB: -1,
                   hipX: 94, hipY: 112, torso: -90, head: -90,
                   thighA: 62, shinA: 60, thighB: 118, shinB: 120,
                   upperA: -38, foreA: -32, upperB: -142, foreB: -148 };
@@ -654,7 +654,7 @@ const lean2 = Object.assign({}, lean1,
   { props: drawnWall, include: [[WALL - 9, 30], [WALL, 190]] });
 
 /* 3 - the other photograph: back to the wall, arms folded, face on */
-const foldCross = { spread: 12, footA: 0, footB: 180, bendA: 1, bendB: -1,
+const foldCross = { spread: 9, footA: 0, footB: 180, bendA: 1, bendB: -1,
                     thighA: 108, shinA: 112, thighB: 92, shinB: 88,
                     hipX: 94, hipY: 120, torso: -90, head: -90,
                     upperA: 60, foreA: 175, upperB: 120, foreB: 5 };

@@ -190,8 +190,15 @@ takes its width from him instead of being given one – a fixed width is a
 second number to keep in step with the drawing. `--vest`, `--shorts`, `--hair`
 and `--shoe` are therefore the reader's rather than the app's: `KIT` is what
 can be picked, `applyKit()` writes the four variables onto the root element,
-and `tb.kit` remembers. `--shoe-far` is worked out from `--shoe` by `dim()`
-rather than chosen, so there is one decision per thing rather than two.
+and `tb.kit` remembers. `--shoe-far` and `--shorts-far` are worked out by
+`dim()` rather than chosen, so there is one decision per thing rather than two.
+
+**The drawings' class names are written twice.** They are generated in `tools/`
+and the stylesheet that colours them is written by hand in `docs/index.html`,
+so the two are copies of one list and drift in silence: a `<path>` with no rule
+of its own is filled black rather than left undrawn, which is how the mascot
+once arrived with a black torso and a black grin. `tests/demos.js` fails if a
+class used inside `<div id="demos">` has no rule in the app's stylesheet.
 
 Both the width and the height are set on every drawing, so CSS that asks for
 one of them and leaves the other alone letterboxes the figure inside a taller

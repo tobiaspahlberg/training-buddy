@@ -92,8 +92,10 @@ function dressed(o){
        instead of a torso balanced on a wider pair of shorts. Taken from the
        pose rather than typed, or the two drift apart the moment the spread
        changes. */
-    const w = cls === "vest" && o.face === "front"
-      ? 2 * (frames[0].pose.spread || 0) + 24 : w0;
+    /* Face on there are two legs of shorts side by side, so each is a leg
+       rather than the whole width of him. Side on there is only one to see
+       and it stands for both. */
+    const w = cls === "shorts" && o.face === "front" ? 18 : w0;
     /* Shorts stop half way down the thigh, so they are that bone cut short. */
     const cut = cls === "shorts" ? 0.62 : 1;
     const p = (f, k) => {
@@ -127,9 +129,32 @@ function dressed(o){
       HELD[c.what] + "</g></g></g>";
   };
 
+  /* Face on, the torso is a shape rather than a stroke. A stroke is one width
+     from end to end, which is a barrel; a person is wide at the shoulders and
+     narrower at the waist, and that taper is most of what "looks fit" is. It
+     also ends where it is told to - a round cap on a forty-eight wide stroke
+     hung two dozen units of tunic below the hip. */
+  const torso = () => {
+    const d = f => {
+      /* Both widths come off the skeleton itself - half the distance between
+         the two shoulders, and rather less than half between the two hips -
+         so the body cannot get out of step with the limbs hanging off it. */
+      const top = Math.hypot(f.shoulderA.x - f.shoulderB.x, f.shoulderA.y - f.shoulderB.y) / 2;
+      const waist = Math.hypot(f.hipA.x - f.hipB.x, f.hipA.y - f.hipB.y) * 0.4;
+      const dx = f.shoulder.x - f.hip.x, dy = f.shoulder.y - f.hip.y;
+      const L = Math.hypot(dx, dy) || 1, px = -dy / L, py = dx / L;
+      const at = (p, w) => r(p.x + px * w) + " " + r(p.y + py * w);
+      return "M" + at(f.shoulder, top) + "L" + at(f.shoulder, -top) +
+             "L" + at(f.hip, -waist) + "L" + at(f.hip, waist) + "Z";
+    };
+    out += '<path class="vest" d="' + d(frames[0]) + '">' + anim("d", d) + "</path>";
+  };
+
   FAR.filter(drawn).forEach(paint);
   (o.carry || []).filter(c => c.behind).forEach(held);
-  NEAR.filter(drawn).forEach(paint);
+  if(o.face === "front") torso();
+  NEAR.filter(drawn).filter(([, , cls]) => !(cls === "vest" && o.face === "front"))
+    .forEach(paint);
 
   /* A tether: a line from a fixed point to something that moves, which is a
      chain on a rowing machine and nothing else so far. */
@@ -208,7 +233,10 @@ const CSS = `
   .demo line{stroke-linecap:round;fill:none}
   .demo .skin{stroke:var(--skin)}
   .demo .far{stroke:var(--skin-far)}
+  /* Face on the vest is a path: filled, and stroked in the same colour only
+     to round its corners off. */
   .demo .vest{stroke:var(--vest)}
+  .demo path.vest{fill:var(--vest);stroke-width:6;stroke-linejoin:round}
   .demo .shorts{stroke:var(--shorts)}
   .demo .shorts-far{stroke:var(--shorts-far)}
   .demo .shoe{stroke:var(--shoe)}
@@ -217,7 +245,7 @@ const CSS = `
   .demo .hair{fill:var(--hair)}
   .demo .nose{fill:var(--skin-far)}
   .demo .smile{fill:none;stroke:var(--skin-far);stroke-width:2;stroke-linecap:round}
-  .demo .band{stroke:var(--vest);stroke-linecap:round}
+  .demo .band{stroke:var(--shorts);stroke-linecap:round}
   .demo .shadow{fill:rgba(255,255,255,.055)}
   .demo .load rect,.demo .load circle,.demo .load path{fill:var(--warm);stroke:var(--warm)}
   .demo .kit{fill:none;stroke:var(--kit);stroke-width:6;stroke-linecap:round;stroke-linejoin:round}

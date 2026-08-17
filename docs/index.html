@@ -35,12 +35,12 @@
        drawing read as three-quarters rather than as a diagram. */
     --skin:#F2C9A0;
     --skin-far:#C79A74;
-    --vest:#3F6098;
-    --shorts:#6E7A82;
+    --vest:#7E8891;
+    --shorts:#33496E;
     --shoe:#EDEFEC;
     --shoe-far:#AAB0AE;
-    --shorts-far:#4E5760;
-    --hair:#3E2C1E;
+    --shorts-far:#28364F;
+    --hair:#6E4A2E;
     --kit:#7C8A99;      /* a box, a bar, a rowing machine – a thing, not a body */
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
@@ -318,6 +318,13 @@
   .demo .skin-fill{fill:var(--skin)}
   .demo .hair{fill:var(--hair)}
   .demo .nose{fill:var(--skin-far)}
+  /* The mouth and the headband are shapes rather than points, and so is the
+     torso when he is face on – a stroke is one width from end to end, which is
+     a barrel. A path with no rule of its own is filled black, which is what
+     that looks like. */
+  .demo .smile{fill:none;stroke:var(--skin-far);stroke-width:2;stroke-linecap:round}
+  .demo .band{stroke:var(--shorts);stroke-width:5;stroke-linecap:round}
+  .demo path.vest{fill:var(--vest);stroke:var(--vest);stroke-width:6;stroke-linejoin:round}
   .demo .shadow{fill:rgba(255,255,255,.055)}
   .demo .load rect,.demo .load circle,.demo .load path{fill:var(--warm);stroke:var(--warm)}
   /* Equipment: the box under a jump, the bar over a pull-up, the rowing
@@ -818,29 +825,29 @@
      lists are kept outside the app, and this is its output.
      ================================================================= -->
 <div id="demos" hidden>
-<svg class="demo" data-demo="mascot" width="44" height="89" viewBox="54 35 80 162">
+<svg class="demo" data-demo="mascot" width="42" height="89" viewBox="56 35 77 162">
 <ellipse class="shadow" cx="105" cy="190" rx="26" ry="5"/>
-<line class="far" stroke-width="13" x1="82" y1="120" x2="93" y2="152"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="152;152;152;153;153;154;155;155;155;155;155;155;155;154;153;153;152;152;152" dur="4.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="13" x1="85" y1="120" x2="96" y2="152"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="152;152;152;153;153;154;155;155;155;155;155;155;155;154;153;153;152;152;152" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="11" x1="93" y1="152" x2="104" y2="182"><animate attributeName="y1" values="152;152;152;153;153;154;155;155;155;155;155;155;155;154;153;153;152;152;152" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="11" x1="96" y1="152" x2="107" y2="182"><animate attributeName="y1" values="152;152;152;153;153;154;155;155;155;155;155;155;155;154;153;153;152;152;152" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="shoe-far" stroke-width="9" x1="104" y1="182" x2="117" y2="182"><animate attributeName="y1" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/>
+<line class="shoe-far" stroke-width="9" x1="107" y1="182" x2="120" y2="182"><animate attributeName="y1" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="182;182;182;182;183;184;185;185;185;185;185;185;185;184;183;182;182;182;182" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="shorts" stroke-width="24" x1="82" y1="120" x2="89" y2="140"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="140;140;140;140;141;142;143;143;143;143;143;143;143;142;141;140;140;140;140" dur="4.6s" repeatCount="indefinite"/>
+<line class="shorts" stroke-width="18" x1="85" y1="120" x2="92" y2="140"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="140;140;140;140;141;142;143;143;143;143;143;143;143;142;141;140;140;140;140" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="10" x1="76" y1="74" x2="62" y2="94"><animate attributeName="y1" values="74;74;74;74;75;76;77;77;77;77;77;77;77;76;75;74;74;74;74" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="10" x1="78" y1="74" x2="63" y2="94"><animate attributeName="y1" values="74;74;74;74;75;76;77;77;77;77;77;77;77;76;75;74;74;74;74" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="far" stroke-width="9" x1="62" y1="94" x2="75" y2="113"><animate attributeName="y1" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="113;113;113;114;114;115;116;116;116;116;116;116;116;115;114;114;113;113;113" dur="4.6s" repeatCount="indefinite"/>
+<line class="far" stroke-width="9" x1="63" y1="94" x2="77" y2="113"><animate attributeName="y1" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="113;113;113;114;114;115;116;116;116;116;116;116;116;115;114;114;113;113;113" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="vest" stroke-width="48" x1="94" y1="120" x2="94" y2="74"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="74;74;74;74;75;76;77;77;77;77;77;77;77;76;75;74;74;74;74" dur="4.6s" repeatCount="indefinite"/>
+<path class="vest" d="M110 74L78 74L87 120L101 120Z"><animate attributeName="d" values="M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z;M110 75L78 75L87 121L101 121Z;M110 76L78 76L87 122L101 122Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 77L78 77L87 123L101 123Z;M110 76L78 76L87 122L101 122Z;M110 75L78 75L87 121L101 121Z;M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z;M110 74L78 74L87 120L101 120Z" dur="4.6s" repeatCount="indefinite"/>
+</path>
+<line class="skin" stroke-width="15" x1="103" y1="120" x2="104" y2="154"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;154;154;155;156;157;157;157;157;157;157;157;156;155;154;154;154;154" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="15" x1="106" y1="120" x2="107" y2="154"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="154;154;154;154;155;156;157;157;157;157;157;157;157;156;155;154;154;154;154" dur="4.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="12" x1="104" y1="154" x2="103" y2="186"><animate attributeName="y1" values="154;154;154;154;155;156;157;157;157;157;157;157;157;156;155;154;154;154;154" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="12" x1="107" y1="154" x2="106" y2="186"><animate attributeName="y1" values="154;154;154;154;155;156;157;157;157;157;157;157;157;156;155;154;154;154;154" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/>
+<line class="shorts" stroke-width="18" x1="103" y1="120" x2="104" y2="141"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="141;141;141;142;142;143;144;144;144;144;144;144;144;143;142;142;141;141;141" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="shorts" stroke-width="24" x1="106" y1="120" x2="107" y2="141"><animate attributeName="y1" values="120;120;120;120;121;122;123;123;123;123;123;123;123;122;121;120;120;120;120" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="141;141;141;142;142;143;144;144;144;144;144;144;144;143;142;142;141;141;141" dur="4.6s" repeatCount="indefinite"/>
-</line>
-<line class="shoe" stroke-width="10" x1="106" y1="186" x2="93" y2="186"><animate attributeName="y1" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/>
+<line class="shoe" stroke-width="10" x1="103" y1="186" x2="90" y2="186"><animate attributeName="y1" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="186;186;186;186;187;188;189;189;189;189;189;189;189;188;187;186;186;186;186" dur="4.6s" repeatCount="indefinite"/>
 </line>
 <g class="head"><animateTransform attributeName="transform" type="translate" values="94 52;94 52;94 52;94 53;94 53;94 54;94 55;94 55;94 55;94 55;94 55;94 55;94 55;94 54;94 53;94 53;94 52;94 52;94 52" dur="4.6s" repeatCount="indefinite"/>
 <circle class="hair" r="12" cx="0" cy="-3"/>
@@ -850,9 +857,9 @@
 <circle class="nose" r="1.9" cx="4.4" cy="-1"/>
 <path class="smile" d="M-4.8 4a5 5 0 0 0 9.6 0"/>
 </g>
-<line class="skin" stroke-width="11" x1="112" y1="74" x2="126" y2="94"><animate attributeName="y1" values="74;74;74;74;75;76;77;77;77;77;77;77;77;76;75;74;74;74;74" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="11" x1="110" y1="74" x2="125" y2="94"><animate attributeName="y1" values="74;74;74;74;75;76;77;77;77;77;77;77;77;76;75;74;74;74;74" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/>
 </line>
-<line class="skin" stroke-width="10" x1="126" y1="94" x2="113" y2="113"><animate attributeName="y1" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="113;113;113;114;114;115;116;116;116;116;116;116;116;115;114;114;113;113;113" dur="4.6s" repeatCount="indefinite"/>
+<line class="skin" stroke-width="10" x1="125" y1="94" x2="111" y2="113"><animate attributeName="y1" values="94;94;95;95;96;96;97;97;97;97;97;97;97;96;96;95;95;94;94" dur="4.6s" repeatCount="indefinite"/><animate attributeName="y2" values="113;113;113;114;114;115;116;116;116;116;116;116;116;115;114;114;113;113;113" dur="4.6s" repeatCount="indefinite"/>
 </line>
 </svg>
 <svg class="demo" data-demo="squat" width="52" height="86" viewBox="63 41 94 157">
@@ -1518,6 +1525,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.32.1",
+    "date": "2026-08-16",
+    "changes": [
+      "He has a grey vest, dark blue shorts, brown hair and a headband to start with",
+      "And he is in better shape: seen from the front his shoulders are wider than his hips and his waist is narrower than either, instead of one width from top to bottom. The vest stops at the waist rather than hanging over the shorts"
+    ]
+  },
+  {
     "version": "0.32.0",
     "date": "2026-08-16",
     "changes": [
@@ -2030,7 +2045,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.32.0";
+const APP_VERSION = "0.32.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -3964,15 +3979,15 @@ let sheetTarget = null;   // { kind:"run"|"other"|"program", planId, weekN, dayI
 const KEY_KIT = "tb.kit";
 const KIT = [
   { part:"vest",   label:"Vest",
-    colors:["#3F6098","#7E8891","#E8EDEA","#3D7358","#9E4740","#33383D"] },
+    colors:["#7E8891","#3F6098","#E8EDEA","#3D7358","#9E4740","#33383D"] },
   { part:"shorts", label:"Shorts",
-    colors:["#6E7A82","#2F353A","#33496E","#5C6642","#7A3F46","#DDE3E0"] },
+    colors:["#33496E","#2F353A","#6E7A82","#5C6642","#7A3F46","#DDE3E0"] },
   { part:"hair",   label:"Hair",
-    colors:["#3E2C1E","#241C18","#6E4A2E","#8C4A28","#C6A56E","#A9AEB2"] },
+    colors:["#6E4A2E","#3E2C1E","#241C18","#8C4A28","#C6A56E","#A9AEB2"] },
   { part:"shoe",   label:"Shoes",
     colors:["#EDEFEC","#2B3136","#7C858B","#33496E","#9E4740","#C7B69B"] }
 ];
-const KIT_DEFAULT = { vest:"#3F6098", shorts:"#6E7A82", hair:"#3E2C1E", shoe:"#EDEFEC" };
+const KIT_DEFAULT = { vest:"#7E8891", shorts:"#33496E", hair:"#6E4A2E", shoe:"#EDEFEC" };
 let kit = Object.assign({}, KIT_DEFAULT, load(KEY_KIT, {}));
 
 /* Turned down towards the background, which is what distance does to a colour

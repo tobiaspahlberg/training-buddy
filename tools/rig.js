@@ -39,9 +39,9 @@ function skeleton(P, B){
   const w = P.spread || 0;
   const across = (p, d) => step(p, P.torso + 90, d);
   const hipA = across(hip, w), hipB = across(hip, -w);
-  /* The arms hang near the edge of the body rather than out of the middle of
-     it, so the shoulders are set wider than the hips. */
-  const shA = across(shoulder, w * 1.5), shB = across(shoulder, -w * 1.5);
+  /* The shoulders are set wider than the hips: it is what the arms hang from,
+     and it is what a trained body looks like from the front. */
+  const shA = across(shoulder, w * 1.8), shB = across(shoulder, -w * 1.8);
   const neck = step(shoulder, P.torso, L.neck * 0.4);
   const head = step(shoulder, P.head === undefined ? P.torso : P.head, L.neck + L.head * 0.8);
 

@@ -83,10 +83,21 @@ point. Nothing asks for it side on, where the two sides stand behind one
 another and one point is the truth – which is why every drawing in the app is
 unchanged to the byte by it.
 
-With a spread, `face: "front"` also draws two eyes instead of a nose, gives the
-shorts their far leg in the same colour as the near one, and makes the vest
-exactly as wide as the two legs of the shorts together, taken from the pose
-rather than typed.
+With a spread, `face: "front"` also draws two eyes instead of a nose and gives
+the shorts their far leg in the same colour as the near one. The vest stops
+being a stroke and becomes a tapered `<path>`: a stroke is one width from end
+to end, which is a barrel, so the shape is drawn wide at the shoulders and
+narrow at the waist. Both widths are **measured off the pose** – the distance
+across `shoulderA`/`shoulderB` and across `hipA`/`hipB` – so the body cannot
+drift away from the limbs hanging off it, and a vest that ends at the hips ends
+where the shorts start.
+
+**A class drawn here needs a rule in the app.** `paint.js` writes the CSS the
+workshop pages use, and `docs/index.html` has its own copy of the same rules;
+they are two lists of one set of class names and they drift silently, because
+an SVG `<path>` with no rule of its own is filled black rather than missing.
+`tests/demos.js` now fails if a class inside `<div id="demos">` has no rule in
+the app's stylesheet.
 
 The elbow rule above does not apply face on and is not checked there: which way
 an elbow may bend depends on which side of the body the arm is on, and a rule
