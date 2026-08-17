@@ -8,7 +8,7 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 18, "the app carries " + held.length + " drawings: " +
+ok(held.length === 33, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
 ok(held.some(s => s.dataset.demo === "mascot"),
    "one of which is not a movement: the figure beside the app's name, who is " +
@@ -48,7 +48,10 @@ ok([...names].every(n => held.some(s => s.dataset.demo === n)),
 held.forEach(fig => {
   const what = fig.dataset.demo;
   const anim = fig.querySelectorAll("animate, animateTransform");
-  ok(anim.length > 10, what + ": " + anim.length + " animations, not a still");
+  /* A drawing where almost nothing moves is still a drawing: the triceps
+     extension holds the whole body and the elbow still and swings one forearm,
+     which is four lines' worth and the honest floor for this. */
+  ok(anim.length >= 4, what + ": " + anim.length + " animations, not a still");
   ok([...anim].every(a => a.getAttribute("repeatCount") === "indefinite"),
      what + ": every one of them loops, so it is still going when you look up");
   const dur = new Set([...anim].map(a => a.getAttribute("dur")));
@@ -78,8 +81,10 @@ ok(has("Air squat") && has("air squats") && has("20 bodyweight squats"),
 ok(key("50 goblet squats, kettlebell") === "goblet" && key("100 air squats") === "squat",
    "a goblet squat is a squat with a bell in it, and gets its own drawing");
 ok(!has("5 bow bend squats"), "a bow bend squat gets none, having never been drawn");
-ok(!has("50 C-crunches") && !has("Run 400 m") && !has(""),
-   "everything the app has not been drawn for gets nothing, which is honest");
+ok(!has("Run 400 m") && !has("") && !has("50 heel touches") &&
+   !has("50 Russian twists, kettlebell"),
+   "everything the app has not been drawn for gets nothing, which is honest - " +
+   "a Russian twist turns out of the page and this rig draws one plane");
 
 // the snatch, written five ways on four whiteboards
 ok(has("30 alternating dumbbell snatches") && has("21 dumbbell snatches, arm 1"),
@@ -94,8 +99,11 @@ ok(key("1000 m row") === "row" && key("50 cal row") === "row" && key("400 m row"
 ok(!has("1000 m row / ski erg") && !has("100 cal row / ski erg"),
    "a line offering two machines is not one of them, and choosing is the app " +
    "deciding for you");
-ok(!has("50 renegade rows") && !has("10 gorilla rows"),
-   "and a row you do with a dumbbell on the floor is not the machine");
+ok(key("50 renegade rows") === "renegade" && key("1000 m row") === "row",
+   "and a row you do face down on two dumbbells is not the machine: two names, " +
+   "two drawings");
+ok(!has("10 gorilla rows"),
+   "while a gorilla row gets neither, being a smudge with a head at this size");
 
 // the near misses, which are the whole point of a table
 ok(key("50 push-ups") === "pushup" && key("50 push press") === "pushpress" &&
@@ -104,10 +112,21 @@ ok(key("50 push-ups") === "pushup" && key("50 push press") === "pushpress" &&
    "drawings, not one stretched over all of them");
 ok(key("Hearts – thrusters") === "thruster",
    "a card suit says which cards, not which movement, so it is set aside too");
-ok(has("90 box jumps") && !has("90 box jump overs"),
-   "and jumping onto a box is not jumping over it");
-ok(has("50 walking lunges") && !has("50 overhead lunges") && !has("20 reverse lunges"),
-   "a lunge forwards is not a lunge backwards, nor one with a weight overhead");
+ok(key("90 box jumps") === "boxjump" && key("90 box jump overs") === "boxover",
+   "and jumping onto a box is not jumping over it: two drawings, and nothing " +
+   "rests on the box in the second");
+ok(new Set(["50 walking lunges", "50 overhead lunges", "20 reverse lunges"]
+     .map(key)).size === 3,
+   "a lunge forwards is not a lunge backwards, nor one with a weight overhead: " +
+   ["50 walking lunges", "50 overhead lunges", "20 reverse lunges"].map(key).join(", "));
+ok(!has("6 reverse lunges with press"),
+   "but a reverse lunge with a press in it is two movements, and half a " +
+   "drawing teaches the wrong half");
+ok(key("Spades - burpee box jumps") === "burpeebox" &&
+   key("Diamonds - burpee pull-ups") === "burpeepull" &&
+   key("60 burpees") === "burpee",
+   "and a burpee with something on the end of it is its own movement three " +
+   "times over");
 ok(has("100 strict press") && has("50 wall balls") && has("80 kettlebell swings") &&
    has("20 pull-ups") && has("50 sit-ups"),
    "the rest of what the built-in workouts actually call for");
@@ -125,8 +144,9 @@ ok(new Set(which).size === which.length,
    "no drawing turns up twice in one session: " + which.join(", "));
 ok(drawn.some(r => said(r) === "100 air squats") && drawn.some(r => said(r) === "50 push-ups"),
    "each movement the app knows gets its own: " + drawn.map(said).join(", "));
-ok(rows.length - drawn.length === 5,
-   "and the five it does not know get nothing: " + (rows.length - drawn.length));
+ok(rows.length - drawn.length === 1,
+   "and the one it will not choose for you gets nothing - the line offers a " +
+   "row or a ski erg: " + (rows.length - drawn.length));
 ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");

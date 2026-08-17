@@ -11,7 +11,10 @@ const { ALL, dressed } = require("./all.js");
 
 const SHIPPED = ["mascot", "squat", "snatch", "pushup", "pullup", "boxjump", "burpee",
                  "wallball", "swing", "lunge", "press", "pushpress", "thruster",
-                 "kneeraise", "deadlift", "goblet", "situp", "row"];
+                 "kneeraise", "deadlift", "goblet", "situp", "row",
+                 "goodmorning", "broadjump", "ballslam", "kneelslam", "hipthrust",
+                 "revlunge", "ohlunge", "tricep", "ccrunch", "ski", "renegade",
+                 "devilpress", "boxover", "burpeebox", "burpeepull"];
 
 if(process.argv.includes("--list")){
   console.log(SHIPPED.join(" "));

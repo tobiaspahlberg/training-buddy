@@ -438,6 +438,451 @@ const goblet = {
          { t: .48, pose: gbLow }, { t: 1, pose: gbStand }]
 };
 
+/* ===================== good morning =====================
+   A hinge with the hands behind the head, which is the bodyweight version and
+   the one this rig can hold: a bar across the back means the hands finish at
+   the shoulders, and an elbow shut that far is past what a joint does.
+   The hands are pinned to where the head goes, so they travel with it. */
+const gm = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
+const gmTall = P(gm, { hipX: 94, hipY: 122, torso: -90, head: -86,
+                       handAX: 86, handAY: 56, handBX: 82, handBY: 58 });
+/* Hinged: the hips go back over the heels and the back stays flat, so the
+   torso comes down as one piece and the head leads it. */
+const gmOver = P(gm, { hipX: 76, hipY: 126, torso: -16, head: -8,
+                       handAX: 134, handAY: 114, handBX: 130, handBY: 116 });
+
+const goodmorning = {
+  ground: 190, dur: "3.4s", frames: 28,
+  keys: [{ t: 0, pose: gmTall }, { t: .38, pose: gmOver },
+         { t: .50, pose: gmOver }, { t: 1, pose: gmTall }]
+};
+
+/* ===================== broad jump =====================
+   The box jump with the box taken away: the whole of it is that he lands
+   somewhere else, so he jumps to the right and stays there long enough to be
+   seen standing before the loop takes him back. */
+const bd = { upperB: 0, foreB: 0, upperA: 0, foreA: 0,
+             footA: 0, footB: 0, bendA: -1, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const bdStand = P(bd, { hipX: 62, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 70, ankleAY: 182, ankleBX: 56, ankleBY: 184,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+const bdDip   = P(bd, { hipX: 52, hipY: 146, torso: -54, head: -46,
+                        ankleAX: 70, ankleAY: 182, ankleBX: 56, ankleBY: 184,
+                        upperA: 158, foreA: 146, upperB: 154, foreB: 142 });
+/* Off the floor the arms are thrown forward and the legs are behind: a jump
+   for distance is a body laid out along where it is going. */
+const bdFly   = P(bd, { hipX: 104, hipY: 108, torso: -70, head: -58,
+                        ankleAX: 96, ankleAY: 150, ankleBX: 84, ankleBY: 154,
+                        upperA: -20, foreA: -30, upperB: -16, foreB: -26,
+                        footA: 40, footB: 40 });
+const bdLand  = P(bd, { hipX: 140, hipY: 142, torso: -62, head: -54,
+                        ankleAX: 156, ankleAY: 182, ankleBX: 144, ankleBY: 184,
+                        upperA: 6, foreA: 14, upperB: 10, foreB: 18 });
+const bdUp    = P(bd, { hipX: 148, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 156, ankleAY: 182, ankleBX: 144, ankleBY: 184,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+
+const broadjump = {
+  ground: 190, dur: "4s", frames: 32,
+  keys: [
+    { t: 0,   pose: bdStand },
+    { t: .16, pose: bdDip },
+    { t: .28, flow: true, pose: bdFly },
+    { t: .40, pose: bdLand },
+    { t: .54, pose: bdUp },
+    { t: .74, pose: bdUp },
+    { t: 1,   pose: bdStand }
+  ]
+};
+
+/* ===================== ball slam =====================
+   Overhead and then straight down into the floor. The ball rides on numbers of
+   its own rather than on the hand, because the point of a slam is that the
+   ball goes on without it: the hands stop at the knees and the ball does not.
+   Then he stands up with it again, which is the only honest way to loop. */
+const bs = { ankleAX: 102, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const bsUp    = P(bs, { hipX: 94, hipY: 120, torso: -90, head: -84,
+                        upperA: -80, foreA: -86, upperB: -84, foreB: -90,
+                        ballX: 100, ballY: 12 });
+const bsThrow = P(bs, { hipX: 88, hipY: 132, torso: -70, head: -56,
+                        upperA: 30, foreA: 24, upperB: 34, foreB: 28,
+                        ballX: 138, ballY: 108 });
+const bsFloor = P(bs, { hipX: 76, hipY: 150, torso: -40, head: -22,
+                        upperA: 82, foreA: 76, upperB: 86, foreB: 80,
+                        ballX: 130, ballY: 176 });
+const bsPick  = P(bs, { hipX: 76, hipY: 150, torso: -40, head: -22,
+                        upperA: 62, foreA: 58, upperB: 66, foreB: 62,
+                        ballX: 124, ballY: 176 });
+
+const ballslam = {
+  ground: 190, dur: "3.8s", frames: 32,
+  carry: [{ what: "ball", at: "ball", cls: "kitload" }],
+  keys: [
+    { t: 0,   pose: bsUp },
+    { t: .16, flow: true, pose: bsThrow },
+    { t: .26, pose: bsFloor },
+    { t: .40, pose: bsPick },
+    { t: .72, pose: bsUp },
+    { t: 1,   pose: bsUp }
+  ]
+};
+
+/* ===================== hip thrust =====================
+   Shoulders on the bench, feet under the knees, and nothing moves but the
+   hips. He lies with his head to the right like everybody else, which puts the
+   bench there too. */
+const bench = '<rect class="kit-fill" x="132" y="150" width="76" height="9" rx="4"/>' +
+              '<rect class="kit-fill" x="188" y="159" width="9" height="32" rx="3"/>';
+const ht = { ankleAX: 56, ankleAY: 182, footA: 0, bendA: 1,
+             ankleBX: 44, ankleBY: 184, footB: 0, bendB: 1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             upperA: 20, foreA: 16, upperB: 24, foreB: 20 };
+const htDown = P(ht, { hipX: 100, hipY: 182, torso: -33, head: -26 });
+const htTop  = P(ht, { hipX: 100, hipY: 157, torso: -4, head: 2 });
+
+const hipthrust = {
+  dur: "3.2s", frames: 26, props: bench, include: [[132, 150], [208, 191]],
+  keys: [{ t: 0, pose: htDown }, { t: .36, pose: htTop },
+         { t: .52, pose: htTop }, { t: 1, pose: htDown }]
+};
+
+/* ===================== reverse lunge =====================
+   The walking lunge stepping the other way: the front foot never moves, and
+   the back one goes behind and comes back to it. That difference is the whole
+   reason it is its own line on a board. */
+const rl = { thighA: 0, shinA: 0, thighB: 0, shinB: 0, bendA: -1, bendB: -1 };
+const rlStand = P(rl, { hipX: 100, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 108, ankleAY: 182, footA: 0,
+                        ankleBX: 96, ankleBY: 184, footB: 0,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+const rlBack  = P(rl, { hipX: 100, hipY: 150, torso: -84, head: -80,
+                        ankleAX: 108, ankleAY: 182, footA: 0,
+                        ankleBX: 58, ankleBY: 172, footB: 55,
+                        upperA: 104, foreA: 100, upperB: 84, foreB: 80 });
+
+const revlunge = {
+  ground: 190, dur: "3.4s", frames: 28,
+  keys: [{ t: 0, pose: rlStand }, { t: .36, pose: rlBack },
+         { t: .48, pose: rlBack }, { t: 1, pose: rlStand }]
+};
+
+/* ===================== overhead lunge =====================
+   The walking lunge with the weight locked out over the head, which is where
+   all the difficulty of it is. */
+const olStand = P(ln, { hipX: 92, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 100, ankleAY: 182, footA: 0,
+                        ankleBX: 86, ankleBY: 184, footB: 0,
+                        upperA: -85, foreA: -90, upperB: -88, foreB: -92 });
+const olDown  = P(ln, { hipX: 96, hipY: 150, torso: -88, head: -84,
+                        ankleAX: 126, ankleAY: 182, footA: 0,
+                        ankleBX: 62, ankleBY: 172, footB: 55,
+                        upperA: -84, foreA: -89, upperB: -87, foreB: -91 });
+
+const ohlunge = {
+  ground: 190, dur: "3.4s", frames: 28, carry: twoBells,
+  keys: [{ t: 0, pose: olStand }, { t: .36, pose: olDown },
+         { t: .48, pose: olDown }, { t: 1, pose: olStand }]
+};
+
+/* ===================== overhead triceps extension =====================
+   The one shape in this family the rig can hold: the elbow stays where it is,
+   high, and only the forearm moves - which folds the joint the way it shuts,
+   not the way a snatch asks it to. */
+const te = { ankleAX: 98, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 84, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             hipX: 92, hipY: 120, torso: -90, head: -88 };
+const teTop  = P(te, { upperA: -84, foreA: -88, upperB: -88, foreB: -92 });
+const teBack = P(te, { upperA: -84, foreA: -202, upperB: -88, foreB: -206 });
+
+const tricep = {
+  ground: 190, dur: "3.2s", frames: 26, carry: [{ what: "dumbbell" }],
+  keys: [{ t: 0, pose: teTop }, { t: .36, pose: teBack },
+         { t: .50, pose: teBack }, { t: 1, pose: teTop }]
+};
+
+/* ===================== C-crunch =====================
+   Not a sit-up: the back never leaves the floor as one piece. The shoulders
+   and the knees come towards each other and the body makes the letter, which
+   is where the name is from and what the drawing has to show. */
+const cc = { footA: -20, footB: -20, bendA: 1, bendB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             hipX: 104, hipY: 172, armA: 1, armB: 1 };
+const ccLong  = P(cc, { torso: 186, head: 184,
+                        thighA: -6, shinA: -2, thighB: -10, shinB: -6,
+                        handAX: 128, handAY: 158, handBX: 124, handBY: 162 });
+const ccTight = P(cc, { torso: 205, head: 212,
+                        thighA: -84, shinA: 4, thighB: -88, shinB: 0,
+                        handAX: 100, handAY: 148, handBX: 96, handBY: 152 });
+
+const ccrunch = {
+  ground: 190, dur: "3.2s", frames: 26,
+  keys: [{ t: 0, pose: ccLong }, { t: .38, pose: ccTight },
+         { t: .50, pose: ccTight }, { t: 1, pose: ccLong }]
+};
+
+/* ===================== ski erg =====================
+   Standing at the machine, which is what tells it from the rower: the handles
+   come from over the head and finish past the hips, and the hinge does most of
+   it. The frame is drawn for the same reason the erg's is - a figure pulling
+   at the air is any number of things. */
+const skiFrame =
+  '<rect class="kit-fill" x="150" y="16" width="10" height="176" rx="4"/>' +
+  '<rect class="kit-fill" x="126" y="16" width="40" height="10" rx="4"/>' +
+  '<rect class="kit-fill" x="120" y="168" width="52" height="9" rx="4"/>';
+const sk = { ankleAX: 96, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 82, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
+const skTall = P(sk, { hipX: 92, hipY: 120, torso: -90, head: -86,
+                       handAX: 128, handAY: 40, handBX: 122, handBY: 44 });
+const skPull = P(sk, { hipX: 78, hipY: 138, torso: -46, head: -34,
+                       handAX: 112, handAY: 150, handBX: 106, handBY: 154 });
+
+const ski = {
+  ground: 190, dur: "3.4s", frames: 28, props: skiFrame,
+  include: [[120, 16], [172, 192]],
+  tether: { at: [155, 24], to: "handA" },
+  carry: [{ what: "bar", at: "handA", cls: "kitload" }],
+  keys: [{ t: 0, pose: skTall }, { t: .36, pose: skPull },
+         { t: .48, pose: skPull }, { t: 1, pose: skTall }]
+};
+
+/* ===================== kneeling ball slam =====================
+   The same slam with the legs taken out of it, which is the whole point of
+   naming it: down on both knees, so nothing but the arms and the trunk can
+   move. The shins are pinned behind him and the knees fall where they must. */
+const kbs = { ankleAX: 64, ankleAY: 186, footA: -20, bendA: -1,
+              ankleBX: 54, ankleBY: 188, footB: -20, bendB: -1,
+              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const kbsUp    = P(kbs, { hipX: 94, hipY: 148, torso: -90, head: -84,
+                          upperA: -80, foreA: -86, upperB: -84, foreB: -90,
+                          ballX: 100, ballY: 42 });
+const kbsThrow = P(kbs, { hipX: 92, hipY: 150, torso: -74, head: -60,
+                          upperA: 26, foreA: 20, upperB: 30, foreB: 24,
+                          ballX: 132, ballY: 122 });
+const kbsFloor = P(kbs, { hipX: 88, hipY: 152, torso: -52, head: -34,
+                          upperA: 74, foreA: 68, upperB: 78, foreB: 72,
+                          ballX: 128, ballY: 176 });
+const kbsPick  = P(kbs, { hipX: 88, hipY: 152, torso: -52, head: -34,
+                          upperA: 56, foreA: 50, upperB: 60, foreB: 54,
+                          ballX: 122, ballY: 176 });
+
+const kneelslam = {
+  ground: 190, dur: "3.8s", frames: 32,
+  carry: [{ what: "ball", at: "ball", cls: "kitload" }],
+  keys: [
+    { t: 0,   pose: kbsUp },
+    { t: .16, flow: true, pose: kbsThrow },
+    { t: .26, pose: kbsFloor },
+    { t: .40, pose: kbsPick },
+    { t: .72, pose: kbsUp },
+    { t: 1,   pose: kbsUp }
+  ]
+};
+
+/* ===================== renegade row =====================
+   A plank on two bells with one of them pulled to the ribs. The body is meant
+   not to move, which is the exercise and also a problem for a drawing: what
+   moves is one arm, so the far bell stays on the floor and the near one comes
+   up, and the hips are allowed the little they really do give. */
+const rn = { handBX: 188, handBY: 184, armA: 1, armB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             ankleAX: 73, ankleAY: 174, footA: 115, bendA: -1,
+             ankleBX: 81, ankleBY: 178, footB: 115, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const rnPlank = P(rn, { hipX: 133, hipY: 150, torso: -18, head: -22,
+                        handAX: 180, handAY: 182 });
+const rnRow   = P(rn, { hipX: 133, hipY: 148, torso: -16, head: -20,
+                        handAX: 172, handAY: 150 });
+
+const renegade = {
+  dur: "3.4s", frames: 28,
+  carry: [{ what: "dumbbell", at: "handB", cls: "load far-load" },
+          { what: "dumbbell", at: "handA" }],
+  keys: [{ t: 0, pose: rnPlank }, { t: .38, pose: rnRow },
+         { t: .50, pose: rnRow }, { t: 1, pose: rnPlank }]
+};
+
+/* ===================== devil's press =====================
+   A burpee holding two bells, and then they go over the head in one swing. It
+   is the burpee's five places with a sixth on the end, and the sixth is the
+   only reason it is not a burpee. */
+const dp = { footA: 0, footB: 0, bendA: -1, bendB: -1, armA: 1, armB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const dpHang = P(dp, { hipX: 146, hipY: 120, torso: -90, head: -88,
+                       ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                       handAX: 144, handAY: 121, handBX: 136, handBY: 123 });
+const dpDown = P(dp, { hipX: 128, hipY: 163, torso: -30, head: -12,
+                       ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                       handAX: 180, handAY: 182, handBX: 188, handBY: 184,
+                       footA: 20, footB: 20 });
+const dpLow  = P(dp, { hipX: 136, hipY: 166, torso: -7, head: -12,
+                       ankleAX: 73, ankleAY: 174, ankleBX: 81, ankleBY: 178,
+                       handAX: 180, handAY: 182, handBX: 188, handBY: 184,
+                       footA: 115, footB: 115 });
+/* Halfway up, the bells swung out in front: passed through, never stood in */
+const dpSwing = P(dp, { hipX: 140, hipY: 132, torso: -68, head: -56,
+                        ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                        handAX: 182, handAY: 120, handBX: 176, handBY: 124 });
+const dpOver = P(dp, { hipX: 148, hipY: 118, torso: -90, head: -84,
+                       ankleAX: 150, ankleAY: 182, ankleBX: 138, ankleBY: 184,
+                       handAX: 152, handAY: 28, handBX: 144, handBY: 32 });
+
+const devilpress = {
+  ground: 190, dur: "5.2s", frames: 42, carry: twoBells,
+  keys: [
+    { t: 0,   pose: dpHang },
+    { t: .11, pose: dpDown },
+    { t: .24, pose: dpLow },
+    { t: .33, pose: dpLow },
+    { t: .45, pose: dpDown },
+    { t: .55, flow: true, pose: dpSwing },
+    { t: .66, pose: dpOver },
+    { t: .80, pose: dpOver },
+    { t: 1,   pose: dpHang }
+  ]
+};
+
+/* ===================== box jump over =====================
+   Over it, not onto it: he takes off on one side and lands on the other, and
+   nothing rests on the box at all. That is the whole difference from a box
+   jump and the reason it has to be its own drawing. */
+const boxo = '<rect class="kit-fill" x="110" y="146" width="52" height="46" rx="4"/>';
+const bo = { upperB: 0, foreB: 0, upperA: 0, foreA: 0,
+             footA: 0, footB: 0, bendA: -1, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const boStand = P(bo, { hipX: 60, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 68, ankleAY: 182, ankleBX: 54, ankleBY: 184,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+const boDip   = P(bo, { hipX: 50, hipY: 144, torso: -56, head: -48,
+                        ankleAX: 68, ankleAY: 182, ankleBX: 54, ankleBY: 184,
+                        upperA: 155, foreA: 144, upperB: 151, foreB: 140 });
+/* Over the top, knees up: it is a jump for height as much as for distance */
+const boFly   = P(bo, { hipX: 122, hipY: 100, torso: -80, head: -70,
+                        ankleAX: 140, ankleAY: 122, ankleBX: 128, ankleBY: 126,
+                        upperA: -18, foreA: -28, upperB: -14, foreB: -24,
+                        footA: 40, footB: 40 });
+const boLand  = P(bo, { hipX: 178, hipY: 140, torso: -64, head: -56,
+                        ankleAX: 192, ankleAY: 182, ankleBX: 180, ankleBY: 184,
+                        upperA: 8, foreA: 16, upperB: 12, foreB: 20 });
+const boUp    = P(bo, { hipX: 184, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 192, ankleAY: 182, ankleBX: 180, ankleBY: 184,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+
+const boxover = {
+  ground: 190, dur: "4s", frames: 32, props: boxo, include: [[110, 146], [162, 192]],
+  keys: [
+    { t: 0,   pose: boStand },
+    { t: .16, pose: boDip },
+    { t: .28, flow: true, pose: boFly },
+    { t: .40, pose: boLand },
+    { t: .54, pose: boUp },
+    { t: .74, pose: boUp },
+    { t: 1,   pose: boStand }
+  ]
+};
+
+/* ===================== burpee box jump =====================
+   The burpee, moved left to leave room, and then he goes up onto the box
+   instead of jumping on the spot. Two movements written as one, because that
+   is what it is on the board and what it feels like on the floor. */
+const bbox = '<rect class="kit-fill" x="150" y="146" width="52" height="46" rx="4"/>';
+const bb = { footA: 0, footB: 0, bendA: -1, bendB: -1, armA: 1, armB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const bbStand = P(bb, { hipX: 96, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 100, ankleAY: 182, ankleBX: 88, ankleBY: 184,
+                        handAX: 94, handAY: 121, handBX: 86, handBY: 123 });
+const bbDown  = P(bb, { hipX: 78, hipY: 163, torso: -30, head: -12,
+                        ankleAX: 100, ankleAY: 182, ankleBX: 88, ankleBY: 184,
+                        handAX: 130, handAY: 182, handBX: 138, handBY: 184,
+                        footA: 20, footB: 20 });
+const bbLow   = P(bb, { hipX: 86, hipY: 166, torso: -7, head: -12,
+                        ankleAX: 23, ankleAY: 174, ankleBX: 31, ankleBY: 178,
+                        handAX: 130, handAY: 182, handBX: 138, handBY: 184,
+                        footA: 115, footB: 115 });
+const bbFly   = P(bb, { hipX: 130, hipY: 100, torso: -78, head: -68,
+                        ankleAX: 152, ankleAY: 124, ankleBX: 140, ankleBY: 128,
+                        handAX: 150, handAY: 82, handBX: 142, handBY: 86,
+                        footA: 45, footB: 45 });
+const bbLand  = P(bb, { hipX: 168, hipY: 112, torso: -66, head: -58,
+                        ankleAX: 180, ankleAY: 146, ankleBX: 166, ankleBY: 148,
+                        handAX: 190, handAY: 112, handBX: 182, handBY: 116 });
+const bbTop   = P(bb, { hipX: 172, hipY: 84, torso: -90, head: -88,
+                        ankleAX: 180, ankleAY: 146, ankleBX: 166, ankleBY: 148,
+                        handAX: 170, handAY: 85, handBX: 162, handBY: 87 });
+
+const burpeebox = {
+  ground: 192, dur: "5.4s", frames: 44, props: bbox, include: [[150, 146], [202, 192]],
+  keys: [
+    { t: 0,   pose: bbStand },
+    { t: .10, pose: bbDown },
+    { t: .22, pose: bbLow },
+    { t: .30, pose: bbLow },
+    { t: .42, pose: bbDown },
+    { t: .52, flow: true, pose: bbStand },
+    { t: .62, flow: true, pose: bbFly },
+    { t: .70, pose: bbLand },
+    { t: .80, pose: bbTop },
+    { t: .90, pose: bbTop },
+    { t: 1,   pose: bbStand }
+  ]
+};
+
+/* ===================== burpee pull-up =====================
+   The burpee done under a bar, and the jump at the end of it goes onto the
+   bar. Hanging, the knees come up: with the floor drawn - and it has to be,
+   there is a burpee on it - a hanging figure whose feet reach the ground is
+   just a man standing under a bar. */
+const bpuBar = '<rect class="kit-fill" x="44" y="24" width="112" height="8" rx="4"/>';
+const bu = { footA: 0, footB: 0, bendA: -1, bendB: -1, armA: 1, armB: -1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const buStand = P(bu, { hipX: 96, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 100, ankleAY: 182, ankleBX: 88, ankleBY: 184,
+                        handAX: 94, handAY: 121, handBX: 86, handBY: 123 });
+const buDown  = P(bu, { hipX: 78, hipY: 163, torso: -30, head: -12,
+                        ankleAX: 100, ankleAY: 182, ankleBX: 88, ankleBY: 184,
+                        handAX: 130, handAY: 182, handBX: 138, handBY: 184,
+                        footA: 20, footB: 20 });
+const buLow   = P(bu, { hipX: 86, hipY: 166, torso: -7, head: -12,
+                        ankleAX: 23, ankleAY: 174, ankleBX: 31, ankleBY: 178,
+                        handAX: 130, handAY: 182, handBX: 138, handBY: 184,
+                        footA: 115, footB: 115 });
+const buHang  = P(bu, { hipX: 98, hipY: 126, torso: -90, head: -88,
+                        ankleAX: 94, ankleAY: 166, ankleBX: 82, ankleBY: 170,
+                        handAX: 114, handAY: 32, handBX: 84, handBY: 34,
+                        footA: 25, footB: 25 });
+const buPull  = P(bu, { hipX: 100, hipY: 104, torso: -90, head: -88,
+                        ankleAX: 118, ankleAY: 150, ankleBX: 106, ankleBY: 154,
+                        handAX: 114, handAY: 32, handBX: 84, handBY: 34,
+                        footA: 25, footB: 25 });
+
+const burpeepull = {
+  ground: 190, dur: "5.4s", frames: 44, props: bpuBar, include: [[44, 24], [156, 32]],
+  keys: [
+    { t: 0,   pose: buStand },
+    { t: .10, pose: buDown },
+    { t: .22, pose: buLow },
+    { t: .30, pose: buLow },
+    { t: .42, pose: buDown },
+    { t: .52, flow: true, pose: buStand },
+    { t: .62, pose: buHang },
+    { t: .74, pose: buPull },
+    { t: .84, pose: buPull },
+    { t: .94, flow: true, pose: buHang },
+    { t: 1,   pose: buStand }
+  ]
+};
+
 /* ===================== the mascot =====================
    Not a movement: the figure that stands beside the app's name. He is here
    rather than drawn by hand because he has to be the same person as the ones
@@ -762,7 +1207,22 @@ const ALL = [
   ["kneeraise", "Hanging knee raise", kneeraise, "The pull-up's bar, with the knees doing the work."],
   ["deadlift", "Deadlift", deadlift, "What you see of a barbell from the side is the plate."],
   ["goblet", "Goblet squat", goblet, "The air squat with a bell at the chest."],
-  ["row", "Row", row, "Mostly machine: &ldquo;1000 m row&rdquo; means the erg."]
+  ["row", "Row", row, "Mostly machine: &ldquo;1000 m row&rdquo; means the erg."],
+  ["goodmorning", "Good morning", goodmorning, "A hinge, hands behind the head."],
+  ["broadjump", "Broad jump", broadjump, "The box jump with the box taken away."],
+  ["ballslam", "Ball slam", ballslam, "The ball goes on without the hands."],
+  ["hipthrust", "Hip thrust", hipthrust, "Shoulders on the bench, and only the hips move."],
+  ["revlunge", "Reverse lunge", revlunge, "The front foot never moves."],
+  ["ohlunge", "Overhead lunge", ohlunge, "The lunge with the weight locked out."],
+  ["tricep", "Overhead triceps extension", tricep, "The elbow stays; the forearm folds."],
+  ["ccrunch", "C-crunch", ccrunch, "The back stays down and the body makes the letter."],
+  ["ski", "Ski erg", ski, "Standing, which is what tells it from the rower."],
+  ["kneelslam", "Kneeling ball slam", kneelslam, "The slam with the legs taken out of it."],
+  ["renegade", "Renegade row", renegade, "A plank on two bells, one pulled to the ribs."],
+  ["devilpress", "Devil&rsquo;s press", devilpress, "A burpee with two bells, and they finish overhead."],
+  ["boxover", "Box jump over", boxover, "Over it, not onto it: nothing rests on the box."],
+  ["burpeebox", "Burpee box jump", burpeebox, "The burpee, and the jump goes onto the box."],
+  ["burpeepull", "Burpee pull-up", burpeepull, "The burpee under a bar, and the jump goes onto it."]
 ];
 
 module.exports = { ALL, dressed, CSS };

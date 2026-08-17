@@ -130,6 +130,11 @@ works out the same thing twice.
   they are. Full size it is a person; in a list row it is a yellow smudge with
   a head.
 
+- **Anything that turns out of the page.** A Russian twist, a rotating hanging
+  knee raise, a Pallof press, a heel touch: the whole movement is the rotation,
+  and a pose here is angles in one plane. Drawn without it they are a person
+  sitting still.
+
 - **Anything lateral.** A burpee that goes sideways over a dumbbell, a lateral
   jump: the movement is towards the viewer, and the drawing is from the side.
 
