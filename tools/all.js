@@ -683,14 +683,29 @@ const lowA = P(crossed, { handBX: WALL + 2, handBY: 118, armB: 1,
                           upperA: 94, foreA: 58 });
 const lean7 = sway(lowA, P(lowA, { hipY: 130, torso: -95 }), LEAN);
 
-/* 8 - back to it, hands at the hips, face on */
-/* Flipped: it is the other leg that comes across now, so his weight is on the
-   side the wall is on. Mirroring a face-on pose is the two sides swapped and
-   every angle taken from 180 - here that leaves the arms alone, because they
-   were already mirror images of each other. */
-const hipsCross = P(foldCross, { upperA: 55, foreA: 125, upperB: 125, foreB: 55,
-                                 thighA: 88, shinA: 92, thighB: 72, shinB: 68,
-                                 footA: 180, footB: 0, bendA: -1, bendB: 1 });
+/* 8 - back to it, hands at the hips, face on: the mascot.
+   The spread is negative, which is the mirror: the side of him that is nearest
+   is his right rather than his left. That settles the legs' order, which is
+   the thing you notice - his right crosses in front of his left, and the near
+   limbs are the ones that are painted last.
+
+   The legs are then his rather than the drawing's. The right comes across,
+   its knee folded just enough that the shin can drop to a foot standing
+   vertically on its toe; the left is straight and set in under him, carrying
+   the lot. Both ankles are pinned, so the floor holds them while he settles on
+   the wall - given as angles the whole leg travels with the hip and the feet
+   slide through the floor by the same three units.
+
+   The feet are the one place this drawing has to admit it is flat. His left
+   foot is turned about 45 degrees out, which face on is a foot pointing as
+   much at you as across the page: what is drawn is a short stroke lying nearly
+   along the floor, not a foot's length of it. The right rests on its toe and
+   points almost straight down, and is short for the same reason. */
+const hipsCross = { spread: -9,
+                    hipX: 94, hipY: 120, torso: -90, head: -90,
+                    upperA: 125, foreA: 55, upperB: 55, foreB: 125,
+                    ankleAX: 110, ankleAY: 176, footA: 90, footLenA: 11, bendA: 1,
+                    ankleBX: 97,  ankleBY: 186, footB: 22, footLenB: 10, bendB: -1 };
 const lean8 = sway(hipsCross, P(hipsCross, { hipY: 123 }), LEANF);
 
 /* 9 - a foot flat against it behind him, arms folded, side on */

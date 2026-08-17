@@ -99,6 +99,20 @@ an SVG `<path>` with no rule of its own is filled black rather than missing.
 `tests/demos.js` now fails if a class inside `<div id="demos">` has no rule in
 the app's stylesheet.
 
+The spread's **sign** says which of his sides is towards you, and that is the
+whole of what mirroring a face-on pose is: negate it and take every angle from
+180. The near limbs stay near and swap which of his they are, exactly as they
+do in a mirror.
+
+`footLenA`/`footLenB` are the one place a bone may be given a length. Every
+other bone lies in the plane of the drawing and so is drawn at its true length;
+a foot face on does not, because it points partly at you, and what is drawn is
+its shadow on the page. A foot turned about 45 degrees out is roughly three
+quarters of one seen side on, and a foot pointing straight at you is a stub.
+There is no third dimension here to work that out from, so the pose says it —
+as a number per drawing, never per frame, or it is the stretching the whole rig
+exists to prevent.
+
 The elbow rule above does not apply face on and is not checked there: which way
 an elbow may bend depends on which side of the body the arm is on, and a rule
 stated wrongly flags good poses.

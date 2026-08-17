@@ -35,7 +35,12 @@ function skeleton(P, B){
      of each. `spread` is that half-width, measured across the torso: nothing
      side on, where the two sides stand behind one another and one point is the
      truth, and a real width face on, where hanging both legs off the same spot
-     is what makes a figure look like it is standing sideways. */
+     is what makes a figure look like it is standing sideways.
+
+     Its sign says which of his sides is towards you, and that is the whole of
+     what mirroring a face-on pose is: negate the spread, take every angle from
+     180, and the near limbs stay near - they have swapped which of his they
+     are, exactly as they do in a mirror. */
   const w = P.spread || 0;
   const across = (p, d) => step(p, P.torso + 90, d);
   const hipA = across(hip, w), hipB = across(hip, -w);
@@ -71,14 +76,22 @@ function skeleton(P, B){
      ankle is pinned where it stands and the knee is worked out - which is
      what a foot on the floor is, and what feet held together are. Without
      this a clamshell drags its own foot across the mat. */
-  const leg = (root, th, sh, ft, pin, bend) => {
+  /* A foot is the one bone that may be given a length. Everything else has a
+     true length because it lies in the plane of the drawing; a foot face on
+     does not - it points partly at you, and what is drawn is its shadow on the
+     page, which is shorter. There is no third dimension here to work that out
+     from, so the pose says it. It is a number per drawing, not per frame: a
+     foot that changed length as it moved would be the stretching this rig
+     exists to prevent. */
+  const leg = (root, th, sh, ft, pin, bend, len) => {
+    const L2 = len === undefined ? L.foot : len;
     if(pin){
       const knee = reach(root, pin.x, pin.y, L.thigh, L.shin, bend);
-      return { knee: knee, ankle: pin, toe: step(pin, ft, L.foot) };
+      return { knee: knee, ankle: pin, toe: step(pin, ft, L2) };
     }
     const knee = step(root, th, L.thigh);
     const ankle = step(knee, sh, L.shin);
-    return { knee: knee, ankle: ankle, toe: step(ankle, ft, L.foot) };
+    return { knee: knee, ankle: ankle, toe: step(ankle, ft, L2) };
   };
 
   const grip = s => P["hand" + s + "X"] === undefined ? null
@@ -87,8 +100,8 @@ function skeleton(P, B){
   const far  = arm(shB, P.upperB, P.foreB, grip("B"), P.armB === undefined ? 1 : P.armB);
   const pinA = P.ankleAX === undefined ? null : { x: P.ankleAX, y: P.ankleAY };
   const pinB = P.ankleBX === undefined ? null : { x: P.ankleBX, y: P.ankleBY };
-  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA);
-  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB);
+  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA, P.footLenA);
+  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB, P.footLenB);
   return {
     hip: hip, shoulder: shoulder, neck: neck, head: head,
     hipA: hipA, hipB: hipB, shoulderA: shA, shoulderB: shB,
