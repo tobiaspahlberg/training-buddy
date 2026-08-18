@@ -89,16 +89,23 @@ ok(!has("Run 400 m") && !has("") && !has("50 heel touches") &&
 // the snatch, written five ways on four whiteboards
 ok(has("30 alternating dumbbell snatches") && has("21 dumbbell snatches, arm 1"),
    "which arm is not which movement, so what follows a comma is set aside");
-ok(!has("100 snatches, kettlebell or dumbbell") && !has("Snatches"),
-   "but a board that only says 'snatches' has not said with what, and a " +
-   "kettlebell snatch is not this drawing");
+ok(key("Snatches") === "snatch" && key("100 snatches, kettlebell or dumbbell") === "snatch",
+   "and a board that says only 'snatches' gets this one: it has not said with " +
+   "what, and the commonest answer beats no answer at all");
 
 // the erg: the distance is not part of the movement
 ok(key("1000 m row") === "row" && key("50 cal row") === "row" && key("400 m row") === "row",
    "a row is a row however far it is: " + key("1000 m row"));
-ok(!has("1000 m row / ski erg") && !has("100 cal row / ski erg"),
-   "a line offering two machines is not one of them, and choosing is the app " +
-   "deciding for you");
+ok(key("1000 m row / ski erg") === "row" && key("100 cal row / ski erg") === "row" &&
+   key("15 cal row / ski erg / assault bike") === "row",
+   "a line offering a choice of machine is drawn as the first it offers: " +
+   key("1000 m row / ski erg"));
+ok(key("1000 m ski erg / row") === "ski",
+   "which cuts both ways - lead with the ski erg and that is what is drawn");
+ok(key("P1: 200 m row") === "row" && key("P2: reps") === "",
+   "and a line labelled for one of a team is read past the label");
+ok(key("100 knee raises") === "kneeraise",
+   "knee raises are the hanging ones, there being no other kind on these boards");
 ok(key("50 renegade rows") === "renegade" && key("1000 m row") === "row",
    "and a row you do face down on two dumbbells is not the machine: two names, " +
    "two drawings");
@@ -144,9 +151,9 @@ ok(new Set(which).size === which.length,
    "no drawing turns up twice in one session: " + which.join(", "));
 ok(drawn.some(r => said(r) === "100 air squats") && drawn.some(r => said(r) === "50 push-ups"),
    "each movement the app knows gets its own: " + drawn.map(said).join(", "));
-ok(rows.length - drawn.length === 1,
-   "and the one it will not choose for you gets nothing - the line offers a " +
-   "row or a ski erg: " + (rows.length - drawn.length));
+ok(drawn.length === rows.length,
+   "and every line of this one has a drawing, the machine line included: " +
+   drawn.length + " of " + rows.length);
 ok(drawn[0].classList.contains("drawn"), "the row says so, so it can be spaced for one");
 ok(rows.filter(r => !r.querySelector("svg")).every(r => !r.classList.contains("drawn")),
    "and the rows without one are unchanged");

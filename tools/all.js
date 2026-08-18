@@ -535,19 +535,22 @@ const ballslam = {
 
 /* ===================== hip thrust =====================
    Shoulders on the bench, feet under the knees, and nothing moves but the
-   hips. He lies with his head to the right like everybody else, which puts the
-   bench there too. */
-const bench = '<rect class="kit-fill" x="132" y="150" width="76" height="9" rx="4"/>' +
-              '<rect class="kit-fill" x="188" y="159" width="9" height="32" rx="3"/>';
-const ht = { ankleAX: 56, ankleAY: 182, footA: 0, bendA: 1,
-             ankleBX: 44, ankleBY: 184, footB: 0, bendB: 1,
+   hips. He lies head to the left and feet to the right, which is the way the
+   sit-up and the C-crunch lie: face up, the rule about facing right has
+   nothing to say, and what is left is that the two of them should agree. The
+   bench is therefore on the left. */
+const bench = '<rect class="kit-fill" x="40" y="150" width="76" height="9" rx="4"/>' +
+              '<rect class="kit-fill" x="49" y="159" width="9" height="32" rx="3"/>';
+const ht = { ankleAX: 184, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 196, ankleBY: 184, footB: 0, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0,
-             upperA: 20, foreA: 16, upperB: 24, foreB: 20 };
-const htDown = P(ht, { hipX: 100, hipY: 182, torso: -33, head: -26 });
-const htTop  = P(ht, { hipX: 100, hipY: 157, torso: -4, head: 2 });
+             upperA: 160, foreA: 164, upperB: 156, foreB: 160 };
+const htDown = P(ht, { hipX: 140, hipY: 182, torso: 213, head: 206 });
+const htTop  = P(ht, { hipX: 140, hipY: 157, torso: 184, head: 178 });
 
 const hipthrust = {
-  dur: "3.2s", frames: 26, props: bench, include: [[132, 150], [208, 191]],
+  dur: "3.2s", frames: 26, props: bench, facing: -1,
+  include: [[40, 150], [116, 191]],
   keys: [{ t: 0, pose: htDown }, { t: .36, pose: htTop },
          { t: .52, pose: htTop }, { t: 1, pose: htDown }]
 };
@@ -752,40 +755,51 @@ const devilpress = {
 };
 
 /* ===================== box jump over =====================
-   Over it, not onto it: he takes off on one side and lands on the other, and
-   nothing rests on the box at all. That is the whole difference from a box
-   jump and the reason it has to be its own drawing. */
-const boxo = '<rect class="kit-fill" x="110" y="146" width="52" height="46" rx="4"/>';
+   A box jump, and then he steps off the far side instead of back down the way
+   he came. That is what the name means: nobody clears the box, and the whole
+   difference is the ending - which is why the step down is the half of this
+   drawing worth watching, and why the jump up is exactly the box jump's. */
+const boxo = '<rect class="kit-fill" x="112" y="146" width="52" height="46" rx="4"/>';
 const bo = { upperB: 0, foreB: 0, upperA: 0, foreA: 0,
              footA: 0, footB: 0, bendA: -1, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
-const boStand = P(bo, { hipX: 60, hipY: 120, torso: -90, head: -88,
-                        ankleAX: 68, ankleAY: 182, ankleBX: 54, ankleBY: 184,
+const boStand = P(bo, { hipX: 66, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 74, ankleAY: 182, ankleBX: 60, ankleBY: 184,
                         upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
-const boDip   = P(bo, { hipX: 50, hipY: 144, torso: -56, head: -48,
-                        ankleAX: 68, ankleAY: 182, ankleBX: 54, ankleBY: 184,
-                        upperA: 155, foreA: 144, upperB: 151, foreB: 140 });
-/* Over the top, knees up: it is a jump for height as much as for distance */
-const boFly   = P(bo, { hipX: 122, hipY: 100, torso: -80, head: -70,
-                        ankleAX: 140, ankleAY: 122, ankleBX: 128, ankleBY: 126,
-                        upperA: -18, foreA: -28, upperB: -14, foreB: -24,
-                        footA: 40, footB: 40 });
-const boLand  = P(bo, { hipX: 178, hipY: 140, torso: -64, head: -56,
-                        ankleAX: 192, ankleAY: 182, ankleBX: 180, ankleBY: 184,
+const boDip   = P(bo, { hipX: 54, hipY: 142, torso: -58, head: -50,
+                        ankleAX: 74, ankleAY: 182, ankleBX: 60, ankleBY: 184,
+                        upperA: 152, foreA: 140, upperB: 148, foreB: 136 });
+const boFly   = P(bo, { hipX: 88, hipY: 96, torso: -78, head: -68,
+                        ankleAX: 112, ankleAY: 122, ankleBX: 100, ankleBY: 126,
+                        upperA: -24, foreA: -34, upperB: -20, foreB: -30 });
+const boLand  = P(bo, { hipX: 130, hipY: 112, torso: -66, head: -58,
+                        ankleAX: 142, ankleAY: 146, ankleBX: 128, ankleBY: 148,
                         upperA: 8, foreA: 16, upperB: 12, foreB: 20 });
-const boUp    = P(bo, { hipX: 184, hipY: 120, torso: -90, head: -88,
-                        ankleAX: 192, ankleAY: 182, ankleBX: 180, ankleBY: 184,
+const boUp    = P(bo, { hipX: 134, hipY: 84, torso: -90, head: -88,
+                        ankleAX: 142, ankleAY: 146, ankleBX: 128, ankleBY: 148,
+                        upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
+/* The step off: the lead foot reaches for the floor on the far side while the
+   other is still on the box, which is the moment that says "over" and not
+   "onto". */
+const boStep  = P(bo, { hipX: 152, hipY: 116, torso: -84, head: -80,
+                        ankleAX: 184, ankleAY: 182, ankleBX: 132, ankleBY: 148,
+                        upperA: 120, foreA: 112, upperB: 70, foreB: 62 });
+const boOff   = P(bo, { hipX: 180, hipY: 120, torso: -90, head: -88,
+                        ankleAX: 188, ankleAY: 182, ankleBX: 174, ankleBY: 184,
                         upperA: 95, foreA: 92, upperB: 92, foreB: 88 });
 
 const boxover = {
-  ground: 190, dur: "4s", frames: 32, props: boxo, include: [[110, 146], [162, 192]],
+  ground: 192, dur: "5s", frames: 40, props: boxo, include: [[112, 146], [164, 192]],
   keys: [
     { t: 0,   pose: boStand },
-    { t: .16, pose: boDip },
-    { t: .28, flow: true, pose: boFly },
-    { t: .40, pose: boLand },
-    { t: .54, pose: boUp },
-    { t: .74, pose: boUp },
+    { t: .14, pose: boDip },
+    { t: .24, flow: true, pose: boFly },
+    { t: .32, pose: boLand },
+    { t: .44, pose: boUp },
+    { t: .56, pose: boUp },
+    { t: .70, pose: boStep },
+    { t: .80, pose: boOff },
+    { t: .94, pose: boOff },
     { t: 1,   pose: boStand }
   ]
 };
