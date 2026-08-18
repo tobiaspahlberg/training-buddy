@@ -30,7 +30,16 @@ const BODY = {
 function skeleton(P, B){
   const L = Object.assign({}, BODY, B || {});
   const hip = { x: P.hipX, y: P.hipY };
-  const shoulder = step(hip, P.torso, L.torso);
+  /* A bone that points out of the page is drawn as its shadow on it, which is
+     shorter. `armLenA/B`, `legLenA/B` and `torsoLen` are that shadow, as a
+     fraction of the true length, and they are the only lengths a pose may
+     touch. This is not the stretching the rig exists to prevent: a limb
+     swinging towards you really does grow shorter on the page, and a value
+     that changes from pose to pose is the swing rather than a lie about the
+     bone. Nothing side on asks for one, because side on nothing leaves the
+     page. */
+  const foreshorten = k => P[k] === undefined ? 1 : P[k];
+  const shoulder = step(hip, P.torso, L.torso * foreshorten("torsoLen"));
   /* A person seen from the front is two hips and two shoulders apart, not one
      of each. `spread` is that half-width, measured across the torso: nothing
      side on, where the two sides stand behind one another and one point is the
@@ -64,13 +73,14 @@ function skeleton(P, B){
              y: root.y + Math.sin(base + off) * first };
   };
 
-  const arm = (root, up, fo, pin, bend) => {
+  const arm = (root, up, fo, pin, bend, sc) => {
+    const U = L.upper * sc, F = L.fore * sc;
     if(pin){
-      const elbow = reach(root, pin.x, pin.y, L.upper, L.fore, bend);
+      const elbow = reach(root, pin.x, pin.y, U, F, bend);
       return { elbow: elbow, hand: pin };
     }
-    const elbow = step(root, up, L.upper);
-    return { elbow: elbow, hand: step(elbow, fo, L.fore) };
+    const elbow = step(root, up, U);
+    return { elbow: elbow, hand: step(elbow, fo, F) };
   };
   /* Two ways to place a leg. Either the joints are given as angles, or the
      ankle is pinned where it stands and the knee is worked out - which is
@@ -83,25 +93,28 @@ function skeleton(P, B){
      from, so the pose says it. It is a number per drawing, not per frame: a
      foot that changed length as it moved would be the stretching this rig
      exists to prevent. */
-  const leg = (root, th, sh, ft, pin, bend, len) => {
+  const leg = (root, th, sh, ft, pin, bend, len, sc) => {
     const L2 = len === undefined ? L.foot : len;
+    const T = L.thigh * sc, S = L.shin * sc;
     if(pin){
-      const knee = reach(root, pin.x, pin.y, L.thigh, L.shin, bend);
+      const knee = reach(root, pin.x, pin.y, T, S, bend);
       return { knee: knee, ankle: pin, toe: step(pin, ft, L2) };
     }
-    const knee = step(root, th, L.thigh);
-    const ankle = step(knee, sh, L.shin);
+    const knee = step(root, th, T);
+    const ankle = step(knee, sh, S);
     return { knee: knee, ankle: ankle, toe: step(ankle, ft, L2) };
   };
 
   const grip = s => P["hand" + s + "X"] === undefined ? null
                     : { x: P["hand" + s + "X"], y: P["hand" + s + "Y"] };
-  const near = arm(shA, P.upperA, P.foreA, grip("A"), P.armA === undefined ? 1 : P.armA);
-  const far  = arm(shB, P.upperB, P.foreB, grip("B"), P.armB === undefined ? 1 : P.armB);
+  const near = arm(shA, P.upperA, P.foreA, grip("A"), P.armA === undefined ? 1 : P.armA,
+                   foreshorten("armLenA"));
+  const far  = arm(shB, P.upperB, P.foreB, grip("B"), P.armB === undefined ? 1 : P.armB,
+                   foreshorten("armLenB"));
   const pinA = P.ankleAX === undefined ? null : { x: P.ankleAX, y: P.ankleAY };
   const pinB = P.ankleBX === undefined ? null : { x: P.ankleBX, y: P.ankleBY };
-  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA, P.footLenA);
-  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB, P.footLenB);
+  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA, P.footLenA, foreshorten("legLenA"));
+  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB, P.footLenB, foreshorten("legLenB"));
   return {
     hip: hip, shoulder: shoulder, neck: neck, head: head,
     hipA: hipA, hipB: hipB, shoulderA: shA, shoulderB: shB,

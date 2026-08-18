@@ -1045,6 +1045,181 @@ const burpeepull = {
   ]
 };
 
+/* ============ five movements that had to be turned round ============
+   These are the ones the side view had nothing to say about, because what
+   happens in them happens across the body: a knee swinging left and right, a
+   hop sideways, an elbow going out. Turned to face you they are all in the
+   page again. The rig is the mascot's - a spread, two hips and two shoulders,
+   `face: "front"` - and what it costs is the other direction: anything that
+   now points at you is drawn as its shadow, which is what `armLen` and the
+   rest are for. */
+const FRONT = { face: "front" };
+/* Feet face on point at you as much as across, so they are short and turned
+   out, the way the mascot's are. */
+const stance = (ax, bx, y) => ({
+  ankleAX: ax, ankleAY: y, footA: 22, footLenA: 10, bendA: -1,
+  ankleBX: bx, ankleBY: y + 2, footB: 158, footLenB: 10, bendB: 1,
+  thighA: 0, shinA: 0, thighB: 0, shinB: 0 });
+
+/* ===================== Pallof press =====================
+   The movement is the not-turning: a band pulls from one side and the press
+   away from the chest is what it gets to pull against. Face on, the press
+   itself goes straight at you, so the arms are drawn as their shadow - full
+   length and folded wide at the chest, short and gathered in when they are
+   out. That is not a cheat about the bones; it is what an arm pointing at you
+   looks like. */
+const post = '<rect class="kit-fill" x="14" y="46" width="10" height="140" rx="4"/>';
+const pf = Object.assign({ spread: 10, hipX: 100, hipY: 122, torso: -90, head: -90 },
+                         stance(114, 86, 184));
+const pfIn  = P(pf, { upperA: 60, foreA: 192, upperB: 120, foreB: -12,
+                      armLenA: 1, armLenB: 1 });
+const pfOut = P(pf, { upperA: 130, foreA: 110, upperB: 50, foreB: 70,
+                      armLenA: .45, armLenB: .45 });
+
+const pallof = {
+  ground: 190, dur: "3.6s", frames: 30, props: post,
+  include: [[14, 46], [24, 186]],
+  tether: { at: [24, 104], to: "handA", w: 4 },
+  keys: [{ t: 0, pose: pfIn }, { t: .36, pose: pfOut },
+         { t: .54, pose: pfOut }, { t: 1, pose: pfIn }]
+};
+
+/* ===================== rotating hanging knee raise =====================
+   The plain one is drawn from the side, because there the knees come up and
+   that is all that happens. Here they also go left and right, so this one is
+   face on and the swing is the whole of what it has to show. */
+const rk = { spread: 10, hipX: 100, hipY: 126, torso: -90, head: -90,
+             handAX: 118, handAY: 34, handBX: 82, handBY: 36, armA: 1, armB: -1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             footA: 30, footLenA: 10, footB: 150, footLenB: 10 };
+const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
+/* Knees, not legs: the thigh swings to the side and the shin folds back under
+   him, or it is a hanging leg raise with a twist in it. */
+const rkLeft = P(rk, { thighA: -152, shinA: -18, thighB: -148, shinB: -22 });
+const rkRight = P(rk, { thighA: -28, shinA: -162, thighB: -32, shinB: -158 });
+
+const rotknee = {
+  dur: "4.4s", frames: 36, props: bar, include: [[34, 26], [158, 34]],
+  keys: [
+    { t: 0,   pose: rkHang },
+    { t: .18, pose: rkLeft },
+    { t: .30, pose: rkLeft },
+    { t: .44, flow: true, pose: rkHang },
+    { t: .60, pose: rkRight },
+    { t: .72, pose: rkRight },
+    { t: 1,   pose: rkHang }
+  ]
+};
+
+/* ===================== lateral jump =====================
+   Two feet over a line and back. Nothing in it happens front to back, which is
+   why the side view had nothing to draw. */
+const line = '<rect class="kit-fill" x="92" y="184" width="16" height="6" rx="3"/>';
+const lj = { spread: 10, torso: -90, head: -88,
+             footA: 22, footLenA: 10, footB: 158, footLenB: 10, bendA: -1, bendB: 1,
+             upperA: 60, foreA: 80, upperB: 120, foreB: 100,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const ljRight = P(lj, { hipX: 124, hipY: 122,
+                        ankleAX: 136, ankleAY: 184, ankleBX: 114, ankleBY: 186 });
+/* In the air the feet are pinned to where the air is, not left out: a key that
+   has an ankle and one that has not interpolate to NaN between them. */
+const ljAir   = P(lj, { hipX: 100, hipY: 104,
+                        ankleAX: 112, ankleAY: 152, ankleBX: 90, ankleBY: 156,
+                        upperA: 40, foreA: 60, upperB: 140, foreB: 120 });
+const ljLeft  = P(lj, { hipX: 76, hipY: 122,
+                        ankleAX: 88, ankleAY: 184, ankleBX: 66, ankleBY: 186 });
+
+const latjump = {
+  ground: 190, dur: "3s", frames: 26, props: line, include: [[92, 184], [108, 190]],
+  keys: [
+    { t: 0,   pose: ljRight },
+    { t: .16, flow: true, pose: ljAir },
+    { t: .30, pose: ljLeft },
+    { t: .50, pose: ljLeft },
+    { t: .66, flow: true, pose: ljAir },
+    { t: .80, pose: ljRight },
+    { t: 1,   pose: ljRight }
+  ]
+};
+
+/* ===================== lateral burpee over a dumbbell =====================
+   Face on, because the hop over the bell is the whole reason this is not a
+   burpee, and it goes sideways. What it costs is the floor: a body lying with
+   its head towards you is forty units of torso drawn as twelve, and the legs
+   behind it are stubs. That is honest - it is what you would see - but it is
+   also not much, so the drawing spends its time on the two ends, the way the
+   name does. */
+const dbell = '<g class="load"><rect x="90" y="176" width="20" height="9" rx="3"/>' +
+              '<rect x="86" y="171" width="8" height="19" rx="2.5"/>' +
+              '<rect x="106" y="171" width="8" height="19" rx="2.5"/></g>';
+const lb = { spread: 10, torso: -90, head: -90,
+             footA: 22, footLenA: 10, footB: 158, footLenB: 10,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             bendA: 1, bendB: -1, armA: 1, armB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             armLenA: 1, armLenB: 1, legLenA: 1, legLenB: 1, torsoLen: 1 };
+const lbStand = P(lb, { hipX: 134, hipY: 122,
+                        ankleAX: 144, ankleAY: 184, ankleBX: 124, ankleBY: 186,
+                        handAX: 148, handAY: 124, handBX: 120, handBY: 126 });
+/* Down on the floor, and this is where the honesty has to be paid for. Face on
+   the floor half of a burpee is a man coming towards you: the torso is drawn
+   at half, the head comes down over his own hands, and the chest going the
+   last few inches to the boards is a movement of about four pixels. So the
+   drawing stops at the crouch and spends its time on the two ends - which is
+   also what the name does, since what makes this one not a burpee is the hop. */
+const lbDown  = P(lb, { hipX: 134, hipY: 158, torso: -84, torsoLen: .5, head: 80,
+                        ankleAX: 152, ankleAY: 186, ankleBX: 116, ankleBY: 188,
+                        handAX: 158, handAY: 180, handBX: 110, handBY: 182 });
+const lbHop   = P(lb, { hipX: 100, hipY: 96,
+                        ankleAX: 112, ankleAY: 150, ankleBX: 92, ankleBY: 154,
+                        handAX: 118, handAY: 74, handBX: 84, handBY: 76 });
+const lbOver  = P(lb, { hipX: 66, hipY: 122,
+                        ankleAX: 76, ankleAY: 184, ankleBX: 56, ankleBY: 186,
+                        handAX: 80, handAY: 124, handBX: 52, handBY: 126 });
+
+const latburpee = {
+  ground: 190, dur: "5s", frames: 40, props: dbell, include: [[86, 171], [114, 190]],
+  keys: [
+    { t: 0,   pose: lbStand },
+    { t: .14, pose: lbDown },
+    { t: .30, pose: lbDown },
+    { t: .44, flow: true, pose: lbStand },
+    { t: .56, flow: true, pose: lbHop },
+    { t: .66, pose: lbOver },
+    { t: .86, pose: lbOver },
+    { t: 1,   pose: lbStand }
+  ]
+};
+
+/* ===================== sumo deadlift high pull =====================
+   Face on for a reason the side view spelled out the hard way: the finish is
+   the elbow above the hand, and getting it there in a side view means folding
+   the joint past shut, because in life the elbow goes out to the side. Out to
+   the side is across the page here, so the shape the rig could not make is the
+   easy one. The stance is the other half of the name and is across the page
+   too. */
+const sm = { spread: 10, head: -88,
+             ankleAX: 136, ankleAY: 184, footA: 30, footLenA: 11, bendA: 1,
+             ankleBX: 64, ankleBY: 186, footB: 150, footLenB: 11, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
+const smDown = P(sm, { hipX: 100, hipY: 152, torso: -80,
+                       upperA: 84, foreA: 88, upperB: 96, foreB: 92,
+                       barX: 100, barY: 174 });
+/* The bar finishes at the collarbone, which is as low as it can finish: with
+   the elbow above the hand the arm has folded, and a folded arm puts the hand
+   back at the height it started from. That is the movement, not a compromise -
+   a high pull that came to the belly would be a deadlift. */
+const smPull = P(sm, { hipX: 100, hipY: 122, torso: -92,
+                       upperA: -37, foreA: 146, upperB: 217, foreB: 34,
+                       barX: 100, barY: 74 });
+
+const sumo = {
+  ground: 190, dur: "3.6s", frames: 30,
+  carry: [{ what: "barbell", at: "bar" }],
+  keys: [{ t: 0, pose: smDown }, { t: .40, pose: smPull },
+         { t: .54, pose: smPull }, { t: 1, pose: smDown }]
+};
+
 /* ===================== the mascot =====================
    Not a movement: the figure that stands beside the app's name. He is here
    rather than drawn by hand because he has to be the same person as the ones
@@ -1389,7 +1564,12 @@ const ALL = [
   ["bowbend", "Bow, bend, squat", bowbend, "Three things one after another, and the name says so."],
   ["heeltouch", "Heel touch", heeltouch, "The reaching, which is what it looks like anyway."],
   ["gorilla", "Gorilla row", gorilla, "Wide and high-hipped, which is what it needed."],
-  ["plankknee", "Plank knee-to-elbow", plankknee, "The half of it that lies in the page."]
+  ["plankknee", "Plank knee-to-elbow", plankknee, "The half of it that lies in the page."],
+  ["pallof", "Pallof press", pallof, "Face on: the press goes at you, so the arms are their shadow."],
+  ["rotknee", "Rotating hanging knee raise", rotknee, "Face on: the swing is the whole of it."],
+  ["latjump", "Lateral jump", latjump, "Face on: nothing in it happens front to back."],
+  ["latburpee", "Lateral burpee over a dumbbell", latburpee, "Face on, for the hop that gives it its name."],
+  ["sumo", "Sumo deadlift high pull", sumo, "Face on: the elbow going out is across the page here."]
 ];
 
 module.exports = { ALL, dressed, CSS };

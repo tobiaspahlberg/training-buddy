@@ -8,7 +8,7 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 38, "the app carries " + held.length + " drawings: " +
+ok(held.length === 43, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
 ok(held.some(s => s.dataset.demo === "mascot"),
    "one of which is not a movement: the figure beside the app's name, who is " +
@@ -83,9 +83,9 @@ ok(key("50 goblet squats, kettlebell") === "goblet" && key("100 air squats") ===
 ok(key("5 bow bend squats") === "bowbend",
    "and a bow bend squat is three things one after another, drawn as three");
 ok(!has("Run 400 m") && !has("") && !has("50 Russian twists, kettlebell") &&
-   !has("10 rotating hanging knee raises"),
+   !has("Rope slams or tank push"),
    "everything the app has not been drawn for gets nothing, which is honest - " +
-   "a Russian twist turns out of the page and this rig draws one plane");
+   "a Russian twist turns about the spine and this rig draws one plane");
 
 // the snatch, written five ways on four whiteboards
 ok(has("30 alternating dumbbell snatches") && has("21 dumbbell snatches, arm 1"),
@@ -139,8 +139,17 @@ ok(key("Spades - burpee box jumps") === "burpeebox" &&
 ok(has("100 strict press") && has("50 wall balls") && has("80 kettlebell swings") &&
    has("20 pull-ups") && has("50 sit-ups"),
    "the rest of what the built-in workouts actually call for");
-ok(has("60 burpees") && has("5 burpees") && !has("6 lateral burpees over dumbbell"),
-   "a burpee is a burpee, but one that goes sideways over a dumbbell is not one");
+ok(key("60 burpees") === "burpee" && key("6 lateral burpees over dumbbell") === "latburpee",
+   "a burpee is a burpee, and one that goes sideways over a dumbbell is its own " +
+   "movement, drawn face on because sideways is the whole of it");
+ok(key("10 rotating hanging knee raises") === "rotknee" &&
+   key("100 hanging knee raises") === "kneeraise",
+   "and the same for the knee raise that rotates: two drawings, and the one " +
+   "that swings is the one turned to face you");
+ok(key("6/6 Pallof press") === "pallof",
+   "a rep scheme written per side is not a movement either: " + key("6/6 Pallof press"));
+ok(key("4 sumo deadlift high pulls") === "sumo" && key("6 deadlifts") === "deadlift",
+   "and a sumo high pull is not a deadlift, whatever its name starts with");
 
 // ---- and where it turns up ----
 w.openProgram("wod-total-training-25");
@@ -202,25 +211,33 @@ const snRows = [...$("sheet-steps").querySelectorAll("div.sub")];
 const snDrawn = snRows.filter(r => r.querySelector("svg"));
 ok(snRows.filter(r => /snatch/.test(r.textContent)).length === 6,
    "21-15-9 down one arm and back up the other names snatches six times");
-ok(snDrawn.length === 1, "and is drawn once: " + snDrawn.length);
+ok(snDrawn.filter(r => /snatch/.test(r.textContent)).length === 1,
+   "and is drawn once: " + snDrawn.filter(r => /snatch/.test(r.textContent)).length);
 ok(snDrawn[0] === snRows.find(r => /snatch/.test(r.textContent)),
    "on the first of them, which is the one you read first");
-ok(!snRows.slice(1).some(r => r.classList.contains("drawn")),
-   "the rest are ordinary lines again, indent and all");
+ok(!snRows.slice(2).some(r => r.classList.contains("drawn")),
+   "the rest are ordinary lines again, indent and all - the line under it is " +
+   "the other movement in this workout, and it is drawn once too");
 
 // a session of your own, typed by hand
 ev(`programs.push({ id:"mine", name:"Mine", category:"crossfn",
   blocks:[{ type:"step", text:"AMRAP", kind:"run", sec:600, list:["30 air squats","10 pull-ups"] }] });`);
-w.openProgram("mine");
-ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
-   "a work list you typed yourself is read the same way");
+/* openOwn, not openProgram: the latter only knows the built-ins, and calling
+   it with a made-up id leaves the previous session on the screen to be
+   measured by mistake, which is what this used to do. */
+w.openOwn("mine");
+ok([...$("sheet-steps").querySelectorAll("div.sub svg")].map(s => s.dataset.demo)
+     .join(",") === "squat,pullup",
+   "a work list you typed yourself is read the same way: " +
+   [...$("sheet-steps").querySelectorAll("div.sub svg")].map(s => s.dataset.demo).join(", "));
 
 // and the stations of a circuit, which are a list by another name
 ev(`programs.push({ id:"circ", name:"Circuit", category:"crossfn",
   blocks:[{ type:"circuit", names:["Air squats","Plank"], workSec:40, restSec:20, rounds:3 }] });`);
-w.openProgram("circ");
+w.openOwn("circ");
 ok([...$("sheet-steps").querySelectorAll("div.sub svg")].length === 1,
-   "a circuit's stations get their drawings as well");
+   "a circuit's stations get their drawings as well, and the station it has " +
+   "no drawing for gets none");
 
 // ---- what he wears ----
 const root = () => d.documentElement.style;

@@ -104,14 +104,20 @@ whole of what mirroring a face-on pose is: negate it and take every angle from
 180. The near limbs stay near and swap which of his they are, exactly as they
 do in a mirror.
 
-`footLenA`/`footLenB` are the one place a bone may be given a length. Every
-other bone lies in the plane of the drawing and so is drawn at its true length;
-a foot face on does not, because it points partly at you, and what is drawn is
-its shadow on the page. A foot turned about 45 degrees out is roughly three
-quarters of one seen side on, and a foot pointing straight at you is a stub.
-There is no third dimension here to work that out from, so the pose says it —
-as a number per drawing, never per frame, or it is the stretching the whole rig
-exists to prevent.
+**A bone pointing out of the page is drawn as its shadow on it.** `footLenA`
+and `footLenB` give a foot's shadow as a length; `armLenA`, `armLenB`,
+`legLenA`, `legLenB` and `torsoLen` give the rest as a fraction of the true
+length. A foot turned about 45 degrees out is roughly three quarters of one
+seen side on; a Pallof press with the arms straight at you is under half; a
+body lying with its head towards you is about a third. There is no third
+dimension here to work any of that out from, so the pose says it.
+
+This is not the stretching the rig exists to prevent, and it is worth being
+clear why. A bone whose *drawn* length changes while its direction in the page
+stays put is a lie. A bone swinging towards you really does grow shorter on the
+page, and interpolating the fraction between two poses is that swing. Nothing
+side on asks for one, because side on nothing leaves the page — which is why
+every drawing made before these existed is unchanged to the byte by them.
 
 The elbow rule above does not apply face on and is not checked there: which way
 an elbow may bend depends on which side of the body the arm is on, and a rule
@@ -119,30 +125,39 @@ stated wrongly flags good poses.
 
 ## What this rig cannot draw
 
-Some movements have been tried and taken out again. They are listed so nobody
-works out the same thing twice.
+This list was four times longer, and most of what was on it was on it for one
+wrong reason: it was being drawn **from the side**. A movement that happens
+across the body has nothing to show side on and everything to show face on, so
+the first question about anything that will not draw is which way round it is,
+not whether the rig can hold it.
 
-- **Anything that turns out of the page.** The clamshell, a Russian twist, a
-  rotating hanging knee raise, a Pallof press. A pose here is angles in one
-  plane, and in each of these the rotation is the whole movement: a knee
-  opening towards the viewer has nowhere to go, and drawn without it they are
-  a person sitting still.
+- **A rotation about the spine.** A Russian twist. Face on it is a person
+  sitting still; side on it is a person sitting still. There is no view in one
+  plane where the turning shows.
 
-- **Anything lateral.** A burpee that goes sideways over a dumbbell, a lateral
-  jump: the movement is towards the viewer, and the drawing is from the side.
+- **A high elbow held over the hand seen from the side**, as in a snatch.
+  Getting the elbow there in the plane means folding the joint past shut,
+  because in life it travels out to the side. The sumo deadlift high pull was
+  on this list until it was turned round: out to the side is across the page
+  face on, and the shape is then the easy one.
 
-- **A high elbow held over the hand**, as in a snatch or a sumo deadlift high
-  pull. Getting the elbow there in the plane of the drawing means folding the
-  joint past shut.
+- **The floor half of anything drawn face on.** A press-up or a burpee turned
+  towards you is a body coming at you: the torso is drawn at a third and the
+  chest going the last inches to the boards is four pixels. `latburpee` stops
+  at the crouch and spends its time on the hop, which is what its name is
+  about. If the floor is the point, draw it from the side.
 
-The answer in each case is no drawing, not a drawing of something else.
+The answer in each case is no drawing, not a drawing of something else — or,
+more often than it used to be, the same drawing from the other side.
 
-Two came off this list, and both for the same reason: the first attempt had
-been at the wrong thing. The **gorilla row** was a yellow smudge because the
-stance was too narrow — standing wide with the hips high puts thirty units
-between the feet and the bells, which is enough. The **heel touch** cannot be
-drawn arriving, because a heel is eighty-odd units from a shoulder and an arm
-is forty-eight, and what makes a real one touch is the trunk tipping sideways.
-It can be drawn reaching, which is what it looks like anyway. The rule that
-survives is narrower than "the rig cannot draw it": draw the part of the
-movement that lies in the page, and only give up when that part is nothing.
+Others came off this list once the first attempt was recognised as an attempt
+at the wrong thing. The **gorilla row** was a yellow smudge because the stance
+was too narrow; standing wide with the hips high puts thirty units between the
+feet and the bells. The **heel touch** cannot be drawn arriving — a heel is
+eighty-odd units from a shoulder and an arm is forty-eight, and what makes a
+real one touch is the trunk tipping sideways — but it can be drawn reaching,
+which is what it looks like anyway. **Plank knee-to-elbow** crosses the body,
+and the knee arriving is the half that lies in the page. The rule that survives
+is narrower than "the rig cannot draw it": draw the part of the movement that
+lies in the page, from whichever side leaves the most of it there, and give up
+only when that part is nothing.

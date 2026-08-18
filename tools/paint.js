@@ -47,11 +47,16 @@ const HELD = {
   plate:    '<circle cx="0" cy="0" r="15" fill="none" stroke-width="9"/>',
   /* An erg handle, end on, and the seat under the hip. */
   bar:      '<rect x="-13" y="-4" width="26" height="8" rx="4"/>',
+  /* The same barbell face on, where what you see is its length rather than the
+     end of it. It is wider than he is, because it is. */
+  barbell:  '<rect x="-46" y="-4" width="92" height="8" rx="4"/>' +
+            '<rect x="-52" y="-15" width="9" height="30" rx="3"/>' +
+            '<rect x="43" y="-15" width="9" height="30" rx="3"/>',
   seat:     '<rect x="-13" y="6" width="26" height="9" rx="4"/>'
 };
 
 /* How far a held thing reaches from the hand, for the crop. */
-const HOLDS = { dumbbell: 16, kettle: 22, ball: 16, bar: 14, seat: 16, plate: 21 };
+const HOLDS = { dumbbell: 16, kettle: 22, ball: 16, bar: 14, seat: 16, plate: 21, barbell: 53 };
 
 function dressed(o){
   const frames = sample(o.keys, o.frames || 26);

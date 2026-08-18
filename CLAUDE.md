@@ -162,6 +162,18 @@ A movement seen from the side is done **to the right** unless there is a reason
 not to. Mirroring a pose is 180 minus every angle and every bend sign the other
 way round, which is what turning the press-up round came to.
 
+**Which way he is turned is the first question, not the last.** A movement
+whose whole point happens across the body – a knee swinging left and right, a
+hop sideways, an elbow going out – has nothing to show from the side and
+everything to show face on, and half of what was once written down as
+undrawable was only ever drawn from the wrong side. Face on costs the other
+direction instead: a bone pointing at the reader is drawn as its shadow on the
+page, which is what `footLen`, `armLen`, `legLen` and `torsoLen` are. That is
+not the stretching the rig forbids – a limb swinging towards you really is
+shorter on the page – but it does have a floor, and the floor is why a burpee
+face on stops at the crouch: a chest going the last inches to the boards is
+four pixels.
+
 **Every drawing is at one scale**, so a person is the same size in all of them.
 Each `<svg>` carries its own width and height in pixels while its view box is
 in the units the poses are written in; the ratio between the two is that one
