@@ -122,18 +122,11 @@ stated wrongly flags good poses.
 Some movements have been tried and taken out again. They are listed so nobody
 works out the same thing twice.
 
-- **The clamshell** and anything else that turns out of the page. A pose here
-  is angles in one plane; a knee opening towards the viewer has nowhere to go.
-
-- **The gorilla row.** Bent over a bell in each hand, the hands, the bells and
-  the feet all end up within twenty units of each other, because that is where
-  they are. Full size it is a person; in a list row it is a yellow smudge with
-  a head.
-
-- **Anything that turns out of the page.** A Russian twist, a rotating hanging
-  knee raise, a Pallof press, a heel touch: the whole movement is the rotation,
-  and a pose here is angles in one plane. Drawn without it they are a person
-  sitting still.
+- **Anything that turns out of the page.** The clamshell, a Russian twist, a
+  rotating hanging knee raise, a Pallof press. A pose here is angles in one
+  plane, and in each of these the rotation is the whole movement: a knee
+  opening towards the viewer has nowhere to go, and drawn without it they are
+  a person sitting still.
 
 - **Anything lateral.** A burpee that goes sideways over a dumbbell, a lateral
   jump: the movement is towards the viewer, and the drawing is from the side.
@@ -143,3 +136,13 @@ works out the same thing twice.
   joint past shut.
 
 The answer in each case is no drawing, not a drawing of something else.
+
+Two came off this list, and both for the same reason: the first attempt had
+been at the wrong thing. The **gorilla row** was a yellow smudge because the
+stance was too narrow — standing wide with the hips high puts thirty units
+between the feet and the bells, which is enough. The **heel touch** cannot be
+drawn arriving, because a heel is eighty-odd units from a shoulder and an arm
+is forty-eight, and what makes a real one touch is the trunk tipping sideways.
+It can be drawn reaching, which is what it looks like anyway. The rule that
+survives is narrower than "the rig cannot draw it": draw the part of the
+movement that lies in the page, and only give up when that part is nothing.

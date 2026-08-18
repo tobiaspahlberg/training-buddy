@@ -14,7 +14,8 @@ const SHIPPED = ["mascot", "squat", "snatch", "pushup", "pullup", "boxjump", "bu
                  "kneeraise", "deadlift", "goblet", "situp", "row",
                  "goodmorning", "broadjump", "ballslam", "kneelslam", "hipthrust",
                  "revlunge", "ohlunge", "tricep", "ccrunch", "ski", "renegade",
-                 "devilpress", "boxover", "burpeebox", "burpeepull"];
+                 "devilpress", "boxover", "burpeebox", "burpeepull",
+                 "ostrich", "bowbend", "heeltouch", "gorilla", "plankknee"];
 
 if(process.argv.includes("--list")){
   console.log(SHIPPED.join(" "));

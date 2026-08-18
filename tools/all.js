@@ -439,25 +439,173 @@ const goblet = {
 };
 
 /* ===================== good morning =====================
-   A hinge with the hands behind the head, which is the bodyweight version and
-   the one this rig can hold: a bar across the back means the hands finish at
-   the shoulders, and an elbow shut that far is past what a joint does.
-   The hands are pinned to where the head goes, so they travel with it. */
+   A hinge with a barbell across the back, which is how it is nearly always
+   done. What you see of the bar from the side is the plate, as in the
+   deadlift, and it rides on the hands - which are pinned onto the bar, so it
+   sits where it belongs on the traps and travels with the shoulders.
+
+   The arms are the one liberty here. Hands on a bar behind the neck have the
+   upper arm hanging back and the forearm coming back up to it, which in this
+   one plane is an elbow bending the wrong way: the joint is only legal because
+   the whole arm is turned out to the side, and out to the side is the
+   direction a flat drawing has not got. Pinning the hands is what says so -
+   `page.js` leaves a pinned limb to the rig rather than checking it - and at
+   the size this is looked at, an elbow is four pixels. */
 const gm = { ankleAX: 100, ankleAY: 182, footA: 0, bendA: -1,
              ankleBX: 86, ankleBY: 184, footB: 0, bendB: -1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0,
-             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
+             armA: -1, armB: -1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
 const gmTall = P(gm, { hipX: 94, hipY: 122, torso: -90, head: -86,
-                       handAX: 86, handAY: 56, handBX: 82, handBY: 58 });
+                       handAX: 78, handAY: 84, handBX: 74, handBY: 86 });
 /* Hinged: the hips go back over the heels and the back stays flat, so the
-   torso comes down as one piece and the head leads it. */
+   torso comes down as one piece and the bar with it. */
 const gmOver = P(gm, { hipX: 76, hipY: 126, torso: -16, head: -8,
-                       handAX: 134, handAY: 114, handBX: 130, handBY: 116 });
+                       handAX: 108, handAY: 100, handBX: 104, handBY: 102 });
 
 const goodmorning = {
   ground: 190, dur: "3.4s", frames: 28,
+  carry: [{ what: "plate", at: "handB", cls: "load far-load" },
+          { what: "plate", at: "handA" }],
   keys: [{ t: 0, pose: gmTall }, { t: .38, pose: gmOver },
          { t: .50, pose: gmOver }, { t: 1, pose: gmTall }]
+};
+
+/* ===================== ostrich walk =====================
+   A short step forward and the whole trunk folded over the front foot with
+   both arms, legs straight: it is a hamstring stretch you walk with, so the
+   drawing alternates which foot is in front rather than travelling, the way
+   the walking lunge does. */
+const ow = { thighA: 0, shinA: 0, thighB: 0, shinB: 0, bendA: -1, bendB: -1,
+             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             footA: 0, footB: 0 };
+const owTall = P(ow, { hipX: 100, hipY: 122, torso: -90, head: -88,
+                       ankleAX: 108, ankleAY: 182, ankleBX: 94, ankleBY: 184,
+                       handAX: 96, handAY: 124, handBX: 92, handBY: 126 });
+const owNear = P(ow, { hipX: 100, hipY: 124, torso: -26, head: -14,
+                       ankleAX: 126, ankleAY: 182, ankleBX: 86, ankleBY: 184,
+                       handAX: 132, handAY: 152, handBX: 128, handBY: 154 });
+const owFar  = P(ow, { hipX: 100, hipY: 124, torso: -26, head: -14,
+                       ankleAX: 88, ankleAY: 182, ankleBX: 124, ankleBY: 184,
+                       handAX: 130, handAY: 154, handBX: 126, handBY: 156 });
+
+const ostrich = {
+  ground: 190, dur: "4.6s", frames: 38,
+  keys: [
+    { t: 0,   pose: owTall },
+    { t: .18, pose: owNear },
+    { t: .30, pose: owNear },
+    { t: .46, pose: owTall },
+    { t: .62, pose: owFar },
+    { t: .74, pose: owFar },
+    { t: 1,   pose: owTall }
+  ]
+};
+
+/* ===================== bow, bend, squat =====================
+   Three things one after another, which is why the name has commas in it: fold
+   down to the feet, stand and arch back with the arms overhead, then an
+   ordinary air squat. Drawn as three, with a pause at each, because it is
+   three. */
+const bbs = { ankleAX: 100, ankleAY: 190, footA: 0, bendA: -1,
+              ankleBX: 84, ankleBY: 190, footB: 0, bendB: -1,
+              thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+              armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0 };
+const bbsTall  = P(bbs, { hipX: 96, hipY: 126, torso: -92, head: -90,
+                          handAX: 92, handAY: 128, handBX: 88, handBY: 130 });
+const bbsBow   = P(bbs, { hipX: 80, hipY: 140, torso: -20, head: -4,
+                          handAX: 112, handAY: 172, handBX: 108, handBY: 174 });
+const bbsArch  = P(bbs, { hipX: 96, hipY: 124, torso: -98, head: -108,
+                          handAX: 78, handAY: 36, handBX: 74, handBY: 40 });
+const bbsSquat = P(bbs, { hipX: 78, hipY: 158, torso: -58, head: -52,
+                          handAX: 146, handAY: 112, handBX: 142, handBY: 114 });
+
+const bowbend = {
+  ground: 190, dur: "6s", frames: 46,
+  keys: [
+    { t: 0,   pose: bbsTall },
+    { t: .14, pose: bbsBow },
+    { t: .24, pose: bbsBow },
+    { t: .38, flow: true, pose: bbsTall },
+    { t: .46, pose: bbsArch },
+    { t: .56, pose: bbsArch },
+    { t: .68, flow: true, pose: bbsTall },
+    { t: .78, pose: bbsSquat },
+    { t: .86, pose: bbsSquat },
+    { t: 1,   pose: bbsTall }
+  ]
+};
+
+/* ===================== heel touch =====================
+   The sit-up's start, held, with the hands going down the sides by turns. From
+   the side they cannot arrive: a heel is eighty-odd units from a shoulder and
+   an arm is forty-eight, and the reason a real one touches is that the trunk
+   tips sideways - which is the one direction there is not. What is drawn is
+   the reaching, alternate and endless, which is what it looks like anyway. */
+const hl = { ankleAX: 140, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 130, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             hipX: 100, hipY: 174, torso: 195, head: 200 };
+const hlNear = P(hl, { handAX: 98, handAY: 180, handBX: 64, handBY: 140 });
+const hlFar  = P(hl, { handAX: 66, handAY: 142, handBX: 96, handBY: 182 });
+
+const heeltouch = {
+  ground: 190, dur: "3s", frames: 26,
+  keys: [{ t: 0, pose: hlNear }, { t: .30, pose: hlNear },
+         { t: .52, pose: hlFar }, { t: .80, pose: hlFar },
+         { t: 1, pose: hlNear }]
+};
+
+/* ===================== gorilla row =====================
+   This was in tools/README.md as one the rig could not draw, and it was: bent
+   over a bell in each hand, the hands, the bells and the feet all landed
+   within twenty units of each other and it came out a smudge with a head. What
+   was wrong was the stance. Standing wide with the hips high puts thirty units
+   between the feet and the bells, which is enough, and one bell comes to the
+   ribs while the other stays on the floor - the alternating is the movement. */
+const gr = { ankleAX: 108, ankleAY: 182, footA: 0, bendA: -1,
+             ankleBX: 68, ankleBY: 184, footB: 0, bendB: -1,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             armA: 1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             hipX: 84, hipY: 150, torso: -20, head: -6,
+             handBX: 140, handBY: 180 };
+const grDown = P(gr, { handAX: 146, handAY: 178 });
+const grPull = P(gr, { handAX: 112, handAY: 148 });
+
+const gorilla = {
+  ground: 190, dur: "3.4s", frames: 28,
+  carry: [{ what: "dumbbell", at: "handB", cls: "load far-load" },
+          { what: "dumbbell", at: "handA" }],
+  keys: [{ t: 0, pose: grDown }, { t: .38, pose: grPull },
+         { t: .52, pose: grPull }, { t: 1, pose: grDown }]
+};
+
+/* ===================== plank knee-to-elbow =====================
+   A plank with a knee driven forward to the elbow, and then the other. It goes
+   across the body in life, and across is towards you here, so what is drawn is
+   the half of it that lies in the page: the knee arriving. */
+const pk = { handAX: 180, handAY: 182, handBX: 188, handBY: 184, armA: 1, armB: 1,
+             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
+             bendA: -1, bendB: -1, footA: 115, footB: 115,
+             hipX: 133, hipY: 150, torso: -18, head: -22 };
+const pkFlat = P(pk, { ankleAX: 73, ankleAY: 174, ankleBX: 81, ankleBY: 178 });
+const pkNear = P(pk, { ankleAX: 152, ankleAY: 172, ankleBX: 81, ankleBY: 178,
+                       footA: 150 });
+const pkFar  = P(pk, { ankleAX: 73, ankleAY: 174, ankleBX: 146, ankleBY: 176,
+                       footB: 150 });
+
+const plankknee = {
+  dur: "4s", frames: 32,
+  keys: [
+    { t: 0,   pose: pkFlat },
+    { t: .16, pose: pkNear },
+    { t: .28, pose: pkNear },
+    { t: .44, flow: true, pose: pkFlat },
+    { t: .60, pose: pkFar },
+    { t: .72, pose: pkFar },
+    { t: 1,   pose: pkFlat }
+  ]
 };
 
 /* ===================== broad jump =====================
@@ -549,7 +697,7 @@ const htDown = P(ht, { hipX: 140, hipY: 182, torso: 213, head: 206 });
 const htTop  = P(ht, { hipX: 140, hipY: 157, torso: 184, head: 178 });
 
 const hipthrust = {
-  dur: "3.2s", frames: 26, props: bench, facing: -1,
+  dur: "3.2s", frames: 26, props: bench,
   include: [[40, 150], [116, 191]],
   keys: [{ t: 0, pose: htDown }, { t: .36, pose: htTop },
          { t: .52, pose: htTop }, { t: 1, pose: htDown }]
@@ -1236,7 +1384,12 @@ const ALL = [
   ["devilpress", "Devil&rsquo;s press", devilpress, "A burpee with two bells, and they finish overhead."],
   ["boxover", "Box jump over", boxover, "Over it, not onto it: nothing rests on the box."],
   ["burpeebox", "Burpee box jump", burpeebox, "The burpee, and the jump goes onto the box."],
-  ["burpeepull", "Burpee pull-up", burpeepull, "The burpee under a bar, and the jump goes onto it."]
+  ["burpeepull", "Burpee pull-up", burpeepull, "The burpee under a bar, and the jump goes onto it."],
+  ["ostrich", "Ostrich walk", ostrich, "A step, and the trunk folded over the front foot."],
+  ["bowbend", "Bow, bend, squat", bowbend, "Three things one after another, and the name says so."],
+  ["heeltouch", "Heel touch", heeltouch, "The reaching, which is what it looks like anyway."],
+  ["gorilla", "Gorilla row", gorilla, "Wide and high-hipped, which is what it needed."],
+  ["plankknee", "Plank knee-to-elbow", plankknee, "The half of it that lies in the page."]
 ];
 
 module.exports = { ALL, dressed, CSS };

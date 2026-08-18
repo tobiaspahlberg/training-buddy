@@ -8,7 +8,7 @@ const ok=(c,m)=>console.log((c?"  ok  ":"FAIL  ")+m);
 
 // ---- what is held, and where ----
 const held = [...d.querySelectorAll("#demos svg[data-demo]")];
-ok(held.length === 33, "the app carries " + held.length + " drawings: " +
+ok(held.length === 38, "the app carries " + held.length + " drawings: " +
    held.map(s => s.dataset.demo).join(", "));
 ok(held.some(s => s.dataset.demo === "mascot"),
    "one of which is not a movement: the figure beside the app's name, who is " +
@@ -80,9 +80,10 @@ ok(has("Air squat") && has("air squats") && has("20 bodyweight squats"),
    "a count, a capital and a plural are all the same movement");
 ok(key("50 goblet squats, kettlebell") === "goblet" && key("100 air squats") === "squat",
    "a goblet squat is a squat with a bell in it, and gets its own drawing");
-ok(!has("5 bow bend squats"), "a bow bend squat gets none, having never been drawn");
-ok(!has("Run 400 m") && !has("") && !has("50 heel touches") &&
-   !has("50 Russian twists, kettlebell"),
+ok(key("5 bow bend squats") === "bowbend",
+   "and a bow bend squat is three things one after another, drawn as three");
+ok(!has("Run 400 m") && !has("") && !has("50 Russian twists, kettlebell") &&
+   !has("10 rotating hanging knee raises"),
    "everything the app has not been drawn for gets nothing, which is honest - " +
    "a Russian twist turns out of the page and this rig draws one plane");
 
@@ -109,8 +110,9 @@ ok(key("100 knee raises") === "kneeraise",
 ok(key("50 renegade rows") === "renegade" && key("1000 m row") === "row",
    "and a row you do face down on two dumbbells is not the machine: two names, " +
    "two drawings");
-ok(!has("10 gorilla rows"),
-   "while a gorilla row gets neither, being a smudge with a head at this size");
+ok(key("10 gorilla rows") === "gorilla" && key("50 heel touches") === "heeltouch",
+   "and the two that had been given up on are drawn after all: the gorilla row " +
+   "wanted a wider stance, and a heel touch is the reaching rather than the arrival");
 
 // the near misses, which are the whole point of a table
 ok(key("50 push-ups") === "pushup" && key("50 push press") === "pushpress" &&
