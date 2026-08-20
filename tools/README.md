@@ -143,9 +143,15 @@ not whether the rig can hold it.
 
 - **The floor half of anything drawn face on.** A press-up or a burpee turned
   towards you is a body coming at you: the torso is drawn at a third and the
-  chest going the last inches to the boards is four pixels. `latburpee` stops
-  at the crouch and spends its time on the hop, which is what its name is
-  about. If the floor is the point, draw it from the side.
+  chest going the last inches to the boards is four pixels. The lateral burpee
+  was tried that way, for the sake of the sideways hop, and it was the wrong
+  trade — the burpee is most of the movement. It is drawn from the side, and
+  the sideways is said by putting the bell **between him and you**: on the
+  floor at his shins, painted over him because that is where it is. The hop is
+  straight up the page, because a jump towards the reader has nowhere else to
+  go, and nobody looking at a man mid-air over a dumbbell is in doubt which
+  line it is. When only part of a movement leaves the page, put the prop in the
+  part that stayed.
 
 The answer in each case is no drawing, not a drawing of something else — or,
 more often than it used to be, the same drawing from the other side.

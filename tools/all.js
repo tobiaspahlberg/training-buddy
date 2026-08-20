@@ -1076,10 +1076,15 @@ const stance = (ax, bx, y) => ({
 const post = '<rect class="kit-fill" x="14" y="46" width="10" height="140" rx="4"/>';
 const pf = Object.assign({ spread: 10, hipX: 100, hipY: 122, torso: -90, head: -90 },
                          stance(114, 86, 184));
-const pfIn  = P(pf, { upperA: 60, foreA: 192, upperB: 120, foreB: -12,
-                      armLenA: 1, armLenB: 1 });
-const pfOut = P(pf, { upperA: 130, foreA: 110, upperB: 50, foreB: 70,
-                      armLenA: .45, armLenB: .45 });
+/* Both arms do the same thing, which is the whole point of the movement: they
+   hang in and down from the shoulders and press straight at you together. An
+   elbow flared out to the side reads as one arm going backwards, and it was.
+   The press is drawn as the arms shortening, because that is what an arm
+   pointing at the reader does. */
+const pfIn  = P(pf, { upperA: 100, foreA: 135, upperB: 80, foreB: 45,
+                      armLenA: .8, armLenB: .8 });
+const pfOut = P(pf, { upperA: 100, foreA: 135, upperB: 80, foreB: 45,
+                      armLenA: .4, armLenB: .4 });
 
 const pallof = Object.assign({}, FRONT, {
   ground: 190, dur: "3.6s", frames: 30, props: post,
@@ -1094,14 +1099,20 @@ const pallof = Object.assign({}, FRONT, {
    that is all that happens. Here they also go left and right, so this one is
    face on and the swing is the whole of what it has to show. */
 const rk = { spread: 10, hipX: 100, hipY: 126, torso: -90, head: -90,
+             legLenA: 1, legLenB: 1,
              handAX: 118, handAY: 34, handBX: 82, handBY: 36, armA: 1, armB: -1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
              footA: 30, footLenA: 10, footB: 150, footLenB: 10 };
 const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
-/* Knees, not legs: the thigh swings to the side and the shin folds back under
-   him, or it is a hanging leg raise with a twist in it. */
-const rkLeft = P(rk, { thighA: -152, shinA: -18, thighB: -148, shinB: -22 });
-const rkRight = P(rk, { thighA: -28, shinA: -162, thighB: -32, shinB: -158 });
+/* The knees come up and *forward*, and forward is at you: the thigh is
+   therefore drawn at half, not swung out to its full length across the page,
+   which is what made it look as though he was pulling them back behind him.
+   The turn is what is left over - the short thigh points up and to one side,
+   and the shin hangs across under it. */
+const rkLeft  = P(rk, { legLenA: .5, legLenB: .5,
+                        thighA: -128, shinA: 168, thighB: -132, shinB: 164 });
+const rkRight = P(rk, { legLenA: .5, legLenB: .5,
+                        thighA: -52, shinA: 12, thighB: -48, shinB: 16 });
 
 const rotknee = Object.assign({}, FRONT, {
   dur: "4.4s", frames: 36, props: bar, include: [[34, 26], [158, 34]],
@@ -1148,53 +1159,40 @@ const latjump = Object.assign({}, FRONT, {
 });
 
 /* ===================== lateral burpee over a dumbbell =====================
-   Face on, because the hop over the bell is the whole reason this is not a
-   burpee, and it goes sideways. What it costs is the floor: a body lying with
-   its head towards you is forty units of torso drawn as twelve, and the legs
-   behind it are stubs. That is honest - it is what you would see - but it is
-   also not much, so the drawing spends its time on the two ends, the way the
-   name does. */
-const dbell = '<g class="load"><rect x="90" y="176" width="20" height="9" rx="3"/>' +
-              '<rect x="86" y="171" width="8" height="19" rx="2.5"/>' +
-              '<rect x="106" y="171" width="8" height="19" rx="2.5"/></g>';
-const lb = { spread: 10, torso: -90, head: -90,
-             footA: 22, footLenA: 10, footB: 158, footLenB: 10,
-             thighA: 0, shinA: 0, thighB: 0, shinB: 0,
-             bendA: 1, bendB: -1, armA: 1, armB: 1,
-             upperA: 0, foreA: 0, upperB: 0, foreB: 0,
-             armLenA: 1, armLenB: 1, legLenA: 1, legLenB: 1, torsoLen: 1 };
-const lbStand = P(lb, { hipX: 134, hipY: 122,
-                        ankleAX: 144, ankleAY: 184, ankleBX: 124, ankleBY: 186,
-                        handAX: 148, handAY: 124, handBX: 120, handBY: 126 });
-/* Down on the floor, and this is where the honesty has to be paid for. Face on
-   the floor half of a burpee is a man coming towards you: the torso is drawn
-   at half, the head comes down over his own hands, and the chest going the
-   last few inches to the boards is a movement of about four pixels. So the
-   drawing stops at the crouch and spends its time on the two ends - which is
-   also what the name does, since what makes this one not a burpee is the hop. */
-const lbDown  = P(lb, { hipX: 134, hipY: 158, torso: -84, torsoLen: .5, head: 80,
-                        ankleAX: 152, ankleAY: 186, ankleBX: 116, ankleBY: 188,
-                        handAX: 158, handAY: 180, handBX: 110, handBY: 182 });
-const lbHop   = P(lb, { hipX: 100, hipY: 96,
-                        ankleAX: 112, ankleAY: 150, ankleBX: 92, ankleBY: 154,
-                        handAX: 118, handAY: 74, handBX: 84, handBY: 76 });
-const lbOver  = P(lb, { hipX: 66, hipY: 122,
-                        ankleAX: 76, ankleAY: 184, ankleBX: 56, ankleBY: 186,
-                        handAX: 80, handAY: 124, handBX: 52, handBY: 126 });
+   Turned back to the side, and the drawing is better for it. Face on, the
+   floor half of a burpee is a man coming at you and there is almost nothing of
+   it to see; from the side it is the burpee this app already draws, exactly.
 
-const latburpee = Object.assign({}, FRONT, {
-  ground: 190, dur: "5s", frames: 40, props: dbell, include: [[86, 171], [114, 190]],
+   What the side costs is the sideways, and the answer is to put the bell
+   between him and you: it lies on the floor in front of his feet, painted over
+   him because that is where it is, and he goes up and over it towards you. The
+   hop itself is straight up on the page, because a jump towards the reader has
+   nowhere else to go - but nobody looking at a man mid-air with a dumbbell at
+   his shins is in any doubt which line this is. */
+/* Low enough that the plank passes over it: laid on the floor at his shins it
+   is in front of him, but at the bottom of a press-up he is in front of it and
+   the bell reads as lying on his back. */
+const bell = { bellX: 144, bellY: 187 };
+const lbStand = P(bpStand, bell);
+const lbDown  = P(bpDown, bell);
+const lbLow   = P(bpLow, bell);
+const lbJump  = P(bpJump, bell);
+
+const latburpee = {
+  ground: 190, dur: "4.6s", frames: 38,
+  carry: [{ what: "dumbbell", at: "bell" }],
   keys: [
     { t: 0,   pose: lbStand },
-    { t: .14, pose: lbDown },
-    { t: .30, pose: lbDown },
-    { t: .44, flow: true, pose: lbStand },
-    { t: .56, flow: true, pose: lbHop },
-    { t: .66, pose: lbOver },
-    { t: .86, pose: lbOver },
+    { t: .13, pose: lbDown },
+    { t: .28, pose: lbLow },
+    { t: .38, pose: lbLow },
+    { t: .52, pose: lbDown },
+    { t: .62, flow: true, pose: lbStand },
+    { t: .72, pose: lbJump },
+    { t: .84, pose: lbStand },
     { t: 1,   pose: lbStand }
   ]
-});
+};
 
 /* ===================== sumo deadlift high pull =====================
    Face on for a reason the side view spelled out the hard way: the finish is
