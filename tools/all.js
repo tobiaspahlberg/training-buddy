@@ -1053,7 +1053,12 @@ const burpeepull = {
    `face: "front"` - and what it costs is the other direction: anything that
    now points at you is drawn as its shadow, which is what `armLen` and the
    rest are for. */
-const FRONT = { face: "front" };
+/* Face on gets him the front of his own head - two eyes rather than a nose in
+   profile, which on a body squarely facing you reads as a person looking away
+   - and the same smile as the figure beside the app's name, who is drawn from
+   here too. It also gives the far leg its shorts: face on both legs are the
+   same cloth in the same light. */
+const FRONT = { face: "front", smile: true };
 /* Feet face on point at you as much as across, so they are short and turned
    out, the way the mascot's are. */
 const stance = (ax, bx, y) => ({
@@ -1076,13 +1081,13 @@ const pfIn  = P(pf, { upperA: 60, foreA: 192, upperB: 120, foreB: -12,
 const pfOut = P(pf, { upperA: 130, foreA: 110, upperB: 50, foreB: 70,
                       armLenA: .45, armLenB: .45 });
 
-const pallof = {
+const pallof = Object.assign({}, FRONT, {
   ground: 190, dur: "3.6s", frames: 30, props: post,
   include: [[14, 46], [24, 186]],
   tether: { at: [24, 104], to: "handA", w: 4 },
   keys: [{ t: 0, pose: pfIn }, { t: .36, pose: pfOut },
          { t: .54, pose: pfOut }, { t: 1, pose: pfIn }]
-};
+});
 
 /* ===================== rotating hanging knee raise =====================
    The plain one is drawn from the side, because there the knees come up and
@@ -1098,7 +1103,7 @@ const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
 const rkLeft = P(rk, { thighA: -152, shinA: -18, thighB: -148, shinB: -22 });
 const rkRight = P(rk, { thighA: -28, shinA: -162, thighB: -32, shinB: -158 });
 
-const rotknee = {
+const rotknee = Object.assign({}, FRONT, {
   dur: "4.4s", frames: 36, props: bar, include: [[34, 26], [158, 34]],
   keys: [
     { t: 0,   pose: rkHang },
@@ -1109,7 +1114,7 @@ const rotknee = {
     { t: .72, pose: rkRight },
     { t: 1,   pose: rkHang }
   ]
-};
+});
 
 /* ===================== lateral jump =====================
    Two feet over a line and back. Nothing in it happens front to back, which is
@@ -1129,7 +1134,7 @@ const ljAir   = P(lj, { hipX: 100, hipY: 104,
 const ljLeft  = P(lj, { hipX: 76, hipY: 122,
                         ankleAX: 88, ankleAY: 184, ankleBX: 66, ankleBY: 186 });
 
-const latjump = {
+const latjump = Object.assign({}, FRONT, {
   ground: 190, dur: "3s", frames: 26, props: line, include: [[92, 184], [108, 190]],
   keys: [
     { t: 0,   pose: ljRight },
@@ -1140,7 +1145,7 @@ const latjump = {
     { t: .80, pose: ljRight },
     { t: 1,   pose: ljRight }
   ]
-};
+});
 
 /* ===================== lateral burpee over a dumbbell =====================
    Face on, because the hop over the bell is the whole reason this is not a
@@ -1177,7 +1182,7 @@ const lbOver  = P(lb, { hipX: 66, hipY: 122,
                         ankleAX: 76, ankleAY: 184, ankleBX: 56, ankleBY: 186,
                         handAX: 80, handAY: 124, handBX: 52, handBY: 126 });
 
-const latburpee = {
+const latburpee = Object.assign({}, FRONT, {
   ground: 190, dur: "5s", frames: 40, props: dbell, include: [[86, 171], [114, 190]],
   keys: [
     { t: 0,   pose: lbStand },
@@ -1189,7 +1194,7 @@ const latburpee = {
     { t: .86, pose: lbOver },
     { t: 1,   pose: lbStand }
   ]
-};
+});
 
 /* ===================== sumo deadlift high pull =====================
    Face on for a reason the side view spelled out the hard way: the finish is
@@ -1198,27 +1203,35 @@ const latburpee = {
    the side is across the page here, so the shape the rig could not make is the
    easy one. The stance is the other half of the name and is across the page
    too. */
-const sm = { spread: 10, head: -88,
-             ankleAX: 136, ankleAY: 184, footA: 30, footLenA: 11, bendA: 1,
-             ankleBX: 64, ankleBY: 186, footB: 150, footLenB: 11, bendB: -1,
+/* Knees out over the toes, which is the whole of what "sumo" means and the
+   one thing a narrow-stance deadlift does not do. The bend signs are what
+   choose it: the knee goes to the side of the hip-to-ankle line that the sign
+   picks, and inwards is the other one. */
+const sm = { spread: 10, head: -90, torso: -90,
+             ankleAX: 136, ankleAY: 184, footA: 30, footLenA: 11, bendA: -1,
+             ankleBX: 64, ankleBY: 186, footB: 150, footLenB: 11, bendB: 1,
              thighA: 0, shinA: 0, thighB: 0, shinB: 0 };
-const smDown = P(sm, { hipX: 100, hipY: 152, torso: -80,
-                       upperA: 84, foreA: 88, upperB: 96, foreB: 92,
-                       barX: 100, barY: 174 });
+/* Folded over the bar. Face on that fold is the trunk pointing at you, so it
+   is not a tilt - a tilt face on is a lean sideways - but a shortening: the
+   torso is drawn at just over half, which brings the shoulders down to where
+   straight arms reach the floor. */
+const smDown = P(sm, { hipX: 100, hipY: 152, torsoLen: .62,
+                       upperA: 90, foreA: 90, upperB: 90, foreB: 90,
+                       barX: 100, barY: 172 });
 /* The bar finishes at the collarbone, which is as low as it can finish: with
    the elbow above the hand the arm has folded, and a folded arm puts the hand
    back at the height it started from. That is the movement, not a compromise -
    a high pull that came to the belly would be a deadlift. */
-const smPull = P(sm, { hipX: 100, hipY: 122, torso: -92,
+const smPull = P(sm, { hipX: 100, hipY: 122, torsoLen: 1,
                        upperA: -37, foreA: 146, upperB: 217, foreB: 34,
                        barX: 100, barY: 74 });
 
-const sumo = {
+const sumo = Object.assign({}, FRONT, {
   ground: 190, dur: "3.6s", frames: 30,
   carry: [{ what: "barbell", at: "bar" }],
   keys: [{ t: 0, pose: smDown }, { t: .40, pose: smPull },
          { t: .54, pose: smPull }, { t: 1, pose: smDown }]
-};
+});
 
 /* ===================== the mascot =====================
    Not a movement: the figure that stands beside the app's name. He is here
