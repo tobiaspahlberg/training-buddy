@@ -1068,51 +1068,70 @@ const stance = (ax, bx, y) => ({
 
 /* ===================== Pallof press =====================
    The movement is the not-turning: a band pulls from one side and the press
-   away from the chest is what it gets to pull against. Face on, the press
-   itself goes straight at you, so the arms are drawn as their shadow - full
-   length and folded wide at the chest, short and gathered in when they are
-   out. That is not a cheat about the bones; it is what an arm pointing at you
-   looks like. */
+   away from the chest is what it gets to pull against.
+
+   Face on, the press goes straight at you, and the hands therefore do not move
+   on the page at all - they start in front of the sternum and finish in front
+   of the sternum, further away. What moves is the elbows. Held in, they are
+   out at his sides where you can see them; pressed out, the arms point at you
+   and are drawn at half, which puts the elbow on the line between shoulder and
+   hand and takes it out of the picture. Elbows there, elbows gone: that is
+   what a press looks like from the front, and it is the only part of it that
+   is in the page. Drawn instead as the arms simply shrinking, it read as him
+   pulling them in, which is the movement backwards.
+
+   The hands are pinned rather than angled, so the band ends where they are.
+   From angles they wandered off behind his hip and the band stopped in mid-air
+   beside him. */
 const post = '<rect class="kit-fill" x="14" y="46" width="10" height="140" rx="4"/>';
-const pf = Object.assign({ spread: 10, hipX: 100, hipY: 122, torso: -90, head: -90 },
-                         stance(114, 86, 184));
-/* Both arms do the same thing, which is the whole point of the movement: they
-   hang in and down from the shoulders and press straight at you together. An
-   elbow flared out to the side reads as one arm going backwards, and it was.
-   The press is drawn as the arms shortening, because that is what an arm
-   pointing at the reader does. */
-const pfIn  = P(pf, { upperA: 100, foreA: 135, upperB: 80, foreB: 45,
-                      armLenA: .8, armLenB: .8 });
-const pfOut = P(pf, { upperA: 100, foreA: 135, upperB: 80, foreB: 45,
-                      armLenA: .4, armLenB: .4 });
+const pf = Object.assign({ spread: 10, hipX: 100, hipY: 118, torso: -90, head: -90,
+                           armA: -1, armB: 1, upperA: 0, foreA: 0, upperB: 0, foreB: 0,
+                           handAX: 103, handAY: 96, handBX: 97, handBY: 98 },
+                         stance(111, 89, 184));
+const pfIn  = P(pf, { armLenA: 1, armLenB: 1 });
+const pfOut = P(pf, { armLenA: .5, armLenB: .5 });
 
 const pallof = Object.assign({}, FRONT, {
   ground: 190, dur: "3.6s", frames: 30, props: post,
   include: [[14, 46], [24, 186]],
-  tether: { at: [24, 104], to: "handA", w: 4 },
+  tether: { at: [24, 98], to: "handA", w: 4 },
   keys: [{ t: 0, pose: pfIn }, { t: .36, pose: pfOut },
          { t: .54, pose: pfOut }, { t: 1, pose: pfIn }]
 });
 
 /* ===================== rotating hanging knee raise =====================
-   The plain one is drawn from the side, because there the knees come up and
-   that is all that happens. Here they also go left and right, so this one is
-   face on and the swing is the whole of what it has to show. */
-const rk = { spread: 10, hipX: 100, hipY: 126, torso: -90, head: -90,
-             legLenA: 1, legLenB: 1,
-             handAX: 118, handAY: 34, handBX: 82, handBY: 36, armA: 1, armB: -1,
+   Hanging, and then the knees come up in front and the whole lower body turns
+   with them. Three things had to be right before it read as that at all.
+
+   The arms hang **straight**. The bar is far enough above the shoulders that
+   there is nothing for the elbows to do; a hand pinned closer than the arm is
+   long makes a diamond over his head that reads as a shrug.
+
+   The knees come up **towards you**, so the thigh is nearly end on and drawn
+   at two fifths while the shin still hangs down the page at its full length.
+   That is why those two lengths are separate now: one number for the pair drew
+   the legs as a horizontal bar sticking out of his hip.
+
+   The turn is then what is left over. The knee moves a little to one side and
+   the foot below it a long way, because the foot is further from the axis it
+   is turning about. */
+const rk = { spread: 10, hipX: 100, hipY: 128, torso: -90, head: -90,
+             handAX: 118, handAY: 32, handBX: 82, handBY: 34, armA: 1, armB: -1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
-             footA: 30, footLenA: 10, footB: 150, footLenB: 10 };
+             footA: 30, footLenA: 10, footB: 150, footLenB: 10,
+             thighLenA: 1, thighLenB: 1, shinLenA: 1, shinLenB: 1 };
 const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
-/* The knees come up and *forward*, and forward is at you: the thigh is
-   therefore drawn at half, not swung out to its full length across the page,
-   which is what made it look as though he was pulling them back behind him.
-   The turn is what is left over - the short thigh points up and to one side,
-   and the shin hangs across under it. */
-const rkLeft  = P(rk, { legLenA: .5, legLenB: .5,
-                        thighA: -128, shinA: 168, thighB: -132, shinB: 164 });
-const rkRight = P(rk, { legLenA: .5, legLenB: .5,
-                        thighA: -52, shinA: 12, thighB: -48, shinB: 16 });
+/* Worked out rather than felt for. A thigh raised forty degrees and swung
+   twenty-five to one side projects up by 34·sin40 and across by 34·sin25 - a
+   vector 26 long, which is the .77, at about 123 degrees. So the knee lands
+   twenty-two above the hip and fourteen to the side, and the shin hangs from
+   it very nearly straight down at its true length, because it is straight
+   down. Knee up and foot below it, both moved the same way: that is a turn.
+   Guessing at the angles instead gave a knee at hip height and a foot flung
+   out sideways, which is a side-bend. */
+const tuck = o => P(rk, Object.assign({ thighLenA: .77, thighLenB: .77 }, o));
+const rkLeft  = tuck({ thighA: -123, shinA: 92, thighB: -127, shinB: 96 });
+const rkRight = tuck({ thighA: -57, shinA: 88, thighB: -53, shinB: 84 });
 
 const rotknee = Object.assign({}, FRONT, {
   dur: "4.4s", frames: 36, props: bar, include: [[34, 26], [158, 34]],

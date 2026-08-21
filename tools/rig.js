@@ -31,9 +31,12 @@ function skeleton(P, B){
   const L = Object.assign({}, BODY, B || {});
   const hip = { x: P.hipX, y: P.hipY };
   /* A bone that points out of the page is drawn as its shadow on it, which is
-     shorter. `armLenA/B`, `legLenA/B` and `torsoLen` are that shadow, as a
-     fraction of the true length, and they are the only lengths a pose may
-     touch. This is not the stretching the rig exists to prevent: a limb
+     shorter. `armLenA/B`, `thighLenA/B`, `shinLenA/B` and `torsoLen` are that
+     shadow, as a fraction of the true length, and they are the only lengths a
+     pose may touch. The thigh and the shin are separate because they are
+     rarely pointing the same way: a knee raised towards you has a thigh nearly
+     end on and a shin still hanging straight down the page at full length, and
+     one number for the pair drew that as a bar sticking out of his hip. This is not the stretching the rig exists to prevent: a limb
      swinging towards you really does grow shorter on the page, and a value
      that changes from pose to pose is the swing rather than a lie about the
      bone. Nothing side on asks for one, because side on nothing leaves the
@@ -93,9 +96,9 @@ function skeleton(P, B){
      from, so the pose says it. It is a number per drawing, not per frame: a
      foot that changed length as it moved would be the stretching this rig
      exists to prevent. */
-  const leg = (root, th, sh, ft, pin, bend, len, sc) => {
+  const leg = (root, th, sh, ft, pin, bend, len, scT, scS) => {
     const L2 = len === undefined ? L.foot : len;
-    const T = L.thigh * sc, S = L.shin * sc;
+    const T = L.thigh * scT, S = L.shin * scS;
     if(pin){
       const knee = reach(root, pin.x, pin.y, T, S, bend);
       return { knee: knee, ankle: pin, toe: step(pin, ft, L2) };
@@ -113,8 +116,10 @@ function skeleton(P, B){
                    foreshorten("armLenB"));
   const pinA = P.ankleAX === undefined ? null : { x: P.ankleAX, y: P.ankleAY };
   const pinB = P.ankleBX === undefined ? null : { x: P.ankleBX, y: P.ankleBY };
-  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA, P.footLenA, foreshorten("legLenA"));
-  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB, P.footLenB, foreshorten("legLenB"));
+  const nearLeg = leg(hipA, P.thighA, P.shinA, P.footA, pinA, P.bendA === undefined ? 1 : P.bendA, P.footLenA,
+                        foreshorten("thighLenA"), foreshorten("shinLenA"));
+  const farLeg  = leg(hipB, P.thighB, P.shinB, P.footB, pinB, P.bendB === undefined ? 1 : P.bendB, P.footLenB,
+                        foreshorten("thighLenB"), foreshorten("shinLenB"));
   return {
     hip: hip, shoulder: shoulder, neck: neck, head: head,
     hipA: hipA, hipB: hipB, shoulderA: shA, shoulderB: shB,
