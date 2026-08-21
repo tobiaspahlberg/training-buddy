@@ -63,8 +63,28 @@ w.openPlan("spark-rtr-phase1");
 const strCells = [...$("plan-weeks").querySelectorAll(".cell.str")];
 ok(strCells.length === 12, "two a week for six weeks: " + strCells.length);
 ok(strCells[0].textContent === "Str24 min",
-   "and the cell says how long it is, like every other day with a clock: " +
+   "and the cell says how long it is, being one session of a known length: " +
    strCells[0].textContent);
+
+/* An interval day cannot say that in two lines. It used to try - "6x" with the
+   session's total under it - and a multiplication sign with nothing after it,
+   sitting on top of a duration, is read as the product: six times forty-one
+   minutes. Three lines say what it is, how many, and how long each, and the
+   sum they now spell out is a true one. */
+const runCells = [...$("plan-weeks").querySelectorAll(".cell.run")];
+ok(runCells.length === 18, "eighteen interval days: " + runCells.length);
+ok(runCells[0].textContent === "Run6\u00d71 min",
+   "and one of them is named, counted and timed per interval: " + runCells[0].textContent);
+ok(runCells[9].textContent === "Run6\u00d73 min",
+   "week 4's Tuesday is six threes rather than six forty-ones: " + runCells[9].textContent);
+/* The point of the change, stated as a test: the number under the count is the
+   interval, not the session's length. In week 4 those are 3 and 41, and it was
+   41 that used to be there. */
+const totalOf = i => ev("Math.round(totalSec(planSession(findPlan('spark-rtr-phase1'), " +
+  "findPlan('spark-rtr-phase1').weeks[" + Math.floor(i / 3) + "], " + (i % 3) + ").blocks) / 60)");
+const showTotal = runCells.filter((c, i) => c.textContent.endsWith(totalOf(i) + " min"));
+ok(showTotal.length === 0,
+   "and not one of them puts the session's total there instead: " + showTotal.length);
 
 // tapping one opens the workout, not a line of text
 const tap = el => { el.dispatchEvent(new w.MouseEvent("pointerdown",{bubbles:true}));

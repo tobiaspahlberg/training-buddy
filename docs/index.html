@@ -2486,6 +2486,13 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.37.0",
+    "date": "2026-08-17",
+    "changes": [
+      "A run day in a plan\u2019s calendar says what it is, how many, and how long each: Run, 6\u00d7, 3 min. It used to say 6\u00d7 with the session\u2019s total under it, which reads as six times forty-one minutes \u2013 a \u00d7 with nothing after it and a duration underneath leaves the eye no other way to take it. The total is in the day itself, one tap away"
+    ]
+  },
+  {
     "version": "0.36.6",
     "date": "2026-08-17",
     "changes": [
@@ -3097,7 +3104,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.36.6";
+const APP_VERSION = "0.37.0";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -4755,8 +4762,20 @@ function planCell(plan, plaWeek, d){
   if(spec.rest)     return '<div class="cell off">Rest</div>';
   if(spec.race)     return '<div class="cell race' + state + '"' + data + "><b>5K</b><span>race</span></div>";
   if(spec.optional) return '<div class="cell opt' + state + '"' + data + "><b>Opt</b><span>walk</span></div>";
-  if(spec.reps)     return '<div class="cell run' + state + '"' + data + "><b>" + spec.reps +
-                             "×</b><span>" + mins + " min</span></div>";
+  /* Three lines for an interval day: what it is, how many, and how long each.
+     Two lines said "6×" and "41 min" under it, and a × with nothing after it
+     sitting on top of a duration is read as the product - six times forty-one
+     minutes - because that is the only reading in which the symbol means
+     anything. Now the multiplication is true: six times three minutes is what
+     he actually runs. What it costs is the total, which the day's own sheet
+     gives the moment it is opened. */
+  if(spec.reps){
+    const each = spec.runSec % 60
+      ? Math.floor(spec.runSec / 60) + ":" + String(spec.runSec % 60).padStart(2, "0")
+      : spec.runSec / 60 + " min";
+    return '<div class="cell run' + state + '"' + data + "><b>Run</b><span>" +
+             spec.reps + "×</span><span>" + each + "</span></div>";
+  }
   return '<div class="cell walk' + state + '"' + data + "><b>Walk</b><span>" + mins + " min</span></div>";
 }
 
