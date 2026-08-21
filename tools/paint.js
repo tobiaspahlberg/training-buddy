@@ -31,6 +31,11 @@ const PAINT = FAR.concat(NEAR);
 const OVER = [
   ["shoulderA", "elbowA", "skin", 11], ["elbowA", "handA", "skin", 10]
 ];
+/* Face on, the far arm comes forward with it. Side on it belongs behind the
+   body, because it is behind the body; face on it is beside the body and in
+   front of nothing, and painting it under the vest hides whatever it is doing
+   - which in a Pallof press is the whole movement. */
+const FARARM = ([a]) => a === "shoulderB" || a === "elbowB";
 
 /* Something held: a shape drawn about nothing, carried to a hand, and turned
    with it. Two nested groups, because one element can only be given one
@@ -155,10 +160,11 @@ function dressed(o){
     out += '<path class="vest" d="' + d(frames[0]) + '">' + anim("d", d) + "</path>";
   };
 
-  FAR.filter(drawn).forEach(paint);
+  const front = o.face === "front";
+  FAR.filter(drawn).filter(x => !(front && FARARM(x))).forEach(paint);
   (o.carry || []).filter(c => c.behind).forEach(held);
-  if(o.face === "front") torso();
-  NEAR.filter(drawn).filter(([, , cls]) => !(cls === "vest" && o.face === "front"))
+  if(front) torso();
+  NEAR.filter(drawn).filter(([, , cls]) => !(cls === "vest" && front))
     .forEach(paint);
 
   /* A tether: a line from a fixed point to something that moves, which is a
@@ -175,7 +181,6 @@ function dressed(o){
      head is. Written as offsets from the head's centre it is shorter than six
      separate animations of cx and cy, and it is the only way a mouth or a
      headband can be drawn at all: they are shapes, not points. */
-  const front = o.face === "front";
   const face = o.facing === -1 ? -1 : 1;
   const at = f => r(f.head.x) + " " + r(f.head.y);
   let head = '<circle class="hair" r="12" cx="' + (front ? 0 : -3 * face) + '" cy="-3"/>' +
@@ -193,6 +198,7 @@ function dressed(o){
     (anim("transform", at, "translate") ? "" : ' transform="translate(' + at(frames[0]) + ')"') +
     ">" + anim("transform", at, "translate") + head + "</g>";
 
+  if(front) FAR.filter(FARARM).forEach(paint);
   OVER.forEach(paint);
 
   (o.carry || []).filter(c => !c.behind).forEach(held);

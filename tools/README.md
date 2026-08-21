@@ -110,6 +110,11 @@ across `shoulderA`/`shoulderB` and across `hipA`/`hipB` – so the body cannot
 drift away from the limbs hanging off it, and a vest that ends at the hips ends
 where the shorts start.
 
+**Face on, both arms are painted in front of the body.** Side on the far arm
+belongs behind it, because it is behind it. Face on it is beside him and in
+front of nothing, and leaving it under the vest hides whatever it is doing —
+in a Pallof press that is the whole movement.
+
 **A class drawn here needs a rule in the app.** `paint.js` writes the CSS the
 workshop pages use, and `docs/index.html` has its own copy of the same rules;
 they are two lists of one set of class names and they drift silently, because

@@ -1118,17 +1118,17 @@ const pallof = Object.assign({}, FRONT, {
 const rk = { spread: 10, hipX: 100, hipY: 128, torso: -90, head: -90,
              handAX: 118, handAY: 32, handBX: 82, handBY: 34, armA: 1, armB: -1,
              upperA: 0, foreA: 0, upperB: 0, foreB: 0,
-             footA: 30, footLenA: 10, footB: 150, footLenB: 10,
+             footLenA: 10, footLenB: 10,
              thighLenA: 1, thighLenB: 1, shinLenA: 1, shinLenB: 1 };
-const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
+const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86,
+                       footA: 30, footB: 150 });
 /* Measured off a photograph, which is the only way this was ever going to come
-   out right. Three tries of arithmetic about a thigh raised towards you all
-   missed the same thing: in the real movement the knees do not come up in
-   front and then turn. They go up and *to the side* together, so the thigh
-   ends up close to horizontal - four fifths of its length, twenty degrees
-   above the horizon - with the knee bent square and the shin hanging straight
-   down off it. The knee lands level with the hip and a long way out, not
-   twenty above it and a little way out.
+   out right. Three tries of arithmetic all missed the same thing: in the real
+   movement the knees do not come up in front and then turn. They go up and *to
+   the side* together, so the thigh ends up close to horizontal - four fifths of
+   its length, twenty degrees above the horizon - with the knee bent square and
+   the shin hanging straight down off it. The knee lands level with the hip and
+   a long way out, not twenty above it and a little way out.
 
    And the trunk leans the other way, which is what the hips do the work of.
    Leaning the torso tilts the pelvis with it, because `across()` measures the
@@ -1136,20 +1136,28 @@ const rkHang = P(rk, { thighA: 92, shinA: 90, thighB: 88, shinB: 86 });
    which is what a body does and what the photograph shows. That tilt is most
    of what makes it read as a turn rather than a leg being lifted. */
 const tuck = o => P(rk, Object.assign({ thighLenA: .8, thighLenB: .8 }, o));
-const rkLeft  = tuck({ hipX: 104, torso: -82, head: -84,
-                       thighA: -160, shinA: 80, thighB: -164, shinB: 84 });
 const rkRight = tuck({ hipX: 96, torso: -98, head: -96,
-                       thighA: -20, shinA: 100, thighB: -16, shinB: 96 });
+                       thighA: -20, shinA: 100, thighB: -16, shinB: 96,
+                       footA: 30, footB: 150 });
+/* The other side is this one in a mirror and nothing else: 200 minus the hip,
+   180 minus every angle, the feet included - they were left pointing the same
+   way as each other and that was the half of it that looked wrong. The hands
+   are the one thing not mirrored, because a mirror would slide his grip along
+   the bar; which of the two legs is painted in front is not mirrored either,
+   and at this size nobody can tell. */
+const rkLeft  = tuck({ hipX: 104, torso: -82, head: -84,
+                       thighA: -160, shinA: 80, thighB: -164, shinB: 84,
+                       footA: 150, footB: 30 });
 
 const rotknee = Object.assign({}, FRONT, {
   dur: "4.4s", frames: 36, props: bar, include: [[34, 26], [158, 34]],
   keys: [
     { t: 0,   pose: rkHang },
-    { t: .18, pose: rkLeft },
-    { t: .30, pose: rkLeft },
+    { t: .18, pose: rkRight },
+    { t: .30, pose: rkRight },
     { t: .44, flow: true, pose: rkHang },
-    { t: .60, pose: rkRight },
-    { t: .72, pose: rkRight },
+    { t: .60, pose: rkLeft },
+    { t: .72, pose: rkLeft },
     { t: 1,   pose: rkHang }
   ]
 });
