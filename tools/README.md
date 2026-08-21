@@ -6,8 +6,9 @@ drawing is changed by editing a pose and running this again, never by editing
 the lists of positions by hand.
 
 ```bash
-node tools/page.js /tmp/all.html          # every drawing, to look at in a browser
-node tools/stills.js /tmp/s.html burpee   # one movement, pose by pose
+node tools/page.js /tmp/all.html            # every drawing, to look at in a browser
+node tools/stills.js /tmp/s.html burpee     # one movement, pose by pose
+node tools/frames.js /tmp/f.html rotknee    # one movement, frame by frame
 ```
 
 ```bash
@@ -74,6 +75,15 @@ the other way round.
   one that does not produce `NaN` between them. A burpee therefore pins its
   hands even while standing: a hand pinned where it would have hung anyway is
   the same drawing.
+
+- **An angle is only settled to within a whole turn**, and which way you write
+  it down decides the *road* rather than the destination. A thigh that ends
+  pointing left can be −160 or 200; from 92 hanging, the first sweeps it
+  forward through the far side and over the top, and the second swings it back
+  the way a leg goes. The poses are identical and the movement is not, so this
+  is invisible in `stills.js` and obvious in `frames.js`. It bites hardest
+  after mirroring, because 180 − *a* hands you one of the two and it is a coin
+  toss which.
 
 - **An elbow bends one way.** An arm angle is an absolute direction, but what
   the joint can do is the *difference*: with the figure facing right,

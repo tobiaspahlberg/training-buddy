@@ -1144,9 +1144,16 @@ const rkRight = tuck({ hipX: 96, torso: -98, head: -96,
    way as each other and that was the half of it that looked wrong. The hands
    are the one thing not mirrored, because a mirror would slide his grip along
    the bar; which of the two legs is painted in front is not mirrored either,
-   and at this size nobody can tell. */
+   and at this size nobody can tell.
+
+   The thighs are written as 200 and 196 rather than -160 and -164, which are
+   the same directions. An angle is only settled to within a whole turn, and
+   the difference between the two ways of writing it is which way round the
+   limb travels to get there: from 92 hanging, -160 sweeps the thigh forward
+   through the far side and over the top, and 200 swings it back the way it
+   should go. The pose was right and the road to it was the long way round. */
 const rkLeft  = tuck({ hipX: 104, torso: -82, head: -84,
-                       thighA: -160, shinA: 80, thighB: -164, shinB: 84,
+                       thighA: 200, shinA: 80, thighB: 196, shinB: 84,
                        footA: 150, footB: 30 });
 
 const rotknee = Object.assign({}, FRONT, {
