@@ -132,11 +132,14 @@ nearly end on and a shin still hanging straight down the page at full length.
 **Work the fraction out; do not feel for it.** A bone raised *a* degrees from
 horizontal and swung *b* degrees to the side projects up by sin *a* and across
 by sin *b*, both times its true length, and the drawn length is the length of
-that pair. A thigh raised forty and swung twenty-five is 26 of its 34, at 123
-degrees — which puts the knee twenty-two above the hip and fourteen to the
-side. Guessed at, the same knee came out level with the hip with the foot flung
-out sideways, which is a side-bend and not a knee raise, and it took three
-tries to see that, because it was three tries of guessing.
+that pair. A thigh raised twenty and swung sixty is 27 of its 34, at about 160
+degrees.
+
+The arithmetic is worth doing and it is not worth trusting on its own: what you
+put into it is a picture of the movement, and the picture is the part that is
+wrong. The same sum done on "the knees come up in front and then turn" gave a
+knee twenty-two above the hip with the foot below it — carefully, precisely,
+and of the wrong movement. See the top of this file.
 
 For the rest, the rough sizes: a foot turned about 45 degrees out is three
 quarters of one seen side on, a Pallof press with the arms straight at you is
