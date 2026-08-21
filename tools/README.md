@@ -118,10 +118,11 @@ that pair. A thigh raised forty and swung twenty-five is 26 of its 34, at 123
 degrees — which puts the knee twenty-two above the hip and fourteen to the
 side. Guessed at, the same knee came out level with the hip with the foot flung
 out sideways, which is a side-bend and not a knee raise, and it took three
-tries to see that because it was three tries of guessing. A foot turned about 45 degrees out is roughly three quarters of one
-seen side on; a Pallof press with the arms straight at you is under half; a
-body lying with its head towards you is about a third. There is no third
-dimension here to work any of that out from, so the pose says it.
+tries to see that, because it was three tries of guessing.
+
+For the rest, the rough sizes: a foot turned about 45 degrees out is three
+quarters of one seen side on, a Pallof press with the arms straight at you is
+under half, a body lying with its head towards you is about a third.
 
 This is not the stretching the rig exists to prevent, and it is worth being
 clear why. A bone whose *drawn* length changes while its direction in the page
