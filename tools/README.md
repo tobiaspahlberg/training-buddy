@@ -20,6 +20,24 @@ a drawing goes into the app when it has been looked at and approved, not when
 it renders. Nothing here is loaded by the app and nothing here is shipped: it
 is a workshop, not a build step.
 
+## Ask for a photograph
+
+Nothing here can go and look at the movement. Three passes at the rotating
+hanging knee raise came out wrong in three different ways, each of them
+arithmetic done carefully on a picture of the movement that was itself wrong —
+and no amount of care inside the workshop finds that, because the workshop only
+knows what it was told.
+
+**When a drawing keeps coming out wrong, stop adjusting it and ask for a still
+of the real thing**, then measure off it: the angle of the thigh against the
+horizon, whether the knee is above the hip or level with it, which way the
+trunk leans. The knee raise took one photograph and ten minutes after that. It
+is worth saying what the photograph settled, because none of it was guessable:
+the knees do not come up in front and then turn, they go up and to the side
+together, so the thigh finishes near horizontal with the shin hanging square
+off it — and the trunk leans the other way, which tilts the pelvis, which is
+most of what makes it read as a turn at all.
+
 ## Which way round
 
 A movement seen from the side is done **to the right** unless there is a reason
