@@ -1,13 +1,11 @@
 package se.trainingbuddy.app;
 
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
-import android.media.AudioManager;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
-
 import android.speech.tts.Voice;
 
 import com.getcapacitor.JSArray;
@@ -19,59 +17,36 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Set;
 
 /**
  * Spoken cues for the Android app.
  *
  * Android WebView does not implement the Web Speech API, so speechSynthesis
  * is simply missing inside the app even though it works in a browser. This
- * plugin exposes the platform TextToSpeech engine instead.
+ * plugin exposes the platform TextToSpeech engine instead (see Speaker).
  *
- * Speech is tagged as navigation guidance and takes transient audio focus,
- * which makes music duck for the cue and come back afterwards rather than
- * stopping.
+ * It also hands a running session's cues to WorkoutService. The WebView is
+ * frozen, and sometimes killed, once another app is in front, so cues spoken
+ * from the page's own clock simply stop; the service speaks them instead.
  */
 @CapacitorPlugin(name = "Speech")
 public class SpeechPlugin extends Plugin {
 
-    private TextToSpeech tts;
-    private boolean ready = false;
-    private AudioManager audioManager;
-    private AudioFocusRequest focusRequest;
-    private int speaking = 0;
+    /** Plugin calls arrive on a worker thread; the service lives on the main one. */
+    private final Handler main = new Handler(Looper.getMainLooper());
 
     @Override
     public void load() {
-        audioManager = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-
-        tts = new TextToSpeech(getContext(), status -> {
-            if (status != TextToSpeech.SUCCESS) return;
-
-            tts.setLanguage(Locale.UK);
-            tts.setSpeechRate(1.05f);
-            tts.setAudioAttributes(new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build());
-
-            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override public void onStart(String id) { }
-                @Override public void onDone(String id) { releaseFocus(); }
-                @Override public void onError(String id) { releaseFocus(); }
-            });
-
-            ready = true;
-        });
+        Speaker.get(getContext());   // start the engine now, so the first cue is not late
     }
 
     /** Reports whether the engine came up, so the web layer can fall back. */
     @PluginMethod
     public void available(PluginCall call) {
         JSObject res = new JSObject();
-        res.put("available", ready);
+        res.put("available", Speaker.get(getContext()).isReady());
         call.resolve(res);
     }
 
@@ -87,9 +62,10 @@ public class SpeechPlugin extends Plugin {
     @PluginMethod
     public void voices(PluginCall call) {
         JSArray list = new JSArray();
-        if (ready) {
-            try {
-                List<Voice> all = new ArrayList<>(tts.getVoices());
+        try {
+            Set<Voice> found = Speaker.get(getContext()).voices();
+            if (found != null) {
+                List<Voice> all = new ArrayList<>(found);
                 List<String> seen = new ArrayList<>();
                 Collections.sort(all, (a, b) -> a.getName().compareTo(b.getName()));
                 for (Voice v : all) {
@@ -107,10 +83,10 @@ public class SpeechPlugin extends Plugin {
                     o.put("quality", v.getQuality());
                     list.put(o);
                 }
-            } catch (Exception e) {
-                // Some engines refuse getVoices() outright; an empty list is
-                // the right answer, and the app keeps its default voice.
             }
+        } catch (Exception e) {
+            // Some engines refuse getVoices() outright; an empty list is
+            // the right answer, and the app keeps its default voice.
         }
         JSObject res = new JSObject();
         res.put("voices", list);
@@ -120,89 +96,72 @@ public class SpeechPlugin extends Plugin {
     /** Picks one of them by name. An empty name goes back to the default. */
     @PluginMethod
     public void setVoice(PluginCall call) {
-        String want = call.getString("name", "");
-        boolean done = false;
-        if (ready) {
-            if (want == null || want.isEmpty()) {
-                tts.setLanguage(Locale.UK);
-                done = true;
-            } else {
-                try {
-                    for (Voice v : tts.getVoices()) {
-                        if (v.getName().equals(want)) {
-                            done = tts.setVoice(v) == TextToSpeech.SUCCESS;
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    done = false;
-                }
-            }
-        }
         JSObject res = new JSObject();
-        res.put("ok", done);
+        res.put("ok", Speaker.get(getContext()).setVoice(call.getString("name", "")));
         call.resolve(res);
     }
 
     /**
-     * Speaks a cue. Cues queue behind each other so a countdown is not cut
-     * off by the step change that follows it.
+     * Speaks a cue. Cues queue behind each other; the web layer calls stop()
+     * first when it wants the newest one to cut in.
      */
     @PluginMethod
     public void speak(PluginCall call) {
-        String text = call.getString("text", "");
-        if (!ready || text == null || text.isEmpty()) { call.resolve(); return; }
-
-        takeFocus();
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "tb-" + System.nanoTime());
-        tts.speak(text, TextToSpeech.QUEUE_ADD, params);
-
+        Speaker.get(getContext()).say(call.getString("text", ""), false);
         call.resolve();
     }
 
     /** Drops anything queued, used when a session is stopped. */
     @PluginMethod
     public void stop(PluginCall call) {
-        if (ready) tts.stop();
-        speaking = 0;
-        releaseFocus();
+        Speaker.get(getContext()).stop();
         call.resolve();
     }
 
-    private void takeFocus() {
-        speaking++;
-        if (audioManager == null || speaking > 1) return;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                .setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build())
-                .build();
-            audioManager.requestAudioFocus(focusRequest);
-        } else {
-            audioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
-        }
+    /**
+     * Hands the service everything still to come in a running session, and
+     * starts it if it is not running yet. Sent again whenever the clock moves
+     * other than by itself: start, pause, resume, skip.
+     *
+     * { title, note, cues: [{ at: epoch ms, text, tones: [Hz...], note, finish }] }
+     * An empty list is a paused session: the notification stays, nothing is said.
+     */
+    @PluginMethod
+    public void workout(PluginCall call) {
+        String title = call.getString("title", "Workout");
+        String note = call.getString("note", "");
+        String cues = call.getArray("cues", new JSArray()).toString();
+        main.post(() -> {
+            try {
+                if (WorkoutService.instance != null) {
+                    WorkoutService.instance.apply(title, note, cues);
+                } else {
+                    Context ctx = getContext();
+                    Intent intent = new Intent(ctx, WorkoutService.class)
+                        .putExtra(WorkoutService.EXTRA_TITLE, title)
+                        .putExtra(WorkoutService.EXTRA_NOTE, note)
+                        .putExtra(WorkoutService.EXTRA_CUES, cues);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.startForegroundService(intent);
+                    else ctx.startService(intent);
+                }
+                call.resolve();
+            } catch (Exception e) {
+                call.reject("The workout service would not start: " + e.getMessage());
+            }
+        });
     }
 
-    private void releaseFocus() {
-        if (speaking > 0) speaking--;
-        if (speaking > 0 || audioManager == null) return;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (focusRequest != null) audioManager.abandonAudioFocusRequest(focusRequest);
-        } else {
-            audioManager.abandonAudioFocus(null);
-        }
-    }
-
-    @Override
-    protected void handleOnDestroy() {
-        if (tts != null) { tts.stop(); tts.shutdown(); }
-        releaseFocus();
+    /**
+     * The session is over. With finish, the finishing cue is played now if
+     * the service has not played it yet - the page and the service reach the
+     * end at almost the same moment, and it must be heard exactly once.
+     */
+    @PluginMethod
+    public void workoutEnd(PluginCall call) {
+        boolean finish = Boolean.TRUE.equals(call.getBoolean("finish", false));
+        main.post(() -> {
+            if (WorkoutService.instance != null) WorkoutService.instance.end(finish);
+            call.resolve();
+        });
     }
 }

@@ -26,6 +26,7 @@ node lead.js    # one of them, with its output in full
 | `wods`, `rehab`, `plan5k` | the built-in workouts and plans, against their sources |
 | `colour`, `size`, `sheet`, `kinds` | how things are drawn, and where a session opens from |
 | `voices`, `latevoice`, `note` | speech engines, the voice picker, the ongoing notification |
+| `service` | the Android workout service: the cue schedule it is handed, and the fallbacks |
 | `search`, `update`, `backup`, `editor` | search, the update check, backup and restore, the editor |
 | `cats`, `recent` | the categories and the old names they replace, and what is on home |
 | `demos` | the exercise drawings: which lines get one, and which must not |

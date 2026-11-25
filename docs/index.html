@@ -2486,6 +2486,14 @@
 <script type="application/json" id="changelog">
 [
   {
+    "version": "0.37.1",
+    "date": "2026-11-25",
+    "changes": [
+      "The spoken cues no longer stop when another app such as YouTube or Spotify is in front. Android was freezing the app in the background, so the clock went on but nothing was said, and opening it again found the workout behind Resume workout. In the app the cues now come from a background service that keeps talking whatever is on the screen; it also owns the notification while a session runs",
+      "If Android closes the app in the middle of a workout anyway, opening it again goes straight back into the workout instead of waiting on the Resume card"
+    ]
+  },
+  {
     "version": "0.37.0",
     "date": "2026-08-17",
     "changes": [
@@ -3104,7 +3112,7 @@
 
 /* Bump this on every change to this file, and add a matching changelog entry
    above. The cloud build reads it to tag the release. */
-const APP_VERSION = "0.37.0";
+const APP_VERSION = "0.37.1";
 
 /* =====================================================================
    BUILT-IN PLANS
@@ -5547,6 +5555,7 @@ function stepAt(t){
 function mainButton(){
   if(!session) return;
   unlockAudio();
+  const fresh = !session.startedAt;
   if(!session.startedAt){
     /* The clock starts in a moment, not now: the lead-in is simply a start
        time in the future. The first cue is not spoken here either way – the
@@ -5567,6 +5576,7 @@ function mainButton(){
   }
   persist();
   render();
+  svcSync(fresh);
 }
 
 function startTicker(){
@@ -5583,10 +5593,12 @@ function stopTicker(){
 }
 
 /* Paused is still a session in progress, so the notification stays; it is
-   only cleared when there is nothing to go back to. */
-function endSession(){
+   only cleared when there is nothing to go back to. Finishing tells the
+   service so, because the last cue must be heard exactly once. */
+function endSession(finishing){
   stopTicker();
   clearNote();
+  if(svcOn) TTS.workoutEnd({ finish: !!finishing }).catch(() => {});
 }
 
 let lastPersist = 0;
@@ -5599,7 +5611,7 @@ function tick(){
       const key = "lead:" + n;
       if(lead <= n && lead > n - 1 && !spokenCountdown[key]){
         spokenCountdown[key] = true;
-        speak(String(n));
+        if(!svcOn) speak(String(n));
       }
     }
     render();
@@ -5614,10 +5626,11 @@ function tick(){
   if(idx !== lastStepIdx){
     lastStepIdx = idx;
     const s = session.steps[idx];
-    beep(isWork(s.kind) ? 880 : 590);
-    speak(cueFor(idx));
-    showNote(session.name, s.text + " · " + fmt(s.sec) +
-      (s.reps ? "  ·  " + s.rep + " of " + s.reps : ""));
+    if(!svcOn){   // in the app, the service has already said it
+      beep(isWork(s.kind) ? 880 : 590);
+      speak(cueFor(idx));
+    }
+    showNote(session.name, stepNote(s));
     persist();
   }
 
@@ -5627,12 +5640,17 @@ function tick(){
     const key = idx + ":" + n;
     if(left <= n && left > n - 1 && !spokenCountdown[key] && idx < session.steps.length - 1){
       spokenCountdown[key] = true;
-      speak(String(n));
+      if(!svcOn) speak(String(n));
     }
   }
 
   if(Date.now() - lastPersist > 3000) persist();
   render();
+}
+
+/* What the ongoing notification says while a step runs. */
+function stepNote(s){
+  return s.text + " · " + fmt(s.sec) + (s.reps ? "  ·  " + s.rep + " of " + s.reps : "");
 }
 
 function cueFor(i){
@@ -5729,6 +5747,7 @@ function skipStep(){
   if(leadLeft(session) > 0){
     session.startedAt = Date.now() - session.pausedTotal;
     persist();
+    svcSync(true);
     tick();
     return;
   }
@@ -5738,11 +5757,12 @@ function skipStep(){
   const jump = (session.steps[idx].end - elapsed()) * 1000;
   session.startedAt -= jump;
   persist();
+  svcSync(true);
   tick();
 }
 
 function finish(){
-  endSession();
+  endSession(true);
   const done = session;
   const ran = duration();
   progress[done.id] = today();
@@ -5752,8 +5772,10 @@ function finish(){
   if(history.length > HISTORY_MAX) history.length = HISTORY_MAX;
   save(KEY_HISTORY, history);
   save(KEY_CURRENT, null);
-  beep(880); setTimeout(() => beep(1180), 260); setTimeout(() => beep(1480), 520);
-  speak("Workout complete. Well done.");
+  if(!svcOn){   // in the app, the service plays the finish
+    beep(880); setTimeout(() => beep(1180), 260); setTimeout(() => beep(1480), 520);
+    speak("Workout complete. Well done.");
+  }
   document.getElementById("done-name").textContent =
     (done.planName ? done.planName + " – " : "") + done.name;
   document.getElementById("done-stats").textContent =
@@ -5813,6 +5835,7 @@ function resumeSaved(){
      rebuilt from startedAt, so the elapsed time is still correct. */
   if(session.startedAt && !session.pausedAt) startTicker();
   render();
+  svcSync(true);
 }
 
 /* =====================================================================
@@ -6032,7 +6055,8 @@ function beep(freq){
 
 /* A near silent tone holds the audio session open so speech still comes
    through once the screen turns off. The Android app has a proper
-   foreground service for this; on the web this is the best available. */
+   foreground service for this (svcSync, below); on the web this is the
+   best available. */
 function keepAliveOn(){
   if(!audioCtx || keepAlive) return;
   try{
@@ -6060,10 +6084,10 @@ function keepAliveOff(){
    notification sits in the status bar for as long as the clock runs,
    says what step you are on, and opens the app when tapped.
 
-   It is scheduled rather than served by a foreground service, which is
-   the smaller change: the plugin is already in the project, and no new
-   Java or manifest entry is needed. It cannot be swiped away while the
-   session lasts, and it goes when the session does.
+   In the app this is only the fallback. While the workout service runs
+   (svcSync, below) the service owns the notification – same id, same
+   channel – and the plugin is left alone. It cannot be swiped away while
+   the session lasts, and it goes when the session does.
 
    The channel's id can never change once a phone has seen it, so it
    carries a version: a new one is needed if the sound or importance
@@ -6094,7 +6118,7 @@ function readyNotes(){
 }
 
 function showNote(title, body){
-  if(!NOTES) return;
+  if(!NOTES || svcOn) return;
   const key = title + "|" + body;
   if(key === noteShowing) return;      /* the same words are already up */
   noteShowing = key;
@@ -6116,8 +6140,73 @@ function showNote(title, body){
 
 function clearNote(){
   noteShowing = "";
-  if(!NOTES) return;
+  if(!NOTES || svcOn) return;
   NOTES.cancel({ notifications: [{ id: NOTE_ID }] }).catch(() => {});
+}
+
+/* =====================================================================
+   THE WORKOUT SERVICE (Android app only)
+
+   The cues used to be spoken from tick(), which runs in the WebView. Android
+   freezes the WebView – or kills the whole app – once something else such
+   as YouTube has the screen, and the cues stopped mid-session. The clock
+   itself was never wrong, since it is rebuilt from timestamps; it was only
+   silent, and opening the app again found it behind "Resume workout".
+
+   So in the app, every cue still to come is handed to a native foreground
+   service with its time of day, and the service says it when the moment
+   arrives, whatever the WebView is doing. The page still owns the session:
+   it sends the whole schedule again whenever the clock moves other than by
+   itself – start, pause, resume, skip, resume after a kill – and tick()
+   stays quiet. A paused session sends no cues, only the notification.
+
+   If the plugin has no workout() (an older APK) or the service will not
+   start, svcOn goes false and everything falls back to tick() and the
+   scheduled notification, exactly as before.
+   ===================================================================== */
+
+let svcOn = !!(TTS && TTS.workout && TTS.workoutEnd);
+
+function svcSync(announce){
+  if(!svcOn || !session || !session.startedAt) return;
+  const steps = session.steps;
+  const now = Date.now();
+  const zero = session.startedAt + session.pausedTotal;   // time of day at elapsed 0
+  const lead = leadLeft(session);
+  const idx = stepAt(elapsed());
+  if(idx >= steps.length) return;   // already over: tick() finishes it
+
+  const cues = [];
+  if(!session.pausedAt){
+    for(const n of [3, 2, 1]){
+      const at = zero - n * 1000;
+      if(at > now - 500) cues.push({ at: at, text: String(n) });
+    }
+    steps.forEach((s, i) => {
+      const start = zero + (s.end - s.sec) * 1000;
+      const cue = { at: start, text: saidAs(cueFor(i)),
+                    tones: [isWork(s.kind) ? 880 : 590], note: stepNote(s) };
+      /* The step already on is said only when it has just begun (Start,
+         skip) or the app is coming back after being killed – not on a
+         resume from pause, which never announced it again either. */
+      if(i > idx || (i === idx && (lead > 0 || announce))){
+        cue.at = Math.max(cue.at, now);
+        cues.push(cue);
+      }
+      if(i < steps.length - 1) for(const n of [3, 2, 1]){
+        const at = zero + (s.end - n) * 1000;
+        if(at > now) cues.push({ at: at, text: String(n) });
+      }
+    });
+    cues.push({ at: zero + duration() * 1000, text: "Workout complete. Well done.",
+                tones: [880, 1180, 1480], finish: true });
+    cues.sort((a, b) => a.at - b.at);
+  }
+
+  const note = session.pausedAt ? "Paused" : (lead > 0 ? "Get ready" : stepNote(steps[idx]));
+  readyNotes();   // asks once for permission to show it, on Android 13 and later
+  TTS.workout({ title: session.name, note: note, cues: cues })
+    .catch(() => { svcOn = false; if(isRunning()) lastStepIdx = -1; });
 }
 
 /* =====================================================================
@@ -6880,6 +6969,12 @@ renderKit();
 renderChangelog();
 renderHome();
 loadVoices();
+/* Android killed the app in the middle of a workout: go straight back into
+   it, so the cues start again, rather than waiting behind the Resume card. */
+(function(){
+  const saved = load(KEY_CURRENT, null);
+  if(NATIVE && saved && !saved.finished && saved.startedAt && !saved.pausedAt) resumeSaved();
+})();
 /* Asked on every start, answered whenever it likes; the screen redraws if the
    answer turns out to be interesting. */
 checkUpdate(false, CHECK_START);

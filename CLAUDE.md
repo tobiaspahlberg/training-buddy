@@ -376,13 +376,33 @@ the flag gets 1.
 **Native code only runs in the app.** Anything touching Capacitor sits behind
 a native check so the web version keeps working unchanged.
 
-**A running session posts an ongoing notification** through
-`@capacitor/local-notifications`, so there is a way back to the clock from
-wherever the phone has wandered. It is scheduled, not served by a foreground
-service: the plugin was already in the project and needs no manifest entry of
-its own. It follows the step, never stacks (one id, replaced), survives a
-pause and goes when the session does. Naming a `smallIcon` the app does not
-have would leave it blank, so none is named.
+**In the app, the cues of a running session come from a foreground
+service, not from `tick()`.** Android freezes the WebView – or kills the app –
+once YouTube or anything else has the screen, and cues spoken from the page
+went silent mid-session while the clock carried on. `svcSync()` hands
+`WorkoutService` every cue still to come with its time of day (through
+`Speech.workout()`), and the service says them – tones included – holding a
+partial wake lock until the last one. The page still owns the session: it
+resends the whole schedule whenever the clock moves other than by itself
+(start, pause, resume, skip, coming back after a kill), and `tick()` stays
+quiet while `svcOn` is true. `endSession(true)` tells the service it is a
+finish, so the last cue is heard exactly once whichever of the two gets there
+first. `Speaker.java` is the one TTS engine, shared by the plugin and the
+service, so the chosen voice applies to both. If the plugin has no
+`workout()` or the service will not start, `svcOn` goes false and everything
+falls back to the page. `tests/service.js` holds onto all of this.
+
+**A running session shows an ongoing notification**, so there is a way back to
+the clock from wherever the phone has wandered. In the app the service owns it
+(it has to: a foreground service must show one). The page's own
+`@capacitor/local-notifications` version is the fallback for when the service
+is not there, on the same id and channel. It follows the step, never stacks,
+survives a pause and goes when the session does.
+
+**A running session that Android killed resumes by itself** when the app is
+opened again, rather than waiting behind the Resume card – the cues only start
+again once the page is back to hand the service its schedule. A paused one
+still waits on home.
 
 ## Common commands
 
